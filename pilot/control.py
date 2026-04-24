@@ -1,14 +1,17 @@
 """
 control.py — Controle du vehicule.
 
-Politique PID baseline (proportionnelle pure sur lidar) + hooks pour
-brancher un CNN de conduite (Sprint 2+). Signature commune :
+Politique PID baseline (proportionnelle pure sur lidar) + CNN behavioral
+cloning (Sprint 3). Signature commune :
     steering, throttle, brake = policy(lidar, speed, mask=None)
 
-Le PID est utilise seul en Sprint 1 (D9 : fonctionnel avant ML) puis reste
-comme backup quand le CNN deraille (D3).
+- Le PID (`pid_policy`) sert de baseline et de backup si le CNN deraille.
+- Le CNN (`cnn_policy`) prend (mask 64x64, lidar 5) et predit
+  (steering, throttle). L'image brute n'est pas utilisee -> modularite +
+  generalisation (D4 du wiki).
 """
 
+from pathlib import Path
 from typing import Optional
 import numpy as np
 
@@ -97,16 +100,62 @@ def pid_policy(
     return steering, throttle, 0.0
 
 
-# --- Hook CNN (a brancher Sprint 3) ---------------------------------------
+# --- CNN conduite (behavioral cloning, Sprint 3) --------------------------
+
+# Normalisation cote training : steering stocke en degres [-45, +45] -> [-1, 1],
+# throttle deja en [0, 1], lidar en pixels 0-300 -> [0, 1] via division 300.
+STEER_MAX_DEG = 45.0
+LIDAR_MAX_PX = 300.0
+
+# Lazy import de torch : ne plante pas si seul le PID est utilise.
+_cnn_model = None
+_cnn_device = None
+
+
+def _load_cnn(weights_path: Optional[str] = None):
+    """Charge le modele CNN (lazy). Utilise models/cnn_drive.pth par defaut."""
+    global _cnn_model, _cnn_device
+    if _cnn_model is not None:
+        return
+    import torch
+    from pilot.cnn_drive_arch import DriveCNN  # archi partagee avec le notebook
+
+    if weights_path is None:
+        weights_path = str(Path(__file__).resolve().parent.parent / "models" / "cnn_drive.pth")
+    _cnn_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    _cnn_model = DriveCNN().to(_cnn_device)
+    _cnn_model.load_state_dict(torch.load(weights_path, map_location=_cnn_device))
+    _cnn_model.eval()
+
 
 def cnn_policy(
-    lidar: list[float],
-    speed: float,
-    mask: np.ndarray,
+    lidar: list[float], speed: float, mask: np.ndarray,
+    weights_path: Optional[str] = None,
 ) -> tuple[float, float, float]:
-    """Placeholder pour le CNN de conduite (behavioral cloning).
+    """Inference CNN : (masque U-Net 64x64, lidar 5) -> (steering, throttle, brake).
 
-    Sera implemente en Sprint 3 une fois le dataset collecte. Meme signature
-    que pid_policy pour pouvoir swap les deux sans toucher la boucle pilote.
+    Args:
+        lidar : 5 distances (meme ordre que pid_policy).
+        speed : vitesse km/h (pas utilisee par le CNN actuel mais gardee
+                pour compat d'API et usage futur).
+        mask  : masque binaire 64x64 (float ou uint8) issu de U-Net ou GT.
+        weights_path : chemin vers cnn_drive.pth. None = defaut.
+
+    Returns:
+        (steering deg, throttle [0,1], brake [0,1])
     """
-    raise NotImplementedError("CNN conduite : Sprint 3 (cf. wiki/projets/autonomous-twin-ml.md)")
+    import torch
+    _load_cnn(weights_path)
+    m = np.asarray(mask, dtype=np.float32)
+    if m.ndim == 3:
+        m = m.squeeze()
+    if m.max() > 1.0:
+        m = m / 255.0
+    lid = np.asarray(lidar, dtype=np.float32) / LIDAR_MAX_PX
+    mask_t = torch.from_numpy(m).unsqueeze(0).unsqueeze(0).to(_cnn_device)  # (1,1,64,64)
+    lidar_t = torch.from_numpy(lid).unsqueeze(0).to(_cnn_device)             # (1, 5)
+    with torch.no_grad():
+        steer_norm, throttle = _cnn_model(mask_t, lidar_t).cpu().numpy().squeeze()
+    steering = float(np.clip(steer_norm, -1.0, 1.0) * STEER_MAX_DEG)
+    throttle = float(np.clip(throttle, 0.0, 1.0))
+    return steering, throttle, 0.0

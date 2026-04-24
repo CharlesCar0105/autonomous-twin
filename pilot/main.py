@@ -26,8 +26,9 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from pilot.network import PilotClient
-from pilot.control import pid_policy
+from pilot.control import pid_policy, cnn_policy
 from pilot.emergency import check_emergency_brake, get_emergency_commands
+from pilot.perception import compute_mask
 
 
 RECORDS_DIR = os.path.join(
@@ -54,8 +55,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Pilote IA — Autonomous Twin")
     parser.add_argument("--address", default="tcp://localhost:5555",
                         help="Adresse du serveur ZMQ du simulateur.")
-    parser.add_argument("--policy", choices=["pid", "none"], default="pid",
+    parser.add_argument("--policy", choices=["pid", "cnn", "none"], default="pid",
                         help="Politique de conduite. 'none' = voiture passive (tests).")
+    parser.add_argument("--cnn-weights", default=None,
+                        help="Path du .pth du CNN conduite (utile si --policy cnn).")
     parser.add_argument("--record", metavar="SESSION", default=None,
                         help="Active le dump dataset dans data/records/SESSION/.")
     parser.add_argument("--speed-target", type=float, default=80.0,
@@ -88,6 +91,12 @@ def main() -> None:
             if args.policy == "pid":
                 steering, throttle, brake = pid_policy(
                     lidar, speed, speed_target=args.speed_target
+                )
+                commands = {"steering": steering, "throttle": throttle, "brake": brake}
+            elif args.policy == "cnn":
+                mask = compute_mask(sensors["camera"], size=64)
+                steering, throttle, brake = cnn_policy(
+                    lidar, speed, mask, weights_path=args.cnn_weights
                 )
                 commands = {"steering": steering, "throttle": throttle, "brake": brake}
             else:  # "none"
