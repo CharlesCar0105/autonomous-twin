@@ -238,3 +238,4 @@ mlruns/
 # Fichiers temporaires du simulateur
 *.bmp
 *.tmp
+.gitnexus

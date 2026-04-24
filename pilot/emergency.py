@@ -10,7 +10,12 @@ Responsabilités :
 
 # --- Constantes -----------------------------------------------------------
 
-EMERGENCY_DISTANCE = 50.0  # distance seuil en pixels (à calibrer)
+# Seuil en pixels. Desactive en pratique pour Sprint 1 (valeur tres basse) :
+# le freinage d'urgence est concu pour le MUR qui apparait (touche Espace
+# cote simu, pas encore implemente). Il ne doit PAS se declencher juste
+# parce qu'un rayon voit une bordure de piste en virage serre -- dans ce
+# cas c'est au PID de gerer le steering. Relever quand le mur sera en place.
+EMERGENCY_DISTANCE = 10.0
 
 
 def check_emergency_brake(lidar: list[float]) -> bool:

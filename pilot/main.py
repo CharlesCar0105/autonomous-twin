@@ -60,6 +60,10 @@ def main() -> None:
                         help="Active le dump dataset dans data/records/SESSION/.")
     parser.add_argument("--speed-target", type=float, default=80.0,
                         help="Vitesse cible (km/h) pour le PID.")
+    parser.add_argument("--no-emergency", action="store_true",
+                        help="Desactive le freinage d'urgence (utile tant que "
+                             "le mur dynamique n'est pas cote simu : evite les "
+                             "blocages quand la voiture frole une bordure en virage).")
     args = parser.parse_args()
 
     session_dir = None
@@ -80,15 +84,20 @@ def main() -> None:
             lidar = sensors["lidar"]
             speed = sensors["speed"]
 
-            if check_emergency_brake(lidar):
-                commands = get_emergency_commands()
-            elif args.policy == "pid":
+            # Commandes de base selon la politique
+            if args.policy == "pid":
                 steering, throttle, brake = pid_policy(
                     lidar, speed, speed_target=args.speed_target
                 )
                 commands = {"steering": steering, "throttle": throttle, "brake": brake}
             else:  # "none"
                 commands = {"steering": 0.0, "throttle": 0.0, "brake": 0.0}
+
+            # Emergency : coupe le throttle et freine, mais garde le steering
+            # du PID pour que la voiture puisse fuir la bordure proche.
+            if not args.no_emergency and check_emergency_brake(lidar):
+                commands["throttle"] = 0.0
+                commands["brake"] = 1.0
 
             client.send_commands(**commands)
 

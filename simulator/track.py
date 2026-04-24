@@ -58,16 +58,68 @@ class Track:
         self._adjust_start_position()
 
     def _adjust_start_position(self) -> None:
-        """Cherche un pixel blanc (route) autour de la position de départ."""
-        for dy in range(-50, 51, 5):
-            for dx in range(-80, 81, 10):
+        """Place la voiture au *centre* de la ligne droite du bas du circuit.
+
+        On scanne uniquement une fine bande horizontale autour de la position
+        theorique (screen_h * 0.86), pour ne pas tomber dans les zones
+        fermees du centre du circuit (boucles internes). Score = distance
+        minimale aux bords haut et bas -> position la plus centree dans la
+        piste.
+        """
+        best = None
+        best_score = -1
+        # Recherche large verticalement (la piste peut etre haut ou bas) ;
+        # le filtre de largeur dans _track_centering_score se charge de
+        # rejeter les zones trop larges (exterieur) ou trop etroites.
+        for dy in range(-200, 151, 4):
+            for dx in range(-500, 501, 10):
                 tx = self.start_x + dx
                 ty = self.start_y + dy
-                if 0 <= tx < self.width and 0 <= ty < self.height:
-                    if self.is_on_road(tx, ty):
-                        self.start_x = tx
-                        self.start_y = ty
-                        return
+                if not (0 <= tx < self.width and 0 <= ty < self.height):
+                    continue
+                score = self._track_centering_score(tx, ty)
+                if score > best_score:
+                    best = (tx, ty)
+                    best_score = score
+        if best is not None:
+            self.start_x, self.start_y = best
+
+    # Largeur de piste attendue (pixels) : une piste de course fait ~40-80 px.
+    # En dehors de cette fenetre c'est l'exterieur (herbe) ou une boucle
+    # interne non pilotable.
+    TRACK_MIN_WIDTH = 30
+    TRACK_MAX_WIDTH = 100
+
+    def _track_centering_score(self, x: int, y: int, max_scan: int = 200) -> int:
+        """Score -1 si (x,y) n'est pas dans un *couloir de piste* (largeur
+        verticale dans la fenetre attendue), sinon min(up, down) : plus le
+        pixel est centre et la piste est large, plus le score est eleve.
+
+        L'idee : scanner le haut et le bas jusqu'aux premieres bordures
+        noires, mesurer la largeur totale (up + down). Si cette largeur
+        est hors de la plage piste attendue, on rejette (zone exterieure
+        ou zone interne fermee).
+        """
+        if not self.is_on_road(x, y):
+            return -1
+        up = 0
+        for d in range(1, max_scan + 1):
+            if y - d < 0 or self.is_border(x, y - d):
+                up = d
+                break
+        if up == 0:
+            return -1
+        down = 0
+        for d in range(1, max_scan + 1):
+            if y + d >= self.height or self.is_border(x, y + d):
+                down = d
+                break
+        if down == 0:
+            return -1
+        width = up + down
+        if width < self.TRACK_MIN_WIDTH or width > self.TRACK_MAX_WIDTH:
+            return -1
+        return min(up, down)
 
     def get_pixel(self, x: int, y: int) -> tuple[int, int, int]:
         """

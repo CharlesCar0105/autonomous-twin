@@ -15,6 +15,7 @@ import pygame
 import sys
 import os
 import math
+import argparse
 
 # Ajouter la racine du projet au path pour les imports absolus
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -23,6 +24,7 @@ from simulator.track import Track
 from simulator.car import Car
 from simulator import physics
 from simulator import sensors
+from simulator.network import SimulatorServer
 import numpy as np
 
 
@@ -141,6 +143,19 @@ def draw_lidar(screen, car, lidar_distances):
 
 def main() -> None:
     """Point d'entrée du simulateur."""
+    parser = argparse.ArgumentParser(description="Simulateur — Autonomous Twin")
+    parser.add_argument("--server", action="store_true",
+                        help="Active le serveur ZMQ : les commandes viennent du pilote IA.")
+    parser.add_argument("--address", default="tcp://*:5555",
+                        help="Adresse de bind du serveur ZMQ.")
+    parser.add_argument("--circuit", default="circuit_01",
+                        help="Nom du circuit a charger (fichier PNG dans assets/tracks/).")
+    parser.add_argument("--start-pos", nargs=3, type=float, metavar=("X", "Y", "ANGLE_DEG"),
+                        default=None,
+                        help="Force la position/angle de depart (en pixels, degres). "
+                             "Bypass la detection auto. Ex: --start-pos 640 615 0")
+    args = parser.parse_args()
+
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption(WINDOW_TITLE)
@@ -151,7 +166,7 @@ def main() -> None:
 
     # --- Chargement du circuit ---
     try:
-        track = Track("circuit_01", SCREEN_WIDTH, SCREEN_HEIGHT)
+        track = Track(args.circuit, SCREEN_WIDTH, SCREEN_HEIGHT)
     except FileNotFoundError as e:
         print(f"\n{'=' * 60}")
         print(f"ERREUR : {e}")
@@ -160,7 +175,12 @@ def main() -> None:
         sys.exit(1)
 
     # --- Création de la voiture ---
-    car = Car(track.start_x, track.start_y, track.start_angle)
+    if args.start_pos is not None:
+        sx, sy, sa = args.start_pos
+        print(f"[Simulateur] Start pos force par CLI : ({sx:.0f}, {sy:.0f}) angle={sa:.1f} deg")
+        car = Car(sx, sy, sa)
+    else:
+        car = Car(track.start_x, track.start_y, track.start_angle)
 
     # --- État ---
     show_lidar = False
@@ -168,7 +188,12 @@ def main() -> None:
     show_camera = False
     font_sm = pygame.font.SysFont("Consolas", 12)
 
+    # --- Serveur ZMQ (mode pilote IA) ---
+    server = SimulatorServer(args.address) if args.server else None
+
     print(f"[Simulateur] Circuit charge. Voiture en ({car.x:.0f}, {car.y:.0f})")
+    mode = "PILOTE IA (ZMQ)" if args.server else "CLAVIER"
+    print(f"[Simulateur] Mode : {mode}")
     print(f"[Simulateur] Fleches=Conduire | R=Reset | L=Lidar | Echap=Quitter")
 
     running = True
@@ -201,27 +226,40 @@ def main() -> None:
                     car.reset(mx, my, math.degrees(car.angle))
                     print(f"[Simulateur] Voiture repositionnee en ({mx}, {my})")
 
-        # ── Contrôles clavier (continu) ───────────────────────────────
-        keys = pygame.key.get_pressed()
-
-        # Gaz / Frein
-        car.throttle = 1.0 if keys[pygame.K_UP] else 0.0
-        car.brake = 1.0 if keys[pygame.K_DOWN] else 0.0
-
-        # Direction (progressive avec retour au centre)
-        if keys[pygame.K_LEFT]:
-            car.steering -= STEERING_SPEED * dt
-        elif keys[pygame.K_RIGHT]:
-            car.steering += STEERING_SPEED * dt
+        # ── Contrôles : pilote IA (ZMQ) OU clavier ────────────────────
+        if server is not None:
+            # Prepare capteurs pour le pilote
+            lidar = sensors.get_lidar(track, car)
+            camera = sensors.get_camera_view(screen, car)
+            speed_kmh = physics.speed_kmh(car)
+            commands = server.send_sensors(camera, lidar, speed_kmh)
+            if commands is not None:
+                car.set_controls(
+                    commands.get("steering", 0.0),
+                    commands.get("throttle", 0.0),
+                    commands.get("brake", 0.0),
+                )
+            # si timeout (pilote non connecte), on laisse les commandes en l'etat
         else:
-            # Retour doux au centre
-            if abs(car.steering) < STEERING_RETURN_SPEED * dt:
-                car.steering = 0.0
-            elif car.steering > 0:
-                car.steering -= STEERING_RETURN_SPEED * dt
+            keys = pygame.key.get_pressed()
+
+            # Gaz / Frein
+            car.throttle = 1.0 if keys[pygame.K_UP] else 0.0
+            car.brake = 1.0 if keys[pygame.K_DOWN] else 0.0
+
+            # Direction (progressive avec retour au centre)
+            if keys[pygame.K_LEFT]:
+                car.steering -= STEERING_SPEED * dt
+            elif keys[pygame.K_RIGHT]:
+                car.steering += STEERING_SPEED * dt
             else:
-                car.steering += STEERING_RETURN_SPEED * dt
-        car.steering = max(-45.0, min(45.0, car.steering))
+                if abs(car.steering) < STEERING_RETURN_SPEED * dt:
+                    car.steering = 0.0
+                elif car.steering > 0:
+                    car.steering -= STEERING_RETURN_SPEED * dt
+                else:
+                    car.steering += STEERING_RETURN_SPEED * dt
+            car.steering = max(-45.0, min(45.0, car.steering))
 
         # ── Physique ──────────────────────────────────────────────────
         physics.update(car, dt)
@@ -259,6 +297,8 @@ def main() -> None:
 
         pygame.display.flip()
 
+    if server is not None:
+        server.close()
     pygame.quit()
     sys.exit()
 
