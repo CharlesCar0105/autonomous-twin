@@ -219,6 +219,9 @@ models/*.pkl
 # Datasets (trop volumineux)
 data/raw/
 data/processed/
+data/train/
+data/val/
+data/records/
 data/*.csv
 data/*.json
 !data/.gitkeep

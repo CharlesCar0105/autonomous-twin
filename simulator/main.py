@@ -228,9 +228,11 @@ def main() -> None:
 
         # ── Contrôles : pilote IA (ZMQ) OU clavier ────────────────────
         if server is not None:
-            # Prepare capteurs pour le pilote
+            # Prepare capteurs pour le pilote. On utilise la camera tiree
+            # directement de track.pixels (sans HUD, sans voiture dessinee,
+            # sans rayons lidar) pour coller au dataset d'entrainement U-Net.
             lidar = sensors.get_lidar(track, car)
-            camera = sensors.get_camera_view(screen, car)
+            camera = sensors.get_camera_view_from_track(track, car)
             speed_kmh = physics.speed_kmh(car)
             commands = server.send_sensors(camera, lidar, speed_kmh)
             if commands is not None:

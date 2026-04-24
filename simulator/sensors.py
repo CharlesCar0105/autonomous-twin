@@ -63,6 +63,48 @@ def get_camera_view(screen: pygame.Surface, car: "Car") -> np.ndarray:
     return arr
 
 
+def get_camera_view_from_track(track: "Track", car: "Car") -> np.ndarray:
+    """Capture identique a get_camera_view mais directement depuis l'image
+    de la piste (track.pixels) -- donc sans la voiture, le HUD, les rayons
+    lidar superposes, etc. C'est la vraie "vue caméra" que le pilote doit
+    analyser, pas une capture d'écran bruitée. Utilise aussi pour générer
+    le dataset U-Net : image propre + masque ground-truth aligné.
+
+    Args:
+        track: Instance de Track (pour accéder à track.pixels).
+        car: Instance de Car (pour position + orientation).
+
+    Returns:
+        Image numpy (H, W, 3) RGB.
+    """
+    cx = int(car.x + CAMERA_DISTANCE * math.cos(car.angle))
+    cy = int(car.y + CAMERA_DISTANCE * math.sin(car.angle))
+    x = cx - CAMERA_WIDTH // 2
+    y = cy - CAMERA_HEIGHT // 2
+    x = max(0, min(x, track.width - CAMERA_WIDTH))
+    y = max(0, min(y, track.height - CAMERA_HEIGHT))
+
+    # track.pixels est (W, H, 3). On crop puis transpose en (H, W, 3).
+    crop = track.pixels[x:x + CAMERA_WIDTH, y:y + CAMERA_HEIGHT]
+    return np.transpose(crop, (1, 0, 2))
+
+
+def get_ground_truth_mask(track: "Track", car: "Car") -> np.ndarray:
+    """Masque ground-truth binaire (1 = pixel blanc "drivable",
+    0 = bordure noire) aligné sur get_camera_view_from_track.
+
+    Sert de label pour l'entrainement du U-Net : pas d'annotation
+    manuelle, le simulateur connaît la verite terrain.
+
+    Returns:
+        Masque numpy (H, W) dtype=uint8, valeurs dans {0, 1}.
+    """
+    camera = get_camera_view_from_track(track, car)
+    # Pixel "drivable" = luminosite > 200 sur chaque canal.
+    r, g, b = camera[..., 0], camera[..., 1], camera[..., 2]
+    return ((r > 200) & (g > 200) & (b > 200)).astype(np.uint8)
+
+
 def get_lidar(track: "Track", car: "Car") -> list[float]:
     """
     Lance 5 rayons depuis la voiture et retourne les distances
