@@ -24,8 +24,14 @@ Override possible :
 
 import argparse
 import math
+import os
 import sys
 from pathlib import Path
+
+# Force le driver SDL "dummy" pour tourner sans X display (utile sur Colab
+# ou tout env headless). N'affecte pas un setup avec display : os.environ
+# est set uniquement si pas deja defini.
+os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 import numpy as np
 import pygame

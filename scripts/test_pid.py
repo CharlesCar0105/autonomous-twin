@@ -19,8 +19,11 @@ Usage :
 
 import argparse
 import math
+import os
 import sys
 from pathlib import Path
+
+os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 import pygame
 
