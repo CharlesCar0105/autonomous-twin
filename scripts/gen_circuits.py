@@ -195,16 +195,21 @@ def _build_centerline_once(
         _force_straight(radii, angles, rng)
 
     min_r = 0.35 * base_r
-    max_r_h = (width / 2.0 - 20) / max(aspect_h, 1e-6)
-    max_r_v = (height / 2.0 - 20) / max(aspect_v, 1e-6)
+    # Marge pour la bordure exterieure : on garde une zone tampon
+    # egale a la largeur de piste max + 15 px pour etre sur que la
+    # bordure ne sort pas du cadre.
+    max_track_half = 60.0  # superieur a track_width_mean_max / 2
+    margin = max_track_half + 15.0
+    max_r_h = ((width / 2.0) - margin) / max(aspect_h, 1e-6)
+    max_r_v = ((height / 2.0) - margin) / max(aspect_v, 1e-6)
     radii = np.clip(radii, min_r, min(max_r_h, max_r_v))
 
     xs = cx + aspect_h * radii * np.cos(angles)
     ys = cy + aspect_v * radii * np.sin(angles)
 
     # Lissage final pour adoucir les jointures entre features.
-    xs = _smooth_closed(xs, window=11)
-    ys = _smooth_closed(ys, window=11)
+    xs = _smooth_closed(xs, window=15)
+    ys = _smooth_closed(ys, window=15)
 
     meta = {
         "center_xy": (float(cx), float(cy)),
@@ -218,29 +223,107 @@ def _build_centerline_once(
     return xs, ys, meta
 
 
-def _build_centerline(
-    width: int, height: int, seed: int, track_width_max: float
-) -> tuple[np.ndarray, np.ndarray, dict, int]:
-    """Genere une centerline valide (pas d'auto-intersection detectee).
-    Retry avec un seed perturbe si le rayon de courbure min est trop
-    petit vs la largeur de piste prevue.
+def _min_self_distance(xs: np.ndarray, ys: np.ndarray, min_angle_sep: int = 40) -> float:
+    """Distance min entre 2 points non-adjacents de la centerline.
+    Si cette distance est < track_width, la piste est ecrasee entre
+    2 virages proches (bordures qui se touchent / se croisent).
 
-    Returns:
-        xs, ys, meta, n_retries
-    """
-    # Seuil : rayon de courbure (5e pct) >= 0.35 * largeur max. Assez
-    # permissif pour accepter les circuits avec pinches serres, assez
-    # strict pour rejeter les geometries ou la bordure s'auto-intersecte.
-    min_required_r = track_width_max * 0.35
-    for attempt in range(12):
+    Ne compare pas les paires d'indices voisins (|i-j| < min_angle_sep
+    ou wrap equivalent) car c'est trivialement petit pour des points
+    consecutifs de la centerline."""
+    n = len(xs)
+    dx = xs[:, None] - xs[None, :]
+    dy = ys[:, None] - ys[None, :]
+    d2 = dx * dx + dy * dy
+    # Masque : ignorer les paires proches sur la boucle (incluant wrap).
+    idx = np.arange(n)
+    ang_dist = np.abs(idx[:, None] - idx[None, :])
+    ang_dist = np.minimum(ang_dist, n - ang_dist)
+    d2[ang_dist < min_angle_sep] = np.inf
+    return float(np.sqrt(d2.min()))
+
+
+def _fits_in_frame(
+    xs: np.ndarray, ys: np.ndarray,
+    track_width_max: float, width: int, height: int, margin: int = 10,
+) -> bool:
+    """True si tous les points BORDURE (centerline +/- track_width/2 dans
+    une marge conservatrice) restent dans le cadre image."""
+    half = track_width_max / 2.0 + margin
+    return bool(
+        (xs.min() - half >= 0) and (xs.max() + half <= width) and
+        (ys.min() - half >= 0) and (ys.max() + half <= height)
+    )
+
+
+def _border_self_distance(
+    xs: np.ndarray, ys: np.ndarray, widths: np.ndarray, min_angle_sep: int = 40
+) -> float:
+    """Distance min entre 2 points non-adjacents des bordures interieure
+    et exterieure de la piste. Detecte les self-intersections de bordure
+    (2 virages si proches que la bordure se replie sur elle-meme).
+    Plus fiable que la centerline seule."""
+    x = np.concatenate([xs[-1:], xs, xs[:1]])
+    y = np.concatenate([ys[-1:], ys, ys[:1]])
+    dx = np.gradient(x)[1:-1]
+    dy = np.gradient(y)[1:-1]
+    norm = np.hypot(dx, dy)
+    norm[norm == 0] = 1.0
+    tx, ty = dx / norm, dy / norm
+    nx, ny = -ty, tx
+    half = widths / 2.0
+    ix = xs - nx * half
+    iy = ys - ny * half
+    ox = xs + nx * half
+    oy = ys + ny * half
+    return min(_min_self_distance(ix, iy, min_angle_sep),
+               _min_self_distance(ox, oy, min_angle_sep))
+
+
+def _build_centerline(
+    width: int, height: int, seed: int, widths: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, dict, int]:
+    """Genere une centerline valide : in-frame, courbure raisonnable,
+    centerline auto-distance OK, bordures auto-distance OK (evite les
+    self-intersections de bordure)."""
+    track_width_max = float(widths.max())
+    min_required_r = track_width_max * 0.30
+    min_required_center_d = track_width_max * 1.15
+    # La distance min entre 2 points de la MEME bordure doit etre
+    # strictement positive (sinon self-intersection). Marge de 5 px.
+    min_required_border_d = 5.0
+
+    best = None
+    best_score = -np.inf
+    for attempt in range(25):
         s = seed + attempt * 100_003
         xs, ys, meta = _build_centerline_once(width, height, s)
         r_min = _min_curvature_radius(xs, ys)
+        center_d = _min_self_distance(xs, ys)
+        border_d = _border_self_distance(xs, ys, widths)
+        in_frame = _fits_in_frame(xs, ys, track_width_max, width, height)
         meta["min_curvature_radius"] = float(r_min)
-        if r_min >= min_required_r:
+        meta["min_self_distance"] = float(center_d)
+        meta["min_border_distance"] = float(border_d)
+        meta["in_frame"] = bool(in_frame)
+
+        # Score pour fallback : bord le plus sensible = border_d.
+        score = min(
+            r_min / min_required_r,
+            center_d / min_required_center_d,
+            border_d / max(min_required_border_d, 1e-6),
+        )
+        if not in_frame:
+            score -= 10.0
+        if score > best_score:
+            best = (xs, ys, meta)
+            best_score = score
+        if (in_frame and r_min >= min_required_r
+                and center_d >= min_required_center_d
+                and border_d >= min_required_border_d):
             return xs, ys, meta, attempt
-    # Dernier essai : on prend ce qu'on a (circuit le plus "safe" possible).
-    return xs, ys, meta, 12
+    xs, ys, meta = best
+    return xs, ys, meta, 25
 
 
 def _normals(xs: np.ndarray, ys: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -275,9 +358,7 @@ def generate_circuit(
 ) -> dict:
     rng_width = np.random.default_rng(seed + 10_000)
     widths = _variable_track_width(N_WAYPOINTS, rng_width)
-    xs, ys, meta, n_retries = _build_centerline(
-        width, height, seed, track_width_max=float(widths.max())
-    )
+    xs, ys, meta, n_retries = _build_centerline(width, height, seed, widths)
     nx, ny = _normals(xs, ys)
 
     half = widths / 2.0
@@ -318,6 +399,9 @@ def generate_circuit(
         "start_angle_deg": start_angle_deg,
         "features": meta["features"],
         "min_curvature_radius_px": float(meta.get("min_curvature_radius", 0.0)),
+        "min_self_distance_px": float(meta.get("min_self_distance", 0.0)),
+        "min_border_distance_px": float(meta.get("min_border_distance", 0.0)),
+        "in_frame": bool(meta.get("in_frame", True)),
         "retries": int(n_retries),
     }
     out_json.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -353,12 +437,13 @@ def main() -> None:
         print(
             f"  [{i+1:2d}/{args.n}] {png.name}  "
             f"seed={seed:<4d}  "
-            f"start=({data['start_x']:4.0f}, {data['start_y']:4.0f})  "
-            f"w={data['track_width_mean_px']:4.1f}px  "
-            f"r_min={data['min_curvature_radius_px']:5.1f}  "
-            f"retries={data['retries']}  "
-            f"p={feats['pinches']} b={feats['bumps']} "
-            f"c={feats['chicanes']} s={feats['straights']}"
+            f"w={data['track_width_mean_px']:4.1f}  "
+            f"r={data['min_curvature_radius_px']:3.0f}  "
+            f"cd={data['min_self_distance_px']:5.1f}  "
+            f"bd={data['min_border_distance_px']:5.1f}  "
+            f"frame={'Y' if data['in_frame'] else 'N'}  "
+            f"retr={data['retries']:2d}  "
+            f"p{feats['pinches']}b{feats['bumps']}c{feats['chicanes']}s{feats['straights']}"
         )
 
     if args.preview and args.n > 0:
