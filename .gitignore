@@ -239,3 +239,8 @@ mlruns/
 *.bmp
 *.tmp
 .gitnexus
+
+# Circuits generes (regenerables via scripts/gen_circuits.py avec seed fixe).
+# Ne pas polluer git avec ~30 PNG binaires, le script les reproduit a l'identique.
+assets/tracks/gen_*.png
+assets/tracks/gen_*.json

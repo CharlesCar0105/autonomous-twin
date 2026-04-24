@@ -11,6 +11,7 @@ Responsabilités :
 import pygame
 import numpy as np
 import os
+import json
 
 # --- Constantes -----------------------------------------------------------
 
@@ -54,8 +55,18 @@ class Track:
         self.start_y = int(screen_h * 0.86)
         self.start_angle = 0.0  # degrés, 0 = vers la droite
 
-        # Essayer de trouver un pixel blanc proche de la position par défaut
-        self._adjust_start_position()
+        # Si un .json adjacent (genere par scripts/gen_circuits.py) fournit
+        # la position de depart, on l'utilise directement. Sinon fallback
+        # sur la detection auto par filtre de largeur de piste.
+        meta_path = os.path.join(TRACKS_DIR, f"{track_name}.json")
+        if os.path.exists(meta_path):
+            with open(meta_path, encoding="utf-8") as f:
+                meta = json.load(f)
+            self.start_x = int(meta["start_x"])
+            self.start_y = int(meta["start_y"])
+            self.start_angle = float(meta.get("start_angle_deg", 0.0))
+        else:
+            self._adjust_start_position()
 
     def _adjust_start_position(self) -> None:
         """Place la voiture au *centre* de la ligne droite du bas du circuit.
