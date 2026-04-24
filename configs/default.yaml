@@ -1,0 +1,57 @@
+# ============================================
+# Configuration par défaut — Autonomous Twin
+# ============================================
+
+# --- Simulateur ---
+simulator:
+  window:
+    width: 1280
+    height: 720
+    title: "Autonomous Twin — Simulateur"
+    fps: 60
+
+  track:
+    default: "circuit_01" # nom du fichier dans assets/tracks/
+    road_color: [255, 255, 255] # blanc
+    border_color: [0, 0, 0] # noir
+
+  car:
+    start_x: 640
+    start_y: 360
+    start_angle: 0.0
+    sprite: "car.png"
+
+  physics:
+    lf: 1.5 # distance CG → essieu avant
+    lr: 1.5 # distance CG → essieu arrière
+    max_steering: 45.0 # angle volant max (degrés)
+    max_acceleration: 120.0 # pixels/s²
+    brake_force: 200.0 # pixels/s²
+    friction: 0.02
+    max_speed: 300.0 # pixels/s
+
+  wall:
+    spawn_distance: 200 # pixels (~15m virtuel)
+    sprite: "wall.png"
+
+# --- Capteurs ---
+sensors:
+  camera:
+    width: 128
+    height: 128
+    distance: 60 # pixels devant la voiture
+
+  lidar:
+    max_range: 300 # portée max en pixels
+    angles: [-60, -30, 0, 30, 60] # degrés relatifs au cap
+
+# --- Réseau ---
+network:
+  protocol: "tcp"
+  host: "localhost"
+  port: 5555
+
+# --- Chrono ---
+timing:
+  laps: 3
+  best_laps_file: "best_laps.json"

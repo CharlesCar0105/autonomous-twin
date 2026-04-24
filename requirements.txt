@@ -1,0 +1,24 @@
+# ============================================
+# Autonomous Twin — Dépendances
+# ============================================
+
+# --- Moteur graphique & physique (Simulateur) ---
+pygame>=2.5.0
+pymunk>=6.6.0
+
+# --- Communication réseau ---
+pyzmq>=25.1.0
+
+# --- IA / Deep Learning ---
+torch>=2.1.0
+torchvision>=0.16.0
+
+# --- Traitement d'image ---
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# --- Configuration ---
+pyyaml>=6.0
+
+# --- Utilitaires ---
+Pillow>=10.0.0

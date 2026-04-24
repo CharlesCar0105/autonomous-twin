@@ -205,3 +205,36 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ============================================
+# Autonomous Twin — Projet spécifique
+# ============================================
+
+# Modèles entraînés (trop lourds pour Git)
+models/*.pth
+models/*.pt
+models/*.onnx
+models/*.pkl
+
+# Datasets (trop volumineux)
+data/raw/
+data/processed/
+data/*.csv
+data/*.json
+!data/.gitkeep
+
+# Assets générés
+assets/generated/
+
+# Configs locales
+configs/local.yaml
+
+# Logs d'entraînement
+runs/
+logs/
+wandb/
+mlruns/
+
+# Fichiers temporaires du simulateur
+*.bmp
+*.tmp
