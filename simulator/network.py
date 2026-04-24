@@ -50,7 +50,10 @@ class SimulatorServer:
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
         self.socket.bind(address)
-        self.socket.setsockopt(zmq.RCVTIMEO, 100)  # timeout 100ms
+        # Timeout long (5s) car la 1re inference du CNN charge torch + le
+        # modele en RAM, ce qui peut prendre 1-2s. En regime stable c'est
+        # <20ms par cycle donc le timeout n'intervient pas.
+        self.socket.setsockopt(zmq.RCVTIMEO, 5000)
         print(f"[Simulateur] Serveur ZMQ démarré sur {address}")
 
     def send_sensors(self, camera: np.ndarray, lidar: list[float], speed: float) -> dict | None:
