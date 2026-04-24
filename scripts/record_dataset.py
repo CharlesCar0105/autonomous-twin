@@ -32,6 +32,7 @@ from pathlib import Path
 # ou tout env headless). N'affecte pas un setup avec display : os.environ
 # est set uniquement si pas deja defini.
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
 import numpy as np
 import pygame
