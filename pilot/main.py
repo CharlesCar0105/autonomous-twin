@@ -67,6 +67,9 @@ def main() -> None:
                         help="Desactive le freinage d'urgence (utile tant que "
                              "le mur dynamique n'est pas cote simu : evite les "
                              "blocages quand la voiture frole une bordure en virage).")
+    parser.add_argument("--dashboard", action="store_true",
+                        help="Ouvre le tableau de bord temps reel (fenetre Pygame "
+                             "cote pilote : camera, segmentation, lidar, vitesse).")
     args = parser.parse_args()
 
     session_dir = None
@@ -77,6 +80,13 @@ def main() -> None:
 
     client = PilotClient(args.address)
     print(f"[Pilote] Politique : {args.policy.upper()}  |  speed_target = {args.speed_target} km/h")
+
+    dashboard = None
+    if args.dashboard:
+        from pilot.dashboard import Dashboard  # import tardif : pygame requis seulement ici
+        dashboard = Dashboard()
+        print("[Pilote] Tableau de bord ouvert (Echap ou fermeture = quitter).")
+
     print("[Pilote] Boucle demarree (Ctrl+C pour quitter).")
 
     frame_id = 0
@@ -104,11 +114,21 @@ def main() -> None:
 
             # Emergency : coupe le throttle et freine, mais garde le steering
             # du PID pour que la voiture puisse fuir la bordure proche.
-            if not args.no_emergency and check_emergency_brake(lidar):
+            emergency_active = (not args.no_emergency) and check_emergency_brake(lidar)
+            if emergency_active:
                 commands["throttle"] = 0.0
                 commands["brake"] = 1.0
 
             client.send_commands(**commands)
+
+            # Tableau de bord temps reel (ce que le pilote voit + decide).
+            if dashboard is not None:
+                mask_disp = compute_mask(sensors["camera"])
+                state = "FREINAGE URGENCE" if emergency_active else "CONDUITE"
+                if not dashboard.update(sensors["camera"], mask_disp, lidar,
+                                        speed, commands, state):
+                    print("[Pilote] Tableau de bord ferme -> arret.")
+                    break
 
             if session_dir is not None:
                 _dump_frame(session_dir, frame_id, sensors, commands)
@@ -128,6 +148,8 @@ def main() -> None:
     finally:
         if session_dir is not None:
             print(f"[Pilote] {frame_id} frames sauvegardees dans {session_dir}")
+        if dashboard is not None:
+            dashboard.close()
         client.close()
 
 

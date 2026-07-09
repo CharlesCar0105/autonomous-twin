@@ -15,41 +15,43 @@ Responsabilités :
 # une marge nette avant impact.
 EMERGENCY_DISTANCE = 70.0
 
-# Indices des rayons frontaux dans lidar = [-60, -30, 0, +30, +60].
-# On regarde les trois du milieu (-30, 0, +30).
-FRONT_RAY_INDICES = (1, 2, 3)
-
-# Nombre minimal de rayons frontaux sous le seuil pour declencher.
-MIN_RAYS_TRIGGER = 2
+# Indices des rayons dans lidar = [-60, -30, 0, +30, +60].
+CENTER_RAY = 2          # rayon central (droit devant)
+SIDE_RAYS = (1, 3)      # rayons -30 / +30
 
 
 def check_emergency_brake(lidar: list[float]) -> bool:
     """
     Vérifie si un freinage d'urgence est nécessaire.
 
-    On exige qu'au moins MIN_RAYS_TRIGGER des trois rayons frontaux
-    (-30, 0, +30) soient courts simultanement. C'est la signature d'un
-    obstacle *large* barrant la route (le Mur, ~130 px de large) et non
-    d'une simple bordure frolee par un seul rayon en virage serre -- dans
-    ce dernier cas c'est au controleur lateral (PID/CNN) de gerer le
-    braquage, pas au frein d'urgence.
+    Signature d'un mur barrant la route : le **rayon central** (droit devant)
+    devient court, confirme par au moins un rayon lateral (-30/+30). Le mur
+    fait ~130 px de large : a moins de EMERGENCY_DISTANCE il bouche forcement
+    le centre ET les cotes.
 
-    Choix de 2/3 (et non 3/3) : de loin, un mur etroit vu de face ne barre
-    que le rayon central ; les rayons ±30° divergent et ne le touchent qu'a
-    courte portee. Exiger 3/3 ferait freiner trop tard. 2/3 declenche des
-    que le mur occupe le centre + un cote, avec une marge d'arret confortable.
+    Pourquoi exiger le rayon CENTRAL court (et pas juste 2 rayons sur 3) :
+    sur une voie etroite (~45 px), les rayons ±30° tapent en permanence les
+    bords de la voie a courte distance. Un critere "2 rayons avant courts"
+    se declencherait donc tout le temps en ligne droite et bloquerait la
+    voiture. Le rayon central, lui, voit loin le long de la voie tant qu'il
+    n'y a pas d'obstacle reel devant -> c'est le bon discriminant.
+
+    Une bordure frolee en virage serre ne raccourcit que les rayons
+    lateraux, pas le central : c'est alors au controleur (PID/CNN) de gerer
+    le braquage, pas au frein d'urgence.
 
     Args:
         lidar: Liste de 5 distances lidar (pixels).
 
     Returns:
-        True si un obstacle large est trop proche devant (frein immédiat).
+        True si un obstacle est trop proche droit devant (frein immédiat).
     """
     if not lidar or len(lidar) < 5:
         return False
 
-    n_close = sum(1 for i in FRONT_RAY_INDICES if lidar[i] < EMERGENCY_DISTANCE)
-    return n_close >= MIN_RAYS_TRIGGER
+    if lidar[CENTER_RAY] >= EMERGENCY_DISTANCE:
+        return False  # voie devant degagee -> pas de mur
+    return any(lidar[i] < EMERGENCY_DISTANCE for i in SIDE_RAYS)
 
 
 def get_emergency_commands() -> dict:

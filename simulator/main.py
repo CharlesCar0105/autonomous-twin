@@ -27,7 +27,7 @@ from simulator import physics
 from simulator import sensors
 from simulator.network import SimulatorServer
 from simulator.wall import Wall
-from simulator.timing import LapTimer, format_time
+from simulator.timing import LapTimer, format_time, LAPS_TARGET
 import numpy as np
 
 
@@ -206,6 +206,10 @@ def main() -> None:
                         default=None,
                         help="Force la position/angle de depart (en pixels, degres). "
                              "Bypass la detection auto. Ex: --start-pos 640 615 0")
+    parser.add_argument("--auto-wall", type=float, default=None, metavar="SECONDES",
+                        help="Fait apparaitre un mur PERSISTANT devant la voiture apres "
+                             "N secondes (sans appui clavier). Pour tests/demo du freinage "
+                             "d'urgence en headless.")
     args = parser.parse_args()
 
     pygame.init()
@@ -249,6 +253,10 @@ def main() -> None:
     # Position de la frame precedente (pour collision mur + detection de
     # franchissement de la ligne d'arrivee).
     prev_x, prev_y = car.x, car.y
+
+    # Auto-spawn du mur (mode test/demo, cf. --auto-wall).
+    t_start = time.time()
+    auto_wall_done = False
 
     # --- Serveur ZMQ (mode pilote IA) ---
     server = SimulatorServer(args.address) if args.server else None
@@ -301,6 +309,15 @@ def main() -> None:
                     mx, my = event.pos
                     car.reset(mx, my, math.degrees(car.angle))
                     print(f"[Simulateur] Voiture repositionnee en ({mx}, {my})")
+
+        # ── Auto-spawn du mur (tests/demo, --auto-wall) ───────────────
+        if (args.auto_wall is not None and not auto_wall_done
+                and (time.time() - t_start) >= args.auto_wall):
+            wall = Wall.spawn_ahead(car, now=time.time())
+            wall.lifetime = math.inf   # persistant pour observer le freinage
+            auto_wall_done = True
+            print(f"[Simulateur] MUR AUTO apparu en ({wall.cx:.0f}, {wall.cy:.0f}) "
+                  f"(persistant, mode --auto-wall)")
 
         # ── Auto-disparition du mur apres WALL_LIFETIME secondes ──────
         if wall is not None and wall.is_expired(time.time()):
@@ -359,7 +376,14 @@ def main() -> None:
                 car.speed = 0.0
 
         # ── Chrono : detection de franchissement de la ligne ──────────
+        laps_before = lap_timer.laps_done
         lap_timer.update(car, (prev_x, prev_y), time.time())
+        if lap_timer.laps_done > laps_before:
+            rec = "  ** RECORD **" if lap_timer._new_record else ""
+            print(f"[Chrono] Tour {lap_timer.laps_done}/{LAPS_TARGET} "
+                  f"boucle en {format_time(lap_timer.last_lap)}{rec}")
+            if lap_timer.finished:
+                print(f"[Chrono] TERMINE — temps total {format_time(lap_timer.total_time)}")
 
         # ── Lidar (debug) ────────────────────────────────────────────
         lidar_distances = sensors.get_lidar(track, car, wall) if show_lidar else []
