@@ -10,30 +10,46 @@ Responsabilités :
 
 # --- Constantes -----------------------------------------------------------
 
-# Seuil en pixels. Desactive en pratique pour Sprint 1 (valeur tres basse) :
-# le freinage d'urgence est concu pour le MUR qui apparait (touche Espace
-# cote simu, pas encore implemente). Il ne doit PAS se declencher juste
-# parce qu'un rayon voit une bordure de piste en virage serre -- dans ce
-# cas c'est au PID de gerer le steering. Relever quand le mur sera en place.
-EMERGENCY_DISTANCE = 10.0
+# Seuil de declenchement (pixels). Le Mur spawn a ~200 px ; a vitesse de
+# croisiere (~110 px/s) la distance d'arret est ~30 px, donc 70 px laisse
+# une marge nette avant impact.
+EMERGENCY_DISTANCE = 70.0
+
+# Indices des rayons frontaux dans lidar = [-60, -30, 0, +30, +60].
+# On regarde les trois du milieu (-30, 0, +30).
+FRONT_RAY_INDICES = (1, 2, 3)
+
+# Nombre minimal de rayons frontaux sous le seuil pour declencher.
+MIN_RAYS_TRIGGER = 2
 
 
 def check_emergency_brake(lidar: list[float]) -> bool:
     """
     Vérifie si un freinage d'urgence est nécessaire.
 
+    On exige qu'au moins MIN_RAYS_TRIGGER des trois rayons frontaux
+    (-30, 0, +30) soient courts simultanement. C'est la signature d'un
+    obstacle *large* barrant la route (le Mur, ~130 px de large) et non
+    d'une simple bordure frolee par un seul rayon en virage serre -- dans
+    ce dernier cas c'est au controleur lateral (PID/CNN) de gerer le
+    braquage, pas au frein d'urgence.
+
+    Choix de 2/3 (et non 3/3) : de loin, un mur etroit vu de face ne barre
+    que le rayon central ; les rayons ±30° divergent et ne le touchent qu'a
+    courte portee. Exiger 3/3 ferait freiner trop tard. 2/3 declenche des
+    que le mur occupe le centre + un cote, avec une marge d'arret confortable.
+
     Args:
         lidar: Liste de 5 distances lidar (pixels).
 
     Returns:
-        True si un obstacle est trop proche (frein immédiat).
+        True si un obstacle large est trop proche devant (frein immédiat).
     """
-    if not lidar:
+    if not lidar or len(lidar) < 5:
         return False
 
-    # Si UN des rayons détecte un obstacle sous le seuil → urgence
-    min_distance = min(lidar)
-    return min_distance < EMERGENCY_DISTANCE
+    n_close = sum(1 for i in FRONT_RAY_INDICES if lidar[i] < EMERGENCY_DISTANCE)
+    return n_close >= MIN_RAYS_TRIGGER
 
 
 def get_emergency_commands() -> dict:

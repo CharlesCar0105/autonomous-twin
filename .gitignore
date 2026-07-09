@@ -247,3 +247,5 @@ mlruns/
 # Ne pas polluer git avec ~30 PNG binaires, le script les reproduit a l'identique.
 assets/tracks/gen_*.png
 assets/tracks/gen_*.json
+
+best_laps.json

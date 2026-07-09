@@ -15,6 +15,7 @@ import pygame
 import sys
 import os
 import math
+import time
 import argparse
 
 # Ajouter la racine du projet au path pour les imports absolus
@@ -25,6 +26,8 @@ from simulator.car import Car
 from simulator import physics
 from simulator import sensors
 from simulator.network import SimulatorServer
+from simulator.wall import Wall
+from simulator.timing import LapTimer, format_time
 import numpy as np
 
 
@@ -110,7 +113,8 @@ def draw_hud(screen, car, track, clock, font, font_big, show_debug):
             screen.blit(txt, (15, SCREEN_HEIGHT - 48 + i * 20))
 
     # Aide contrôles
-    help_str = "Fleches: Conduire | R: Reset | L: Lidar | C: Camera | F3: Debug | Clic droit: Placer | Echap: Quitter"
+    help_str = ("Fleches: Conduire | Espace: Mur | X: Retirer mur | T: Chrono | "
+                "R: Reset | L: Lidar | C: Camera | F3: Debug | Echap: Quitter")
     txt = font.render(help_str, True, (100, 100, 100))
     screen.blit(txt, (SCREEN_WIDTH - txt.get_width() - 10, SCREEN_HEIGHT - 20))
 
@@ -139,6 +143,54 @@ def draw_lidar(screen, car, lidar_distances):
         screen.blit(dtxt, (mid_x, mid_y))
 
 
+def draw_finish_line(screen, lap_timer):
+    """Dessine la ligne d'arrivee (damier) sur la piste."""
+    p1 = lap_timer.line_p1
+    p2 = lap_timer.line_p2
+    # Segment epais pointille noir/blanc facon damier.
+    n = 12
+    for i in range(n):
+        t0 = i / n
+        t1 = (i + 1) / n
+        a = (p1[0] + (p2[0] - p1[0]) * t0, p1[1] + (p2[1] - p1[1]) * t0)
+        b = (p1[0] + (p2[0] - p1[0]) * t1, p1[1] + (p2[1] - p1[1]) * t1)
+        col = (20, 20, 20) if i % 2 == 0 else (200, 200, 200)
+        pygame.draw.line(screen, col, a, b, 6)
+
+
+def draw_chrono(screen, lap_timer, font, font_big):
+    """Affiche le panneau chrono (tours, temps, best lap) en haut au centre."""
+    panel_w, panel_h = 260, 96
+    px = SCREEN_WIDTH // 2 - panel_w // 2
+    py = 6
+    bg = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+    bg.fill((0, 0, 0, 130))
+    screen.blit(bg, (px, py))
+
+    # Ligne 1 : tour X/3 + statut
+    if lap_timer.finished:
+        head = f"TERMINE  -  Total {format_time(lap_timer.total_time)}"
+        head_col = COL_YELLOW
+    elif not lap_timer.started:
+        head = "CHRONO : pret (avance pour demarrer)"
+        head_col = COL_GRAY
+    else:
+        head = f"TOUR {lap_timer.current_lap_number}/3"
+        head_col = COL_GREEN
+    screen.blit(font.render(head, True, head_col), (px + 10, py + 6))
+
+    # Ligne 2 : temps du tour en cours (gros)
+    cur = format_time(lap_timer.current_lap_time)
+    screen.blit(font_big.render(cur, True, COL_WHITE), (px + 10, py + 26))
+
+    # Ligne 3 : dernier tour + meilleur tour
+    last = format_time(lap_timer.last_lap)
+    best = format_time(lap_timer.best_lap)
+    screen.blit(font.render(f"Dernier: {last}", True, COL_CYAN), (px + 10, py + 58))
+    best_col = COL_YELLOW if lap_timer._new_record else COL_GRAY
+    screen.blit(font.render(f"Best: {best}", True, best_col), (px + 10, py + 76))
+
+
 # --- Boucle principale ---------------------------------------------------
 
 def main() -> None:
@@ -148,7 +200,7 @@ def main() -> None:
                         help="Active le serveur ZMQ : les commandes viennent du pilote IA.")
     parser.add_argument("--address", default="tcp://*:5555",
                         help="Adresse de bind du serveur ZMQ.")
-    parser.add_argument("--circuit", default="circuit_01",
+    parser.add_argument("--circuit", default="circuit_02",
                         help="Nom du circuit a charger (fichier PNG dans assets/tracks/).")
     parser.add_argument("--start-pos", nargs=3, type=float, metavar=("X", "Y", "ANGLE_DEG"),
                         default=None,
@@ -188,13 +240,24 @@ def main() -> None:
     show_camera = False
     font_sm = pygame.font.SysFont("Consolas", 12)
 
+    # Mur (aléa) : None tant qu'on n'a pas appuye sur Espace.
+    wall = None
+
+    # Chrono 3 tours : ligne d'arrivee a la position de depart du circuit.
+    lap_timer = LapTimer(track.start_x, track.start_y, track.start_angle, args.circuit)
+
+    # Position de la frame precedente (pour collision mur + detection de
+    # franchissement de la ligne d'arrivee).
+    prev_x, prev_y = car.x, car.y
+
     # --- Serveur ZMQ (mode pilote IA) ---
     server = SimulatorServer(args.address) if args.server else None
 
     print(f"[Simulateur] Circuit charge. Voiture en ({car.x:.0f}, {car.y:.0f})")
     mode = "PILOTE IA (ZMQ)" if args.server else "CLAVIER"
     print(f"[Simulateur] Mode : {mode}")
-    print(f"[Simulateur] Fleches=Conduire | R=Reset | L=Lidar | Echap=Quitter")
+    print("[Simulateur] Fleches=Conduire | ESPACE=Mur | X=Retirer mur | "
+          "T=Reset chrono | R=Reset | L=Lidar | Echap=Quitter")
 
     running = True
     while running:
@@ -218,7 +281,20 @@ def main() -> None:
                 elif event.key == pygame.K_c:
                     show_camera = not show_camera
                     print(f"[Simulateur] Camera {'ON' if show_camera else 'OFF'}")
-                # TODO: K_SPACE → apparition du mur
+                elif event.key == pygame.K_SPACE:
+                    # L'Aléa : faire apparaitre le mur devant la voiture.
+                    # Il disparaitra tout seul apres WALL_LIFETIME secondes.
+                    wall = Wall.spawn_ahead(car, now=time.time())
+                    print(f"[Simulateur] MUR apparu en ({wall.cx:.0f}, {wall.cy:.0f}) "
+                          f"(disparait dans {wall.lifetime:.0f}s)")
+                elif event.key == pygame.K_x:
+                    wall = None
+                    print("[Simulateur] Mur retire.")
+                elif event.key == pygame.K_t:
+                    lap_timer.reset()
+                    car.reset(track.start_x, track.start_y, track.start_angle)
+                    prev_x, prev_y = car.x, car.y
+                    print("[Simulateur] Chrono remis a zero.")
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:  # clic droit → repositionner
@@ -226,13 +302,18 @@ def main() -> None:
                     car.reset(mx, my, math.degrees(car.angle))
                     print(f"[Simulateur] Voiture repositionnee en ({mx}, {my})")
 
+        # ── Auto-disparition du mur apres WALL_LIFETIME secondes ──────
+        if wall is not None and wall.is_expired(time.time()):
+            wall = None
+            print("[Simulateur] Mur disparu (fin de duree de vie).")
+
         # ── Contrôles : pilote IA (ZMQ) OU clavier ────────────────────
         if server is not None:
             # Prepare capteurs pour le pilote. On utilise la camera tiree
             # directement de track.pixels (sans HUD, sans voiture dessinee,
             # sans rayons lidar) pour coller au dataset d'entrainement U-Net.
-            lidar = sensors.get_lidar(track, car)
-            camera = sensors.get_camera_view_from_track(track, car)
+            lidar = sensors.get_lidar(track, car, wall)
+            camera = sensors.get_camera_view_from_track(track, car, wall)
             speed_kmh = physics.speed_kmh(car)
             commands = server.send_sensors(camera, lidar, speed_kmh)
             if commands is not None:
@@ -264,19 +345,42 @@ def main() -> None:
             car.steering = max(-45.0, min(45.0, car.steering))
 
         # ── Physique ──────────────────────────────────────────────────
+        prev_x, prev_y = car.x, car.y
         physics.update(car, dt)
 
+        # ── Collision mur : la voiture ne traverse pas le mur ─────────
+        # On teste le pare-choc avant (18 px devant le centre). En cas de
+        # contact on annule le deplacement de la frame et on stoppe net.
+        if wall is not None:
+            front_x = car.x + 18.0 * math.cos(car.angle)
+            front_y = car.y + 18.0 * math.sin(car.angle)
+            if wall.contains(front_x, front_y) or wall.contains(car.x, car.y):
+                car.x, car.y = prev_x, prev_y
+                car.speed = 0.0
+
+        # ── Chrono : detection de franchissement de la ligne ──────────
+        lap_timer.update(car, (prev_x, prev_y), time.time())
+
         # ── Lidar (debug) ────────────────────────────────────────────
-        lidar_distances = sensors.get_lidar(track, car) if show_lidar else []
+        lidar_distances = sensors.get_lidar(track, car, wall) if show_lidar else []
 
         # ── Rendu ─────────────────────────────────────────────────────
         track.draw(screen)
+        draw_finish_line(screen, lap_timer)
+
+        if wall is not None:
+            wall.draw(screen)
+            # Compte a rebours avant disparition, au-dessus du mur.
+            secs_left = wall.time_left(time.time())
+            cd = font_big.render(f"{secs_left:.1f}s", True, COL_YELLOW)
+            screen.blit(cd, (int(wall.cx) - cd.get_width() // 2, int(wall.cy) - 40))
 
         if show_lidar and lidar_distances:
             draw_lidar(screen, car, lidar_distances)
 
         car.draw(screen)
         draw_hud(screen, car, track, clock, font, font_big, show_debug)
+        draw_chrono(screen, lap_timer, font, font_big)
 
         # ── Aperçu caméra (ce que le pilote verra) ────────────────────
         if show_camera:

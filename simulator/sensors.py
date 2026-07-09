@@ -63,7 +63,7 @@ def get_camera_view(screen: pygame.Surface, car: "Car") -> np.ndarray:
     return arr
 
 
-def get_camera_view_from_track(track: "Track", car: "Car") -> np.ndarray:
+def get_camera_view_from_track(track: "Track", car: "Car", wall=None) -> np.ndarray:
     """Capture identique a get_camera_view mais directement depuis l'image
     de la piste (track.pixels) -- donc sans la voiture, le HUD, les rayons
     lidar superposes, etc. C'est la vraie "vue caméra" que le pilote doit
@@ -73,6 +73,9 @@ def get_camera_view_from_track(track: "Track", car: "Car") -> np.ndarray:
     Args:
         track: Instance de Track (pour accéder à track.pixels).
         car: Instance de Car (pour position + orientation).
+        wall: Mur optionnel a compositer dans la vue (obstacle visible par
+              le pilote). None = piste seule (comportement d'origine, dataset
+              U-Net inchange).
 
     Returns:
         Image numpy (H, W, 3) RGB.
@@ -84,9 +87,19 @@ def get_camera_view_from_track(track: "Track", car: "Car") -> np.ndarray:
     x = max(0, min(x, track.width - CAMERA_WIDTH))
     y = max(0, min(y, track.height - CAMERA_HEIGHT))
 
-    # track.pixels est (W, H, 3). On crop puis transpose en (H, W, 3).
-    crop = track.pixels[x:x + CAMERA_WIDTH, y:y + CAMERA_HEIGHT]
+    # track.pixels est (W, H, 3). On copie le crop (pour ne pas modifier la
+    # piste), on y peint le mur, puis on transpose en (H, W, 3).
+    crop = track.pixels[x:x + CAMERA_WIDTH, y:y + CAMERA_HEIGHT].copy()
+    if wall is not None:
+        wmask = wall.mask_for_region(x, y, CAMERA_WIDTH, CAMERA_HEIGHT)
+        crop[wmask] = wall_camera_color()
     return np.transpose(crop, (1, 0, 2))
+
+
+def wall_camera_color() -> tuple[int, int, int]:
+    """Couleur du mur dans la vue camera. Volontairement sombre (< seuil
+    route a 200) pour que la segmentation le traite comme non-roulable."""
+    return (150, 45, 35)
 
 
 def get_ground_truth_mask(track: "Track", car: "Car") -> np.ndarray:
@@ -105,14 +118,15 @@ def get_ground_truth_mask(track: "Track", car: "Car") -> np.ndarray:
     return ((r > 200) & (g > 200) & (b > 200)).astype(np.uint8)
 
 
-def get_lidar(track: "Track", car: "Car") -> list[float]:
+def get_lidar(track: "Track", car: "Car", wall=None) -> list[float]:
     """
     Lance 5 rayons depuis la voiture et retourne les distances
-    au bord de piste (pixel non-blanc).
+    au bord de piste (pixel non-blanc) OU au mur s'il est plus proche.
 
     Args:
         track: Instance de Track.
         car: Instance de Car.
+        wall: Mur optionnel. Les rayons s'arretent aussi dessus.
 
     Returns:
         Liste de 5 distances en pixels.
@@ -121,23 +135,27 @@ def get_lidar(track: "Track", car: "Car") -> list[float]:
 
     for angle_offset in LIDAR_ANGLES:
         ray_angle = car.angle + math.radians(angle_offset)
-        dist = _cast_ray(track, car.x, car.y, ray_angle)
+        dist = _cast_ray(track, car.x, car.y, ray_angle, wall)
         distances.append(dist)
 
     return distances
 
 
-def _cast_ray(track: "Track", x: float, y: float, angle: float) -> float:
+def _cast_ray(track: "Track", x: float, y: float, angle: float, wall=None) -> float:
     """
-    Lance un rayon pixel par pixel jusqu'au bord de piste.
+    Lance un rayon pixel par pixel jusqu'au bord de piste ou au mur.
 
     Returns:
-        Distance en pixels jusqu'au premier pixel non-route.
+        Distance en pixels jusqu'au premier pixel non-route (ou mur).
     """
+    cos_a = math.cos(angle)
+    sin_a = math.sin(angle)
     for d in range(1, LIDAR_MAX_RANGE + 1):
-        px = int(x + d * math.cos(angle))
-        py = int(y + d * math.sin(angle))
+        px = int(x + d * cos_a)
+        py = int(y + d * sin_a)
 
+        if wall is not None and wall.contains(px, py):
+            return float(d)
         if not track.is_on_road(px, py):
             return float(d)
 
