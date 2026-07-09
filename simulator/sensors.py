@@ -93,7 +93,7 @@ def get_camera_view_from_track(track: "Track", car: "Car", wall=None,
     y = max(0, min(y, track.height - CAMERA_HEIGHT))
 
     # track.pixels est (W, H, 3). On copie le crop (pour ne pas modifier la
-    # piste), on y peint le mur, puis on transpose en (H, W, 3).
+    # piste), on y peint les panneaux puis le mur, puis on transpose en (H, W, 3).
     crop = track.pixels[x:x + CAMERA_WIDTH, y:y + CAMERA_HEIGHT].copy()
     if signs:
         for sign in signs:

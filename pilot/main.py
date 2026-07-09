@@ -3,10 +3,11 @@ main.py — Boucle principale du pilote IA.
 
 Pipeline par frame :
     1. Recevoir capteurs (camera, lidar, speed) via ZMQ
-    2. Emergency check (lidar < seuil -> frein max, priorite absolue)
-    3. Politique de conduite (PID en Sprint 1, CNN en Sprint 3)
-    4. Envoyer commandes (steering, throttle, brake) au simulateur
-    5. [Optionnel] Dump (capteurs, commandes) sur disque pour dataset
+    2. Politique de conduite (PID ou CNN)
+    3. Panneaux : detection camera -> limite de vitesse / arret STOP (governor)
+    4. Emergency check (lidar -> frein max, priorite absolue, ecrase tout)
+    5. Envoyer commandes (steering, throttle, brake) au simulateur
+    6. [Optionnel] Dump (capteurs, commandes) sur disque pour dataset
 
 Mode record (D8) : `python -m pilot.main --record session_nom` intercepte
 tout ce qui transite sur ZMQ et le sauve dans data/records/{session}/.

@@ -41,7 +41,7 @@ ASPECT_MIN, ASPECT_MAX = 0.5, 2.0
 
 CONF_THRESHOLD = 0.8
 HYSTERESIS_FRAMES = 3        # frames consecutives meme classe pour valider
-COOLDOWN_S = 4.0             # apres application : ignore les detections
+COOLDOWN_S = 4.0             # apres application : ignore le MEME type de panneau (cf docstring)
 STOP_HOLD_S = 2.0            # arret complet maintenu (CDC "arret si Stop")
 STOP_SPEED_KMH = 2.0         # seuil "voiture arretee"
 

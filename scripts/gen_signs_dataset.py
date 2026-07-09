@@ -27,7 +27,6 @@ sys.path.insert(0, str(ROOT))
 
 from simulator.wall import COL_BRICK, COL_MORTAR, COL_BRICK_HI  # source unique
 
-SIGN_KINDS = ("stop", "30", "50", "90")
 CLASSES = ("30", "50", "90", "aucun", "stop")
 OUT_SIZE = 96
 MARGIN = 1.4                     # bbox + 20% de chaque cote (facteur 1.4)

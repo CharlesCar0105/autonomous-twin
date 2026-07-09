@@ -36,6 +36,9 @@ def run_circuit(name: str, seconds: float, fps: int, weights: str,
     track = Track(name, 1280, 720)
     car = Car(track.start_x, track.start_y, track.start_angle)
     signs = load_signs(name) if with_signs else []
+    if with_signs and not signs:
+        print(f"  [!] {name}: aucun sidecar .signs.json -- compositing inactif "
+              "(lancer scripts/place_signs.py)")
 
     dt = 1.0 / fps
     n_frames = int(seconds * fps)

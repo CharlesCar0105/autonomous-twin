@@ -40,23 +40,23 @@ sys.path.insert(0, str(ROOT))
 from simulator.track import Track
 from simulator.car import Car
 from simulator import physics, sensors
-from simulator.signs import SIGN_KINDS
+from simulator.signs import SIGN_KINDS, SIGN_SIZE_DEFAULT
 from pilot.control import pid_policy
 
 SPACING_PX = 300.0          # arclength mini entre 2 panneaux (ligne de conduite)
-MIN_DIST_PX = 200.0         # distance euclidienne mini entre centres de panneaux :
-                            # le crop camera fait 128 px, 200 px entre centres
-                            # garantit jamais 2 panneaux dans la meme vue
-                            # (invariant du detecteur mono-blob, Task 7).
+MIN_DIST_PX = 200.0         # >= 200 px entre centres : garantit <=1 panneau
+                            # SIGNIFICATIF par vue camera (les slivers de coin
+                            # residuels sont rejetes par le filtre densite du
+                            # detecteur).
                             # L'arclength seul ne suffit pas : un circuit qui
                             # boucle sur lui-meme (epingle, multi-tours) peut
                             # rapprocher physiquement deux points eloignes en
                             # arclength cumule.
 OFFSETS_PX = (55.0, 70.0, 85.0)   # offsets lateraux candidats
-SIGN_HALF = 18.0            # demi-taille panneau (36 px)
+SIGN_HALF = SIGN_SIZE_DEFAULT / 2.0            # demi-taille panneau (36 px)
 
 
-def _record_trajectory(track_name: str, seconds: float, fps: int = 60) -> list[dict]:
+def _record_trajectory(track_name: str, seconds: float, fps: int = 60) -> tuple[list[dict], Track]:
     """Roule le PID headless.
 
     Retourne (traj, track) : traj = [{x, y, angle, arclen}] par frame,
@@ -102,7 +102,6 @@ def _place_for_track(track_name: str, per_track: int, seconds: float,
     traj, track = _record_trajectory(track_name, seconds)
     if not traj:
         return []
-    total = traj[-1]["arclen"]
     signs, used_arclen = [], []
     # Candidats : frames triees pour couvrir le tour, tirage rng sur l'ordre.
     order = rng.permutation(len(traj))
