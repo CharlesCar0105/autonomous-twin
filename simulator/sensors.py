@@ -63,7 +63,8 @@ def get_camera_view(screen: pygame.Surface, car: "Car") -> np.ndarray:
     return arr
 
 
-def get_camera_view_from_track(track: "Track", car: "Car", wall=None) -> np.ndarray:
+def get_camera_view_from_track(track: "Track", car: "Car", wall=None,
+                               signs=None) -> np.ndarray:
     """Capture identique a get_camera_view mais directement depuis l'image
     de la piste (track.pixels) -- donc sans la voiture, le HUD, les rayons
     lidar superposes, etc. C'est la vraie "vue caméra" que le pilote doit
@@ -76,6 +77,10 @@ def get_camera_view_from_track(track: "Track", car: "Car", wall=None) -> np.ndar
         wall: Mur optionnel a compositer dans la vue (obstacle visible par
               le pilote). None = piste seule (comportement d'origine, dataset
               U-Net inchange).
+        signs: Liste de RoadSign a compositer dans la vue (panneaux visibles
+               par le pilote). None/[] = piste seule. Les panneaux sont
+               peints AVANT le mur : un mur qui spawn devant un panneau
+               l'occlut (obstacle au premier plan).
 
     Returns:
         Image numpy (H, W, 3) RGB.
@@ -90,6 +95,9 @@ def get_camera_view_from_track(track: "Track", car: "Car", wall=None) -> np.ndar
     # track.pixels est (W, H, 3). On copie le crop (pour ne pas modifier la
     # piste), on y peint le mur, puis on transpose en (H, W, 3).
     crop = track.pixels[x:x + CAMERA_WIDTH, y:y + CAMERA_HEIGHT].copy()
+    if signs:
+        for sign in signs:
+            sign.paste_into_camera(crop, x, y)
     if wall is not None:
         wmask = wall.mask_for_region(x, y, CAMERA_WIDTH, CAMERA_HEIGHT)
         crop[wmask] = wall_camera_color()

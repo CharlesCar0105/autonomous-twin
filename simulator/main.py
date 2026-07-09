@@ -28,6 +28,7 @@ from simulator import sensors
 from simulator.network import SimulatorServer
 from simulator.wall import Wall
 from simulator.timing import LapTimer, format_time
+from simulator.signs import load_signs
 import numpy as np
 
 
@@ -206,6 +207,8 @@ def main() -> None:
                         default=None,
                         help="Force la position/angle de depart (en pixels, degres). "
                              "Bypass la detection auto. Ex: --start-pos 640 615 0")
+    parser.add_argument("--no-signs", action="store_true",
+                        help="Ne charge pas les panneaux du circuit (sidecar .signs.json).")
     args = parser.parse_args()
 
     pygame.init()
@@ -245,6 +248,12 @@ def main() -> None:
 
     # Chrono 3 tours : ligne d'arrivee a la position de depart du circuit.
     lap_timer = LapTimer(track.start_x, track.start_y, track.start_angle, args.circuit)
+
+    # Panneaux statiques du circuit (sidecar JSON, absent = aucun).
+    signs = [] if args.no_signs else load_signs(args.circuit)
+    if signs:
+        print(f"[Simulateur] {len(signs)} panneau(x) charges : "
+              + ", ".join(s.kind for s in signs))
 
     # Position de la frame precedente (pour collision mur + detection de
     # franchissement de la ligne d'arrivee).
@@ -313,7 +322,7 @@ def main() -> None:
             # directement de track.pixels (sans HUD, sans voiture dessinee,
             # sans rayons lidar) pour coller au dataset d'entrainement U-Net.
             lidar = sensors.get_lidar(track, car, wall)
-            camera = sensors.get_camera_view_from_track(track, car, wall)
+            camera = sensors.get_camera_view_from_track(track, car, wall, signs=signs)
             speed_kmh = physics.speed_kmh(car)
             commands = server.send_sensors(camera, lidar, speed_kmh)
             if commands is not None:
@@ -367,6 +376,9 @@ def main() -> None:
         # ── Rendu ─────────────────────────────────────────────────────
         track.draw(screen)
         draw_finish_line(screen, lap_timer)
+
+        for sign in signs:
+            sign.draw(screen)
 
         if wall is not None:
             wall.draw(screen)
