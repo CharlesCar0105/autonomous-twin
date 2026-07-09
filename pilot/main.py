@@ -122,7 +122,14 @@ def main() -> None:
 
             # Emergency : coupe le throttle et freine, mais garde le steering
             # du PID pour que la voiture puisse fuir la bordure proche.
-            if not args.no_emergency and check_emergency_brake(lidar):
+            # Garde anti-blocage : pas de frein d'urgence a l'arret (v <= 5).
+            # Une voiture immobile pres d'une bordure (apres un arret STOP ou
+            # un declenchement en virage serre) a des rayons lidar FIGES sous
+            # le seuil -> l'urgence ne relacherait jamais (constat demo
+            # 2026-07-10 : 21 s de brake=1.0 a v=0). Des qu'elle re-accelere,
+            # l'urgence se re-arme : un mur devant la stoppe toujours.
+            if (not args.no_emergency and speed > 5.0
+                    and check_emergency_brake(lidar)):
                 commands["throttle"] = 0.0
                 commands["brake"] = 1.0
 
