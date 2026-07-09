@@ -22,13 +22,14 @@ import numpy as np
 
 # --- Constantes ----------------------------------------------------------
 
-# Distance de spawn devant la voiture. Le sujet parle de ~15 m ; a l'echelle
-# du simulateur (~0.72 km/h par px/s, cf. physics.SPEED_SCALE) on prend
-# 200 px, ce qui laisse une marge de freinage nette a vitesse de croisiere.
-SPAWN_DISTANCE = 200.0
+# Distance de spawn devant la voiture. Plus c'est court, plus l'aléa est
+# soudain. PLANCHER DE SECURITE : doit rester > EMERGENCY_DISTANCE (70 px)
+# + distance d'arret (~30 px a 80 km/h), sinon la voiture n'a plus le temps
+# de freiner avant l'impact. 130 px laisse ~30 px de marge apres l'arret.
+SPAWN_DISTANCE = 100.0
 
 # Duree de vie du mur (secondes) : il disparait tout seul apres ce delai.
-WALL_LIFETIME = 3.0
+WALL_LIFETIME = 6.0
 
 # Dimensions du mur (pixels).
 WALL_LENGTH = 130.0     # etendue perpendiculaire au cap (barre la piste)
