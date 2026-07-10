@@ -40,10 +40,26 @@ ASPECT_MIN, ASPECT_MAX = 0.5, 2.0
 # --- Tracker ----------------------------------------------------------------
 
 CONF_THRESHOLD = 0.8
-HYSTERESIS_FRAMES = 3        # frames consecutives meme classe pour valider
+HYSTERESIS_FRAMES = 3        # classifications consecutives pour la 1ere pose
+# Remplacer une limite DEJA active par une autre exige plus de preuves que
+# la premiere pose : pare le flip transitoire 30<->90 observe quand un
+# panneau se degrade en sortant du champ (mesures agent E, 10/07 : la
+# moyenne des softmax est PIRE ; l'hysteresis durcie est gratuite et sure).
+REPLACE_HYSTERESIS_FRAMES = 5
+# Classification 1 frame rouge sur 2 : ~-50% de cout CPU quand un panneau
+# est visible, sans perdre le latch (stride 2 valide par test_signs ET
+# simulation temporelle ; stride 3 ECHOUE test_signs -- ne pas augmenter).
+CLASSIFY_STRIDE = 2
 COOLDOWN_S = 4.0             # apres application : ignore le MEME type de panneau (cf docstring)
-STOP_HOLD_S = 2.0            # arret complet maintenu (CDC "arret si Stop")
+STOP_HOLD_S = 0.8            # arret marque (decision 10/07 : le CDC ne fixe
+                             # aucune duree ; 0.8s reste demontrable. Etait 2.0)
 STOP_SPEED_KMH = 2.0         # seuil "voiture arretee"
+# Portee d'une limite : zone de validite en distance parcourue apres
+# application (decision 10/07). Le CDC ne fixe aucune duree ; la persistance
+# infinie bridait des tours entiers sur circuits pauvres en panneaux
+# (cf circuit_02 : un seul '50', aucun relachement). ~600 px = une zone.
+LIMIT_ZONE_PX = 600.0
+_SPEED_SCALE = 0.72          # px/s -> km/h, cf simulator/physics.py (garder synchronise)
 
 _model = None
 
@@ -60,6 +76,13 @@ def _load_model(weights_path: Optional[str] = None):
     _model = build_signs_net(pretrained=False)
     _model.load_state_dict(torch.load(weights_path, map_location="cpu"))
     _model.eval()
+    # Reglages CPU (mesures agent E, 10/07, machine hybride P/E-cores) :
+    # 12 threads (defaut torch) est le PIRE reglage mesure ; 6 = -36% stable.
+    # ATTENTION : set_num_threads est process-global (affecte aussi
+    # cnn_policy -- 12 etant le pire la aussi, c'est un gain partout).
+    # channels_last : ~25% supplementaires gratuits sur MobileNetV2 CPU.
+    torch.set_num_threads(6)
+    _model = _model.to(memory_format=torch.channels_last)
 
 
 def detect_sign_bbox(camera: np.ndarray):
@@ -96,7 +119,8 @@ def classify_crop(camera: np.ndarray, bbox, weights_path: Optional[str] = None):
     # preprocess_batch = pipeline canonique (normalise ImageNet + upscale
     # FEAT_INPUT_SIZE=224) partage avec le training — ne JAMAIS re-inliner.
     with torch.no_grad():
-        probs = F.softmax(_model(preprocess_batch(t)), dim=1).squeeze(0)
+        x = preprocess_batch(t).contiguous(memory_format=torch.channels_last)
+        probs = F.softmax(_model(x), dim=1).squeeze(0)
     idx = int(probs.argmax())
     return SIGN_CLASSES[idx], float(probs[idx])
 
@@ -114,6 +138,9 @@ class SignTracker:
         self._last_applied_kind: Optional[str] = None
         self._stop_state = "NONE"          # NONE | BRAKING | STOPPED
         self._stop_until = 0.0
+        self._red_frames = 0               # compteur frames rouges (stride)
+        self._limit_travel_px = 0.0        # distance depuis l'application
+        self._last_now: Optional[float] = None
 
     @property
     def stop_active(self) -> bool:
@@ -122,6 +149,7 @@ class SignTracker:
     def _apply(self, kind: str, now: float) -> None:
         if kind in ("30", "50", "90"):
             self.speed_limit = float(kind)
+            self._limit_travel_px = 0.0    # nouvelle zone de validite
         elif kind == "stop":
             self._stop_state = "BRAKING"
         self._last_applied_kind = kind
@@ -129,6 +157,15 @@ class SignTracker:
         self._pending_kind, self._pending_count = None, 0
 
     def update(self, camera: np.ndarray, speed_kmh: float, now: float) -> None:
+        # Zone de validite : la limite expire apres LIMIT_ZONE_PX parcourus
+        # depuis son application (integration de la vitesse entre updates).
+        if self.speed_limit is not None and self._last_now is not None:
+            dt_s = max(0.0, now - self._last_now)
+            self._limit_travel_px += (speed_kmh / _SPEED_SCALE) * dt_s
+            if self._limit_travel_px >= LIMIT_ZONE_PX:
+                self.speed_limit = None
+        self._last_now = now
+
         # Machine STOP prioritaire (independante des nouvelles detections).
         if self._stop_state == "BRAKING" and speed_kmh < STOP_SPEED_KMH:
             self._stop_state = "STOPPED"
@@ -144,6 +181,13 @@ class SignTracker:
         bbox = detect_sign_bbox(camera)
         if bbox is None:
             self._pending_kind, self._pending_count = None, 0
+            self._red_frames = 0
+            return
+        # Stride : une classification par CLASSIFY_STRIDE frames rouges.
+        # L'hysteresis compte des CLASSIFICATIONS ; les frames sautees ne
+        # cassent pas le streak (valide agent E : stride 2, test_signs 2/2).
+        self._red_frames += 1
+        if (self._red_frames - 1) % CLASSIFY_STRIDE != 0:
             return
         kind, conf = classify_crop(camera, bbox, self._weights)
         self.last_detection = f"{kind}({conf:.2f})"
@@ -160,7 +204,13 @@ class SignTracker:
             self._pending_count += 1
         else:
             self._pending_kind, self._pending_count = kind, 1
-        if self._pending_count >= HYSTERESIS_FRAMES:
+        # Remplacer une limite active DIFFERENTE exige plus de preuves que
+        # la premiere pose (anti-flip 30<->90, cf constantes).
+        needed = HYSTERESIS_FRAMES
+        if (kind in ("30", "50", "90") and self.speed_limit is not None
+                and self.speed_limit != float(kind)):
+            needed = REPLACE_HYSTERESIS_FRAMES
+        if self._pending_count >= needed:
             self._apply(kind, now)
 
 
@@ -188,24 +238,38 @@ if __name__ == "__main__":
     assert tr.speed_limit == 30.0 and tr._cooldown_until == 104.0
     # Cooldown PAR TYPE : re-voir "30" pendant la fenetre -> jete, pas
     # de re-application (cooldown_until inchange, pending reste a zero).
-    for t in (101.0, 101.5, 102.0):
+    # NB stride : seules les frames rouges 1, 1+CLASSIFY_STRIDE, ... classifient.
+    for t in (101.0, 101.2, 101.4, 101.6):
         tr.update(cam, speed_kmh=50.0, now=t)
     assert tr.speed_limit == 30.0 and tr._cooldown_until == 104.0
     assert tr._pending_count == 0, "les '30' en cooldown doivent etre jetes"
-    # ... mais un panneau d'un AUTRE type latche normalement malgre le
-    # cooldown (hysteresis 3 frames, puis application).
+    # ... mais un panneau d'un AUTRE type latche malgre le cooldown.
+    # Remplacer la limite 30 ACTIVE exige REPLACE_HYSTERESIS_FRAMES (5)
+    # classifications, a 1 frame rouge sur CLASSIFY_STRIDE (2) -> pas
+    # instantane, mais doit aboutir en < 2*stride*5 updates.
     _mock_kind[0] = "50"
-    tr.update(cam, speed_kmh=50.0, now=102.2)
-    tr.update(cam, speed_kmh=50.0, now=102.6)
-    assert tr.speed_limit == 30.0, "pas d'application avant 3 frames"
-    tr.update(cam, speed_kmh=50.0, now=103.0)              # 3e frame -> apply
+    t0, n_updates = 102.0, 0
+    while tr.speed_limit == 30.0 and n_updates < 2 * CLASSIFY_STRIDE * REPLACE_HYSTERESIS_FRAMES:
+        tr.update(cam, speed_kmh=50.0, now=t0)
+        t0 += 0.02
+        n_updates += 1
     assert tr.speed_limit == 50.0, "autre type doit passer malgre cooldown"
-    assert tr._last_applied_kind == "50" and tr._cooldown_until == 107.0
-    # Machine STOP.
+    assert n_updates >= REPLACE_HYSTERESIS_FRAMES, "remplacement trop facile (anti-flip vide)"
+    assert tr._last_applied_kind == "50"
+    # Machine STOP (STOP_HOLD_S=0.8 : NONE des que le maintien est ecoule).
     tr._apply("stop", now=200.0)
     assert tr.stop_active
     tr.update(cam, speed_kmh=1.0, now=201.0)               # v<2 -> STOPPED
     assert tr._stop_state == "STOPPED"
-    tr.update(cam, speed_kmh=0.0, now=203.5)               # 2s ecoulees -> NONE
+    tr.update(cam, speed_kmh=0.0, now=201.0 + STOP_HOLD_S + 0.1)
     assert tr._stop_state == "NONE" and not tr.stop_active
+    # Zone de validite : la limite expire apres LIMIT_ZONE_PX parcourus.
+    tr2 = SignTracker()
+    blank = np.full((128, 128, 3), 255, dtype=np.uint8)
+    tr2._apply("90", now=300.0)
+    tr2._last_now = 300.0
+    tr2.update(blank, speed_kmh=72.0, now=302.0)   # 100 px/s x 2 s = 200 px
+    assert tr2.speed_limit == 90.0, "la limite doit tenir dans la zone"
+    tr2.update(blank, speed_kmh=72.0, now=306.5)   # +450 px -> 650 > 600
+    assert tr2.speed_limit is None, "la limite doit expirer apres la zone"
     print("pilot/signs.py self-check OK")
