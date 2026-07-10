@@ -146,6 +146,16 @@ class SignTracker:
     def stop_active(self) -> bool:
         return self._stop_state in ("BRAKING", "STOPPED")
 
+    @property
+    def limit_zone_left_px(self) -> float:
+        """Distance restante (px) avant expiration de la limite active
+        (lecture publique de la zone de validite -- cf LIMIT_ZONE_PX --
+        pour affichage tableau de bord, sans exposer _limit_travel_px).
+        0.0 si aucune limite active."""
+        if self.speed_limit is None:
+            return 0.0
+        return max(0.0, LIMIT_ZONE_PX - self._limit_travel_px)
+
     def _apply(self, kind: str, now: float) -> None:
         if kind in ("30", "50", "90"):
             self.speed_limit = float(kind)
