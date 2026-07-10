@@ -49,6 +49,19 @@ LIDAR_FRONT_SLOW = 40.0    # pixels : throttle min en-dessous
 # Vitesse cible (km/h) — utile quand on aura la classif panneaux
 SPEED_TARGET_DEFAULT = 80.0
 
+# Amortissement de la commande de steering (filtre passe-bas 1er ordre :
+# steering_t = kd*prev + (1-kd)*brut). Mesure agent B (10/07) : kd=0.5
+# reduit l'oscillation frame-a-frame (11% d'inversions de signe en
+# baseline) et gagne ~0.5-1% au chrono, sans contrepartie sur 7 circuits.
+# ATTENTION : la derivee classique sur l'ERREUR a ete testee et est
+# DANGEREUSE ici (bruit de quantification lidar amplifie -> 86% offtrack
+# a kd=1.0) -- ne pas "ameliorer" dans ce sens.
+STEER_DAMPING = 0.5
+
+# Etat du filtre (module-level, comme _cnn_model). Pas de reset entre runs :
+# converge en ~5 frames et le spawn se fait a steering ~0.
+_prev_steering = 0.0
+
 
 def pid_policy(
     lidar: list[float],
@@ -96,6 +109,12 @@ def pid_policy(
         steering -= TIGHT_BOOST
 
     steering = float(np.clip(steering, -45.0, 45.0))
+
+    # Amortissement de sortie (cf STEER_DAMPING) : moyenne de deux valeurs
+    # dans [-45, 45], donc pas de re-clip necessaire.
+    global _prev_steering
+    steering = STEER_DAMPING * _prev_steering + (1.0 - STEER_DAMPING) * steering
+    _prev_steering = steering
 
     # Longitudinal : throttle interpole sur la distance frontale.
     t = (front - LIDAR_FRONT_SLOW) / (LIDAR_FRONT_SAFE - LIDAR_FRONT_SLOW)
