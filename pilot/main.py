@@ -63,8 +63,9 @@ def main() -> None:
                         help="Path du .pth du CNN conduite (utile si --policy cnn).")
     parser.add_argument("--record", metavar="SESSION", default=None,
                         help="Active le dump dataset dans data/records/SESSION/.")
-    parser.add_argument("--speed-target", type=float, default=80.0,
-                        help="Vitesse cible (km/h) pour le PID.")
+    parser.add_argument("--speed-target", type=float, default=120.0,
+                        help="Vitesse cible (km/h) pour le PID. 120 = au-dessus "
+                             "du plafond physique (~100) : ne bride pas.")
     parser.add_argument("--no-emergency", action="store_true",
                         help="Desactive le freinage d'urgence (utile tant que "
                              "le mur dynamique n'est pas cote simu : evite les "

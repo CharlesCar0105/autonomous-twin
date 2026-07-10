@@ -166,7 +166,7 @@ def main() -> None:
     parser.add_argument("--laps", type=int, default=3)
     parser.add_argument("--timeout", type=float, default=300.0,
                         help="Timeout par run en secondes SIMULEES.")
-    parser.add_argument("--speed-target", type=float, default=80.0)
+    parser.add_argument("--speed-target", type=float, default=120.0)
     parser.add_argument("--out", default=None,
                         help="Chemin JSON de sortie (defaut: bench/bench_<date>.json).")
     parser.add_argument("--label", default="",

@@ -46,8 +46,10 @@ THROTTLE_MIN = 0.25        # plancher en approche virage
 LIDAR_FRONT_SAFE = 70.0    # pixels : throttle max au-dessus de ce seuil
 LIDAR_FRONT_SLOW = 40.0    # pixels : throttle min en-dessous
 
-# Vitesse cible (km/h) — utile quand on aura la classif panneaux
-SPEED_TARGET_DEFAULT = 80.0
+# Vitesse cible (km/h). 120 = au-dessus du plafond physique (~100 km/h
+# depuis MAX_ACCELERATION=170) : le soft cap ne bride plus, ce sont les
+# panneaux (governor) et la physique qui fixent la vitesse.
+SPEED_TARGET_DEFAULT = 120.0
 
 # Amortissement de la commande de steering (filtre passe-bas 1er ordre :
 # steering_t = kd*prev + (1-kd)*brut). Mesure agent B (10/07) : kd=0.5
