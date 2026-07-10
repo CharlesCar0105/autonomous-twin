@@ -3,10 +3,11 @@ main.py — Boucle principale du pilote IA.
 
 Pipeline par frame :
     1. Recevoir capteurs (camera, lidar, speed) via ZMQ
-    2. Emergency check (lidar < seuil -> frein max, priorite absolue)
-    3. Politique de conduite (PID en Sprint 1, CNN en Sprint 3)
-    4. Envoyer commandes (steering, throttle, brake) au simulateur
-    5. [Optionnel] Dump (capteurs, commandes) sur disque pour dataset
+    2. Politique de conduite (PID ou CNN)
+    3. Panneaux : detection camera -> limite de vitesse / arret STOP (governor)
+    4. Emergency check (lidar -> frein max, priorite absolue, ecrase tout)
+    5. Envoyer commandes (steering, throttle, brake) au simulateur
+    6. [Optionnel] Dump (capteurs, commandes) sur disque pour dataset
 
 Mode record (D8) : `python -m pilot.main --record session_nom` intercepte
 tout ce qui transite sur ZMQ et le sauve dans data/records/{session}/.
@@ -29,6 +30,7 @@ from pilot.network import PilotClient
 from pilot.control import pid_policy, cnn_policy
 from pilot.emergency import check_emergency_brake, get_emergency_commands
 from pilot.perception import compute_mask
+from pilot.signs import SignTracker
 
 
 RECORDS_DIR = os.path.join(
@@ -67,6 +69,8 @@ def main() -> None:
                         help="Desactive le freinage d'urgence (utile tant que "
                              "le mur dynamique n'est pas cote simu : evite les "
                              "blocages quand la voiture frole une bordure en virage).")
+    parser.add_argument("--no-signs", action="store_true",
+                        help="Desactive la lecture de panneaux (detection+classif+decision).")
     args = parser.parse_args()
 
     session_dir = None
@@ -76,6 +80,7 @@ def main() -> None:
         print(f"[Pilote] Enregistrement dataset -> {session_dir}")
 
     client = PilotClient(args.address)
+    tracker = None if args.no_signs else SignTracker()
     print(f"[Pilote] Politique : {args.policy.upper()}  |  speed_target = {args.speed_target} km/h")
     print("[Pilote] Boucle demarree (Ctrl+C pour quitter).")
 
@@ -102,9 +107,29 @@ def main() -> None:
             else:  # "none"
                 commands = {"steering": 0.0, "throttle": 0.0, "brake": 0.0}
 
+            # Panneaux : detection camera-only -> limite de vitesse / STOP.
+            # Governor post-policy : un seul mecanisme, valable PID et CNN.
+            if tracker is not None:
+                tracker.update(sensors["camera"], speed, time.time())
+                limit = tracker.speed_limit
+                if limit is not None and speed > limit:
+                    commands["throttle"] = min(commands["throttle"], 0.15)
+                    if speed > limit + 15.0:
+                        commands["brake"] = max(commands["brake"], 0.3)
+                if tracker.stop_active:
+                    commands["throttle"] = 0.0
+                    commands["brake"] = 1.0
+
             # Emergency : coupe le throttle et freine, mais garde le steering
             # du PID pour que la voiture puisse fuir la bordure proche.
-            if not args.no_emergency and check_emergency_brake(lidar):
+            # Garde anti-blocage : pas de frein d'urgence a l'arret (v <= 5).
+            # Une voiture immobile pres d'une bordure (apres un arret STOP ou
+            # un declenchement en virage serre) a des rayons lidar FIGES sous
+            # le seuil -> l'urgence ne relacherait jamais (constat demo
+            # 2026-07-10 : 21 s de brake=1.0 a v=0). Des qu'elle re-accelere,
+            # l'urgence se re-arme : un mur devant la stoppe toujours.
+            if (not args.no_emergency and speed > 5.0
+                    and check_emergency_brake(lidar)):
                 commands["throttle"] = 0.0
                 commands["brake"] = 1.0
 
@@ -115,11 +140,17 @@ def main() -> None:
 
             if frame_id % 60 == 0:
                 fps = frame_id / max(time.time() - t_start, 1e-6)
+                sign_info = ""
+                if tracker is not None:
+                    lim = f"{tracker.speed_limit:.0f}" if tracker.speed_limit else "--"
+                    det = tracker.last_detection or ""
+                    stop = " STOP!" if tracker.stop_active else ""
+                    sign_info = f"  limite={lim}{stop} {det}"
                 print(
                     f"[Pilote] f={frame_id:06d}  v={speed:5.1f} km/h  "
                     f"lidar_front={lidar[2]:5.0f}px  steer={commands['steering']:+6.1f}  "
                     f"thr={commands['throttle']:.2f}  brk={commands['brake']:.2f}  "
-                    f"FPS={fps:4.1f}"
+                    f"FPS={fps:4.1f}{sign_info}"
                 )
             frame_id += 1
 

@@ -222,6 +222,7 @@ data/processed/
 data/train/
 data/val/
 data/records/
+data/signs/
 data/*.csv
 data/*.json
 !data/.gitkeep

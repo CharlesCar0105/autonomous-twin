@@ -24,15 +24,21 @@ sys.path.insert(0, str(ROOT))
 from simulator.track import Track
 from simulator.car import Car
 from simulator import physics, sensors
+from simulator.signs import load_signs
 from pilot.control import cnn_policy
 from pilot.perception import compute_mask
 
 
-def run_circuit(name: str, seconds: float, fps: int, weights: str) -> dict:
+def run_circuit(name: str, seconds: float, fps: int, weights: str,
+                 with_signs: bool = False) -> dict:
     pygame.init()
     pygame.display.set_mode((1, 1))
     track = Track(name, 1280, 720)
     car = Car(track.start_x, track.start_y, track.start_angle)
+    signs = load_signs(name) if with_signs else []
+    if with_signs and not signs:
+        print(f"  [!] {name}: aucun sidecar .signs.json -- compositing inactif "
+              "(lancer scripts/place_signs.py)")
 
     dt = 1.0 / fps
     n_frames = int(seconds * fps)
@@ -42,7 +48,7 @@ def run_circuit(name: str, seconds: float, fps: int, weights: str) -> dict:
 
     for _ in range(n_frames):
         lidar = sensors.get_lidar(track, car)
-        camera = sensors.get_camera_view_from_track(track, car)
+        camera = sensors.get_camera_view_from_track(track, car, signs=signs)
         mask = compute_mask(camera, size=64)
         speed = physics.speed_kmh(car)
         steering, throttle, brake = cnn_policy(lidar, speed, mask, weights)
@@ -68,6 +74,8 @@ def main() -> None:
     parser.add_argument("--fps", type=int, default=60)
     parser.add_argument("--weights", default=str(ROOT / "models" / "cnn_drive.pth"))
     parser.add_argument("--max", type=int, default=None)
+    parser.add_argument("--with-signs", action="store_true",
+                        help="Composite les panneaux du sidecar dans la camera (non-regression).")
     args = parser.parse_args()
 
     tracks_dir = ROOT / "assets" / "tracks"
@@ -84,7 +92,7 @@ def main() -> None:
     n_pass = 0; fails = []
     for name in candidates:
         try:
-            r = run_circuit(name, args.seconds, args.fps, args.weights)
+            r = run_circuit(name, args.seconds, args.fps, args.weights, args.with_signs)
         except Exception as e:
             print(f"  {name:<12}  ERREUR : {e}"); fails.append(name); continue
         ok = r["off_track_frac"] < 0.05 and r["distance_px"] > 200.0
