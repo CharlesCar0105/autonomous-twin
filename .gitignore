@@ -210,11 +210,8 @@ __marimo__/
 # Autonomous Twin — Projet spécifique
 # ============================================
 
-# Modèles entraînés (trop lourds pour Git)
-models/*.pth
-models/*.pt
-models/*.onnx
-models/*.pkl
+# Modèles entraînés : versionnés dans le repo (~20 Mo, sous la limite GitHub 100 Mo/fichier)
+# Si réentraînements fréquents → passer aux GitHub Releases pour éviter de gonfler l'historique
 
 # Datasets (trop volumineux)
 data/raw/
