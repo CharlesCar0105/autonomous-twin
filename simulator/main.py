@@ -29,6 +29,8 @@ from simulator.network import SimulatorServer
 from simulator.wall import Wall
 from simulator.timing import LapTimer, format_time, LAPS_TARGET
 from simulator.signs import load_signs
+from simulator.effects import Effects
+from simulator.audio import EngineAudio
 import numpy as np
 
 
@@ -54,48 +56,88 @@ COL_GRAY = (160, 160, 160)
 
 # --- HUD -----------------------------------------------------------------
 
+def draw_gauge(screen, cx, cy, radius, speed, font_sm):
+    """Compteur de vitesse a cadran (aiguille), facon tableau de bord auto.
+
+    Cadran de 0 a MAX km/h sur un arc de 240 deg (de 150 a -30 en trigo).
+    """
+    max_kmh = 160.0
+    start_deg, end_deg = 150.0, -90.0   # arc horaire de 240 deg
+
+    # Fond du cadran
+    pygame.draw.circle(screen, (18, 18, 22), (cx, cy), radius)
+    pygame.draw.circle(screen, (90, 90, 100), (cx, cy), radius, 2)
+
+    # Graduations
+    for k in range(0, int(max_kmh) + 1, 20):
+        frac = k / max_kmh
+        ang = math.radians(start_deg + frac * (end_deg - start_deg))
+        x1 = cx + (radius - 8) * math.cos(ang)
+        y1 = cy - (radius - 8) * math.sin(ang)
+        x2 = cx + radius * math.cos(ang)
+        y2 = cy - radius * math.sin(ang)
+        col = COL_RED if k >= 140 else (140, 140, 150)
+        pygame.draw.line(screen, col, (x1, y1), (x2, y2), 2)
+
+    # Aiguille
+    frac = max(0.0, min(1.0, speed / max_kmh))
+    ang = math.radians(start_deg + frac * (end_deg - start_deg))
+    nx = cx + (radius - 12) * math.cos(ang)
+    ny = cy - (radius - 12) * math.sin(ang)
+    needle_col = COL_RED if speed > 140 else COL_CYAN
+    pygame.draw.line(screen, needle_col, (cx, cy), (nx, ny), 3)
+    pygame.draw.circle(screen, (200, 200, 210), (cx, cy), 4)
+
+    # Valeur numerique
+    val = font_sm.render(f"{speed:.0f}", True, COL_WHITE)
+    screen.blit(val, (cx - val.get_width() // 2, cy + radius // 2))
+    unit = font_sm.render("km/h", True, COL_GRAY)
+    screen.blit(unit, (cx - unit.get_width() // 2, cy + radius // 2 + 14))
+
+
+def draw_mini_pedal(screen, x, y, value, color, label, font):
+    """Petite jauge ronde (gaz/frein) : arc rempli selon value [0,1]."""
+    r = 16
+    pygame.draw.circle(screen, (55, 55, 62), (x, y), r)
+    if value > 0:
+        # arc depuis le bas, horaire
+        pts = [(x, y)]
+        for i in range(int(value * 36) + 1):
+            ang = math.radians(90 - i * 10)
+            pts.append((x + r * math.cos(ang), y - r * math.sin(ang)))
+        if len(pts) >= 3:
+            pygame.draw.polygon(screen, color, pts)
+    pygame.draw.circle(screen, (110, 110, 120), (x, y), r, 2)
+    lbl = font.render(label, True, COL_GRAY)
+    screen.blit(lbl, (x - lbl.get_width() // 2, y + r + 2))
+
+
 def draw_hud(screen, car, track, clock, font, font_big, show_debug):
     """Affiche le tableau de bord en surimpression."""
     speed = physics.speed_kmh(car)
     on_border = track.is_border(int(car.x), int(car.y))
 
     # --- Fond semi-transparent pour le HUD gauche ---
-    hud_bg = pygame.Surface((200, 130), pygame.SRCALPHA)
+    hud_bg = pygame.Surface((210, 170), pygame.SRCALPHA)
     hud_bg.fill((0, 0, 0, 120))
     screen.blit(hud_bg, (5, 5))
 
-    # Vitesse
-    speed_col = COL_RED if speed > 150 else COL_GREEN
-    txt = font_big.render(f"{speed:.0f} km/h", True, speed_col)
-    screen.blit(txt, (15, 12))
+    # Compteur a cadran
+    draw_gauge(screen, 62, 68, 48, speed, font)
 
-    # Angle volant (texte)
-    txt = font.render(f"Volant: {car.steering:+6.1f}", True, COL_WHITE)
-    screen.blit(txt, (15, 45))
-
-    # Barre de direction visuelle
-    bar_x, bar_y, bar_w = 15, 70, 175
+    # Angle volant (barre de direction)
+    bar_x, bar_y, bar_w = 120, 40, 80
     pygame.draw.rect(screen, (80, 80, 80), (bar_x, bar_y, bar_w, 8), border_radius=4)
     center_x = bar_x + bar_w // 2
     indicator_x = center_x + int((car.steering / 45.0) * (bar_w // 2))
     pygame.draw.circle(screen, COL_YELLOW, (indicator_x, bar_y + 4), 6)
-    pygame.draw.line(screen, (120, 120, 120), (center_x, bar_y), (center_x, bar_y + 8), 1)
+    pygame.draw.line(screen, (120, 120, 120), (center_x, bar_y - 3), (center_x, bar_y + 11), 1)
+    lbl = font.render("VOLANT", True, COL_GRAY)
+    screen.blit(lbl, (bar_x + bar_w // 2 - lbl.get_width() // 2, bar_y - 16))
 
-    # Barre gaz (vert)
-    pygame.draw.rect(screen, (60, 60, 60), (15, 88, 80, 10), border_radius=3)
-    if car.throttle > 0:
-        tw = int(car.throttle * 80)
-        pygame.draw.rect(screen, COL_GREEN, (15, 88, tw, 10), border_radius=3)
-    txt = font.render("GAZ", True, COL_GRAY)
-    screen.blit(txt, (100, 86))
-
-    # Barre frein (rouge)
-    pygame.draw.rect(screen, (60, 60, 60), (15, 104, 80, 10), border_radius=3)
-    if car.brake > 0:
-        bw = int(car.brake * 80)
-        pygame.draw.rect(screen, COL_RED, (15, 104, bw, 10), border_radius=3)
-    txt = font.render("FREIN", True, COL_GRAY)
-    screen.blit(txt, (100, 102))
+    # Mini-jauges gaz / frein (rondes)
+    draw_mini_pedal(screen, 138, 95, car.throttle, COL_GREEN, "GAZ", font)
+    draw_mini_pedal(screen, 182, 95, car.brake, COL_RED, "FREIN", font)
 
     # Avertissement bordure
     if on_border:
@@ -115,7 +157,7 @@ def draw_hud(screen, car, track, clock, font, font_big, show_debug):
 
     # Aide contrôles
     help_str = ("Fleches: Conduire | Espace: Mur | X: Retirer mur | T: Chrono | "
-                "R: Reset | L: Lidar | C: Camera | F3: Debug | Echap: Quitter")
+                "R: Reset | L: Lidar | C: Camera | M: Son | F3: Debug | Echap: Quitter")
     txt = font.render(help_str, True, (100, 100, 100))
     screen.blit(txt, (SCREEN_WIDTH - txt.get_width() - 10, SCREEN_HEIGHT - 20))
 
@@ -267,6 +309,12 @@ def main() -> None:
     t_start = time.time()
     auto_wall_done = False
 
+    # Effets visuels (traces/poussiere) + audio moteur. Purement ecran/son :
+    # aucun impact sur les capteurs du pilote (camera/lidar depuis track.pixels).
+    effects = Effects(SCREEN_WIDTH, SCREEN_HEIGHT)
+    audio = EngineAudio()
+    was_colliding = False   # pour jouer le son d'impact une seule fois
+
     # --- Serveur ZMQ (mode pilote IA) ---
     server = SimulatorServer(args.address) if args.server else None
 
@@ -291,6 +339,10 @@ def main() -> None:
                     running = False
                 elif event.key == pygame.K_r:
                     car.reset(track.start_x, track.start_y, track.start_angle)
+                    effects.reset()
+                elif event.key == pygame.K_m:
+                    muted = audio.toggle_mute()
+                    print(f"[Simulateur] Son {'coupe' if muted else 'active'}.")
                 elif event.key == pygame.K_l:
                     show_lidar = not show_lidar
                 elif event.key == pygame.K_F3:
@@ -310,6 +362,7 @@ def main() -> None:
                 elif event.key == pygame.K_t:
                     lap_timer.reset()
                     car.reset(track.start_x, track.start_y, track.start_angle)
+                    effects.reset()
                     prev_x, prev_y = car.x, car.y
                     print("[Simulateur] Chrono remis a zero.")
 
@@ -317,6 +370,7 @@ def main() -> None:
                 if event.button == 3:  # clic droit → repositionner
                     mx, my = event.pos
                     car.reset(mx, my, math.degrees(car.angle))
+                    effects.reset()
                     print(f"[Simulateur] Voiture repositionnee en ({mx}, {my})")
 
         # ── Auto-spawn du mur (tests/demo, --auto-wall) ───────────────
@@ -377,12 +431,25 @@ def main() -> None:
         # ── Collision mur : la voiture ne traverse pas le mur ─────────
         # On teste le pare-choc avant (18 px devant le centre). En cas de
         # contact on annule le deplacement de la frame et on stoppe net.
+        colliding = False
         if wall is not None:
             front_x = car.x + 18.0 * math.cos(car.angle)
             front_y = car.y + 18.0 * math.sin(car.angle)
             if wall.contains(front_x, front_y) or wall.contains(car.x, car.y):
+                speed_at_impact = car.speed
                 car.x, car.y = prev_x, prev_y
                 car.speed = 0.0
+                colliding = True
+                if not was_colliding and speed_at_impact > 30:
+                    audio.play_impact()
+        was_colliding = colliding
+
+        # ── Effets (traces/poussiere) + audio moteur ──────────────────
+        braking = car.brake > 0.5
+        effects.update(car, dt, braking)
+        audio.update_engine(car.speed, physics.MAX_SPEED_PX)
+        if braking:
+            audio.play_brake(car.speed)
 
         # ── Chrono : detection de franchissement de la ligne ──────────
         laps_before = lap_timer.laps_done
@@ -400,6 +467,7 @@ def main() -> None:
         # ── Rendu ─────────────────────────────────────────────────────
         track.draw(screen)
         draw_finish_line(screen, lap_timer)
+        effects.draw_marks(screen)        # traces de pneus (sous la voiture)
 
         for sign in signs:
             sign.draw(screen)
@@ -415,12 +483,15 @@ def main() -> None:
             draw_lidar(screen, car, lidar_distances)
 
         car.draw(screen)
+        effects.draw_particles(screen)    # poussiere (au-dessus du sol)
         draw_hud(screen, car, track, clock, font, font_big, show_debug)
         draw_chrono(screen, lap_timer, font, font_big)
 
         # ── Aperçu caméra (ce que le pilote verra) ────────────────────
         if show_camera:
-            cam_img = sensors.get_camera_view(screen, car)
+            # Meme source que le pilote (track.pixels + mur + panneaux) : la
+            # vue n'est PAS polluee par les effets/HUD/voiture de l'ecran.
+            cam_img = sensors.get_camera_view_from_track(track, car, wall, signs=signs)
             # Convertir numpy → Surface Pygame
             cam_surf = pygame.surfarray.make_surface(
                 np.transpose(cam_img, (1, 0, 2))
@@ -441,6 +512,7 @@ def main() -> None:
 
     if server is not None:
         server.close()
+    audio.close()
     pygame.quit()
     sys.exit()
 

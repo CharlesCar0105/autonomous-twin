@@ -43,8 +43,9 @@ class Car:
         self.throttle = 0.0    # accélérateur [0.0, 1.0]
         self.brake = 0.0       # frein [0.0, 1.0]
 
-        # Sprite
+        # Sprite + ombre portee
         self._load_sprite()
+        self.shadow = self._create_shadow()
 
     def _load_sprite(self) -> None:
         """Charge le sprite de la voiture ou crée un placeholder."""
@@ -63,30 +64,53 @@ class Car:
 
     @staticmethod
     def _create_placeholder() -> pygame.Surface:
-        """Crée un sprite placeholder en forme de voiture."""
-        w, h = 36, 18
+        """Cree un sprite de voiture de course stylise (vue de dessus).
+
+        Convention : l'AVANT est vers +x (cote droit du sprite), coherent
+        avec car.angle = 0 -> cap vers la droite.
+        """
+        w, h = 46, 22
         surf = pygame.Surface((w, h), pygame.SRCALPHA)
 
-        # Carrosserie
-        pygame.draw.rect(surf, (220, 40, 40), (2, 2, w - 4, h - 4), border_radius=3)
+        red = (210, 40, 40)
+        red_dark = (150, 22, 22)
+        tyre = (28, 28, 32)
 
-        # Pare-brise (avant = côté droit du sprite)
-        pygame.draw.rect(surf, (60, 60, 180), (w - 12, 4, 8, h - 8), border_radius=2)
+        # Roues (dessinees avant la carrosserie pour depasser legerement).
+        for wx in (7, w - 15):
+            pygame.draw.rect(surf, tyre, (wx, -1, 9, 5), border_radius=2)      # cote haut
+            pygame.draw.rect(surf, tyre, (wx, h - 4, 9, 5), border_radius=2)   # cote bas
 
-        # Indicateur avant (triangle jaune)
-        pygame.draw.polygon(surf, (255, 220, 50), [
-            (w - 2, h // 2 - 3),
-            (w, h // 2),
-            (w - 2, h // 2 + 3),
-        ])
+        # Carrosserie profilee : museau avant plus etroit.
+        body = [
+            (4, 5), (w - 12, 3), (w - 3, h // 2), (w - 12, h - 3), (4, h - 5),
+        ]
+        pygame.draw.polygon(surf, red, body)
+        pygame.draw.polygon(surf, red_dark, body, 2)
 
-        # Roues
-        pygame.draw.rect(surf, (40, 40, 40), (4, 0, 8, 3))       # arrière gauche
-        pygame.draw.rect(surf, (40, 40, 40), (4, h - 3, 8, 3))   # arrière droite
-        pygame.draw.rect(surf, (40, 40, 40), (w - 14, 0, 8, 3))  # avant gauche
-        pygame.draw.rect(surf, (40, 40, 40), (w - 14, h - 3, 8, 3))  # avant droite
+        # Bande de course claire au centre (longitudinale).
+        pygame.draw.rect(surf, (245, 245, 245), (8, h // 2 - 2, w - 22, 4), border_radius=2)
+
+        # Cockpit / canopy (vitres teintees).
+        pygame.draw.ellipse(surf, (40, 48, 70), (w // 2 - 6, 5, 14, h - 10))
+
+        # Aileron arriere (a gauche du sprite).
+        pygame.draw.rect(surf, red_dark, (1, 3, 4, h - 6), border_radius=1)
+
+        # Phares avant (jaunes) et feux arriere (rouges).
+        pygame.draw.circle(surf, (255, 230, 120), (w - 5, 7), 2)
+        pygame.draw.circle(surf, (255, 230, 120), (w - 5, h - 7), 2)
+        pygame.draw.circle(surf, (255, 70, 70), (5, 7), 2)
+        pygame.draw.circle(surf, (255, 70, 70), (5, h - 7), 2)
 
         return surf
+
+    def _create_shadow(self) -> pygame.Surface:
+        """Ombre portee : ellipse sombre semi-transparente a la taille du sprite."""
+        w, h = self.original_image.get_size()
+        shadow = pygame.Surface((w, h), pygame.SRCALPHA)
+        pygame.draw.ellipse(shadow, (0, 0, 0, 90), (2, 3, w - 4, h - 4))
+        return shadow
 
     def reset(self, x: float, y: float, angle_deg: float = 0.0) -> None:
         """Remet la voiture à la position donnée, vitesse à zéro."""
@@ -112,8 +136,14 @@ class Car:
         self.brake = max(0.0, min(1.0, brake))
 
     def draw(self, screen: pygame.Surface) -> None:
-        """Dessine la voiture sur l'écran avec rotation."""
+        """Dessine la voiture sur l'écran avec rotation (+ ombre portee)."""
         angle_deg = -math.degrees(self.angle)  # Pygame tourne dans le sens inverse
+
+        # Ombre : legerement decalee vers le bas-droite, sous la voiture.
+        rot_shadow = pygame.transform.rotate(self.shadow, angle_deg)
+        sh_rect = rot_shadow.get_rect(center=(int(self.x) + 3, int(self.y) + 4))
+        screen.blit(rot_shadow, sh_rect.topleft)
+
         rotated = pygame.transform.rotate(self.original_image, angle_deg)
         rect = rotated.get_rect(center=(int(self.x), int(self.y)))
         screen.blit(rotated, rect.topleft)

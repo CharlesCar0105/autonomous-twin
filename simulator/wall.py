@@ -26,7 +26,7 @@ import numpy as np
 # soudain. PLANCHER DE SECURITE : doit rester > EMERGENCY_DISTANCE (70 px)
 # + distance d'arret (~30 px a 80 km/h), sinon la voiture n'a plus le temps
 # de freiner avant l'impact. 130 px laisse ~30 px de marge apres l'arret.
-SPAWN_DISTANCE = 100.0
+SPAWN_DISTANCE = 130.0
 
 # Duree de vie du mur (secondes) : il disparait tout seul apres ce delai.
 WALL_LIFETIME = 6.0
