@@ -129,7 +129,7 @@ def main() -> None:
             # 2026-07-10 : 21 s de brake=1.0 a v=0). Des qu'elle re-accelere,
             # l'urgence se re-arme : un mur devant la stoppe toujours.
             if (not args.no_emergency and speed > 5.0
-                    and check_emergency_brake(lidar)):
+                    and check_emergency_brake(lidar, speed)):
                 commands["throttle"] = 0.0
                 commands["brake"] = 1.0
 

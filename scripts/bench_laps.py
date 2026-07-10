@@ -119,7 +119,7 @@ def run_bench(circuit: str, config: str, laps_target: int,
             prev_stop_active = tracker.stop_active
             if not limit_history or limit_history[-1] != limit:
                 limit_history.append(limit)
-        if with_emergency and speed > 5.0 and check_emergency_brake(lidar):
+        if with_emergency and speed > 5.0 and check_emergency_brake(lidar, speed):
             throttle, brake = 0.0, 1.0
             frames_emergency += 1
 
