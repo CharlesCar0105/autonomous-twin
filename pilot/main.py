@@ -94,6 +94,13 @@ def main() -> None:
         print("[Pilote] Dashboard temps reel active (fenetre separee).")
 
     print(f"[Pilote] Politique : {args.policy.upper()}  |  speed_target = {args.speed_target} km/h")
+
+    dashboard = None
+    if args.dashboard:
+        from pilot.dashboard import Dashboard  # import tardif : pygame requis seulement ici
+        dashboard = Dashboard()
+        print("[Pilote] Tableau de bord ouvert (Echap ou fermeture = quitter).")
+
     print("[Pilote] Boucle demarree (Ctrl+C pour quitter).")
 
     frame_id = 0
@@ -150,9 +157,13 @@ def main() -> None:
 
             client.send_commands(**commands)
 
+            # Fermer la fenetre du dashboard arrete proprement le pilote
+            # (comportement repris de la version Charles).
             if dashboard is not None:
-                dashboard.update(sensors["camera"], lidar, speed, commands,
-                                  tracker, args.policy, emergency_triggered)
+                if not dashboard.update(sensors["camera"], lidar, speed, commands,
+                                        tracker, args.policy, emergency_triggered):
+                    print("[Pilote] Tableau de bord ferme -> arret.")
+                    break
 
             if session_dir is not None:
                 _dump_frame(session_dir, frame_id, sensors, commands)
@@ -178,6 +189,8 @@ def main() -> None:
     finally:
         if session_dir is not None:
             print(f"[Pilote] {frame_id} frames sauvegardees dans {session_dir}")
+        if dashboard is not None:
+            dashboard.close()
         client.close()
 
 

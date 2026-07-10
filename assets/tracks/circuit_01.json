@@ -1,0 +1,24 @@
+{
+  "seed": 11,
+  "width": 1280,
+  "height": 720,
+  "track_width_mean_px": 64.9837837961131,
+  "track_width_range_px": [
+    51.928249422241365,
+    76.70652329638122
+  ],
+  "start_x": 1064.7581348303138,
+  "start_y": 344.2359559468168,
+  "start_angle_deg": -101.42494385352231,
+  "features": {
+    "pinches": 1,
+    "bumps": 0,
+    "chicanes": 0,
+    "straights": 1
+  },
+  "min_curvature_radius_px": 35.570747934924015,
+  "min_self_distance_px": 106.32200435939808,
+  "min_border_distance_px": 55.56578583374943,
+  "in_frame": true,
+  "retries": 9
+}

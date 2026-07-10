@@ -118,9 +118,17 @@ class Dashboard:
         tracker: Optional[SignTracker],
         policy_name: str,
         emergency_active: bool,
-    ) -> None:
-        """Dessine une frame complete et l'affiche (a appeler 1x/boucle)."""
-        pygame.event.pump()   # garde la fenetre responsive (pas d'input gere)
+    ) -> bool:
+        """Dessine une frame complete et l'affiche (a appeler 1x/boucle).
+
+        Retourne False si l'utilisateur a ferme la fenetre (croix ou Echap)
+        -- l'appelant doit alors arreter proprement (contrat repris de la
+        version Charles du dashboard)."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return False
         self._speed_history.append(float(speed_kmh))
 
         self.screen.fill((14, 14, 18))
@@ -133,6 +141,12 @@ class Dashboard:
         self._draw_status_banner(tracker, policy_name, emergency_active)
 
         pygame.display.flip()
+        return True
+
+    def close(self) -> None:
+        """Ferme la fenetre du dashboard (le pilote n'utilise pygame que
+        pour elle)."""
+        pygame.quit()
 
     # --- Panneaux -------------------------------------------------------
 
