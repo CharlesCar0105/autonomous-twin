@@ -39,17 +39,22 @@ ASPECT_MIN, ASPECT_MAX = 0.5, 2.0
 
 # --- Tracker ----------------------------------------------------------------
 
-CONF_THRESHOLD = 0.8
+# 0.8 -> 0.6 (10/07, physique 100 km/h) : le seuil haut compensait les
+# lectures-poubelle sur panneaux tronques ; le filtre de blob les exclut
+# desormais EN AMONT (seules les frames pleine-visibilite sont classifiees,
+# lectures unanimement correctes a 0.65-0.94 mesure). A 100 km/h la fenetre
+# de passage est courte : exiger 3 lectures consecutives >= 0.8 la ratait.
+CONF_THRESHOLD = 0.6
 HYSTERESIS_FRAMES = 3        # classifications consecutives pour la 1ere pose
 # Remplacer une limite DEJA active par une autre exige plus de preuves que
 # la premiere pose : pare le flip transitoire 30<->90 observe quand un
 # panneau se degrade en sortant du champ (mesures agent E, 10/07 : la
 # moyenne des softmax est PIRE ; l'hysteresis durcie est gratuite et sure).
 REPLACE_HYSTERESIS_FRAMES = 5
-# Classification 1 frame rouge sur 2 : ~-50% de cout CPU quand un panneau
-# est visible, sans perdre le latch (stride 2 valide par test_signs ET
-# simulation temporelle ; stride 3 ECHOUE test_signs -- ne pas augmenter).
-CLASSIFY_STRIDE = 2
+# Stride 2 -> 1 (10/07) : a 100 km/h la fenetre pleine-visibilite tombe a
+# ~6 frames, en sauter la moitie ratait le latch. Le cout CPU est couvert
+# par threads=6 + channels_last (-36%) et la brievete des fenetres.
+CLASSIFY_STRIDE = 1
 COOLDOWN_S = 4.0             # apres application : ignore le MEME type de panneau (cf docstring)
 STOP_HOLD_S = 0.8            # arret marque (decision 10/07 : le CDC ne fixe
                              # aucune duree ; 0.8s reste demontrable. Etait 2.0)
@@ -97,13 +102,24 @@ def detect_sign_bbox(camera: np.ndarray):
     ys, xs = np.nonzero(red)
     x1, x2 = int(xs.min()), int(xs.max()) + 1
     y1, y2 = int(ys.min()), int(ys.max()) + 1
+    # Panneau SIGNIFICATIVEMENT tronque au bord du cadre : lecture non
+    # fiable -- le chiffre discriminant 30/50/90 peut etre rogne, un "x0"
+    # ampute est reellement ambigu (constat 10/07 : '30' partiel lu 50/90
+    # a conf jusqu'a 1.00). La camera est un crop aligne MONDE (pas cap) :
+    # en diagonale le panneau frole les bords en permanence -- on tolere
+    # un rognage de quelques px (chiffres centres, non touches) et on ne
+    # rejette que si le blob devient nettement plus petit qu'un panneau
+    # complet (36 px de diametre).
+    H, W = camera.shape[:2]
     w, h = x2 - x1, y2 - y1
+    touching = x1 <= 0 or y1 <= 0 or x2 >= W or y2 >= H
+    if touching and (w < 32 or h < 32):
+        return None
     if not (ASPECT_MIN <= w / max(h, 1) <= ASPECT_MAX):
         return None
     if n / max(w * h, 1) < 0.10:      # blob trop diffus = pas un panneau
         return None
     mx, my = int(w * BBOX_MARGIN), int(h * BBOX_MARGIN)
-    H, W = camera.shape[:2]
     return (max(0, x1 - mx), max(0, y1 - my),
             min(W, x2 + mx), min(H, y2 + my))
 
@@ -114,7 +130,20 @@ def classify_crop(camera: np.ndarray, bbox, weights_path: Optional[str] = None):
     import torch.nn.functional as F
     _load_model(weights_path)
     x1, y1, x2, y2 = bbox
-    crop = camera[y1:y2, x1:x2].astype(np.float32) / 255.0
+    # Si la marge du bbox a ete clampee au bord du cadre, le cadrage est
+    # asymetrique vs le dataset (marge 1.4 centree) et la confiance chute
+    # (mesure : 0.65-0.87 au lieu de 0.94+). On reconstruit un crop
+    # symetrique en paddant de BLANC (255) -- le monde du simulateur est
+    # blanc, c'est le fond naturel du dataset.
+    crop_u8 = camera[y1:y2, x1:x2]
+    ch, cw = crop_u8.shape[:2]
+    side = max(ch, cw)
+    if ch != side or cw != side:
+        canvas = np.full((side, side, 3), 255, dtype=camera.dtype)
+        oy, ox = (side - ch) // 2, (side - cw) // 2
+        canvas[oy:oy + ch, ox:ox + cw] = crop_u8
+        crop_u8 = canvas
+    crop = crop_u8.astype(np.float32) / 255.0
     t = torch.from_numpy(crop).permute(2, 0, 1).unsqueeze(0)
     # preprocess_batch = pipeline canonique (normalise ImageNet + upscale
     # FEAT_INPUT_SIZE=224) partage avec le training — ne JAMAIS re-inliner.

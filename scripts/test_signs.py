@@ -38,7 +38,7 @@ from pilot.signs import SignTracker
 
 FPS = 60
 
-OFFSETS_PX = (55.0, 70.0, 85.0)   # offsets lateraux candidats (cf place_signs)
+OFFSETS_PX = (46.0,)   # cf place_signs : demi-crop 64 - demi-panneau 18 - marge 4
 
 
 # copie de place_signs._crosses_border -- garder synchronise
@@ -59,28 +59,42 @@ def _crosses_border(track: Track, x1: float, y1: float, x2: float, y2: float) ->
 def _dry_run_place(track: Track, t_place: float, kind: str,
                    circuit: str = "?") -> tuple[RoadSign, int]:
     """Trajectoire PID sans panneau ; pose `kind` perpendiculairement au
-    point atteint a t_place secondes. Retourne (sign, frame_du_passage)."""
+    premier point ATTEIGNABLE a partir de t_place secondes ou l'offset
+    CAMERA-VISIBLE (55 px < demi-crop 64 px) est valide hors piste.
+
+    Contrairement a place_signs.py (qui peut escalader l'offset a 70/85 px,
+    la camera du PILOTE ne le regardant pas), un panneau de TEST doit rester
+    dans le champ lateral de la camera (±64 px autour de la trajectoire),
+    sinon le scenario echoue par construction. On scanne donc la trajectoire
+    vers l'avant plutot que d'elargir l'offset. Retourne (sign, frame_de_pose)."""
     car = Car(track.start_x, track.start_y, track.start_angle)
     dt = 1.0 / FPS
     target_frame = int(t_place * FPS)
-    for f in range(target_frame + 1):
+    # Offset max pour visibilite COMPLETE au passage : demi-crop camera (64)
+    # - demi-panneau (18) = 46 px. Au-dela, le panneau est rogne lateralement
+    # -> le premier chiffre (discriminant 30/50/90) peut etre occulte ->
+    # misclassification structurelle (constat 10/07, physique 100 km/h).
+    off = OFFSETS_PX[0]
+    max_scan = target_frame + int(6.0 * FPS)   # jusqu'a t_place + 6 s
+    for f in range(max_scan + 1):
         lidar = sensors.get_lidar(track, car)
-        s, t, b = pid_policy(lidar, physics.speed_kmh(car), speed_target=80.0)
+        s, t, b = pid_policy(lidar, physics.speed_kmh(car), speed_target=120.0)
         car.set_controls(s, t, b)
         physics.update(car, dt)
-    perp = (-math.sin(car.angle), math.cos(car.angle))
-    for off in OFFSETS_PX:
+        if f < target_frame:
+            continue
+        perp = (-math.sin(car.angle), math.cos(car.angle))
         sx, sy = car.x + perp[0] * off, car.y + perp[1] * off
         in_frame = 20 < sx < track.width - 20 and 20 < sy < track.height - 20
         # Panneau garanti HORS piste (meme regle que place_signs) : le
         # segment voiture -> panneau doit croiser une bordure noire, herbe
         # et route etant toutes deux blanches.
         if in_frame and _crosses_border(track, car.x, car.y, sx, sy):
-            return RoadSign(sx, sy, kind), target_frame
+            return RoadSign(sx, sy, kind), f
     raise RuntimeError(
         f"placement impossible : circuit={circuit!r} kind={kind!r} "
-        f"t_place={t_place}s pos_voiture=({car.x:.1f}, {car.y:.1f}) "
-        f"offsets essayes={OFFSETS_PX} (bord de frame ou bordure jamais croisee)"
+        f"scan=[{t_place}s, {max_scan / FPS:.0f}s] offset={off}px "
+        f"(aucun point de trajectoire avec bordure croisee a cet offset)"
     )
 
 
@@ -96,7 +110,7 @@ def _closed_loop(track: Track, sign: RoadSign, seconds: float) -> list[dict]:
         lidar = sensors.get_lidar(track, car)
         camera = sensors.get_camera_view_from_track(track, car, signs=[sign])
         speed = physics.speed_kmh(car)
-        steering, throttle, brake = pid_policy(lidar, speed, speed_target=80.0)
+        steering, throttle, brake = pid_policy(lidar, speed, speed_target=120.0)
         tracker.update(camera, speed, now)
         # copie de pilot/main.py:109-120 (governor) -- garder synchronise
         if tracker.speed_limit is not None and speed > tracker.speed_limit:
