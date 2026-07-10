@@ -1,0 +1,209 @@
+{
+  "label": "physique 100 km/h + perception pleine-visibilite",
+  "date": "2026-07-10 08:57",
+  "speed_target": 120.0,
+  "laps": 3,
+  "results": [
+    {
+      "circuit": "gen_000",
+      "config": "regles",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        16.72,
+        24.08,
+        24.08
+      ],
+      "best_lap_s": 16.72,
+      "total_time_s": 64.88,
+      "sim_time_s": 64.9,
+      "mean_kmh": 53.4,
+      "pct_stopped": 6.5,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 5,
+      "limites_vues": [
+        30.0,
+        30.0,
+        30.0
+      ]
+    },
+    {
+      "circuit": "gen_000",
+      "config": "libre",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        12.37,
+        11.57,
+        11.57
+      ],
+      "best_lap_s": 11.57,
+      "total_time_s": 35.5,
+      "sim_time_s": 35.5,
+      "mean_kmh": 97.6,
+      "pct_stopped": 0.1,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 0,
+      "limites_vues": []
+    },
+    {
+      "circuit": "gen_000",
+      "config": "cnn",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        24.65,
+        23.87,
+        23.88
+      ],
+      "best_lap_s": 23.87,
+      "total_time_s": 72.4,
+      "sim_time_s": 72.5,
+      "mean_kmh": 48.0,
+      "pct_stopped": 0.1,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 0,
+      "limites_vues": []
+    },
+    {
+      "circuit": "gen_003",
+      "config": "regles",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        23.03,
+        26.72,
+        26.7
+      ],
+      "best_lap_s": 23.03,
+      "total_time_s": 76.45,
+      "sim_time_s": 76.5,
+      "mean_kmh": 46.6,
+      "pct_stopped": 0.0,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 0,
+      "limites_vues": [
+        30.0,
+        50.0,
+        30.0,
+        50.0,
+        30.0,
+        50.0,
+        30.0
+      ]
+    },
+    {
+      "circuit": "gen_003",
+      "config": "libre",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        12.75,
+        11.87,
+        11.87
+      ],
+      "best_lap_s": 11.87,
+      "total_time_s": 36.48,
+      "sim_time_s": 36.5,
+      "mean_kmh": 97.7,
+      "pct_stopped": 0.1,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 0,
+      "limites_vues": []
+    },
+    {
+      "circuit": "gen_003",
+      "config": "cnn",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        25.2,
+        24.32,
+        24.3
+      ],
+      "best_lap_s": 24.3,
+      "total_time_s": 73.82,
+      "sim_time_s": 73.9,
+      "mean_kmh": 48.5,
+      "pct_stopped": 0.1,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 0,
+      "limites_vues": []
+    },
+    {
+      "circuit": "gen_014",
+      "config": "regles",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        18.95,
+        18.5,
+        18.45
+      ],
+      "best_lap_s": 18.45,
+      "total_time_s": 55.9,
+      "sim_time_s": 55.9,
+      "mean_kmh": 77.7,
+      "pct_stopped": 4.6,
+      "pct_emergency": 2.3,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 3,
+      "limites_vues": [
+        90.0,
+        90.0,
+        90.0
+      ]
+    },
+    {
+      "circuit": "gen_014",
+      "config": "libre",
+      "laps_done": 3,
+      "laps_target": 3,
+      "finished": true,
+      "lap_times_s": [
+        15.6,
+        14.97,
+        14.92
+      ],
+      "best_lap_s": 14.92,
+      "total_time_s": 45.48,
+      "sim_time_s": 45.5,
+      "mean_kmh": 95.6,
+      "pct_stopped": 0.1,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.0,
+      "n_stops_panneau": 0,
+      "limites_vues": []
+    },
+    {
+      "circuit": "gen_014",
+      "config": "cnn",
+      "laps_done": 0,
+      "laps_target": 3,
+      "finished": false,
+      "lap_times_s": [],
+      "best_lap_s": null,
+      "total_time_s": null,
+      "sim_time_s": 300.0,
+      "mean_kmh": 37.0,
+      "pct_stopped": 0.0,
+      "pct_emergency": 0.0,
+      "pct_offtrack": 0.4,
+      "n_stops_panneau": 0,
+      "limites_vues": []
+    }
+  ]
+}
