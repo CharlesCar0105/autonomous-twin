@@ -31,10 +31,19 @@ FRONT_TURN_GAIN = 0.8       # degres par px de difference de marge laterale
 TIGHT_THRESHOLD = 40.0
 TIGHT_BOOST = 35.0
 
-# Throttle : reduit quand un obstacle est proche devant
-THROTTLE_MAX = 0.85        # plafond a vitesse de croisiere
+# Throttle : reduit quand un obstacle est proche devant.
+# Retune 2026-07-10 (phase optimisation, mesures agent B au banc LapTimer) :
+# - THROTTLE_MAX 0.85 -> 1.0 : la friction (2%/frame) plafonne de toute
+#   facon l'equilibre pleine accel a ~98 px/s (~70 km/h) ; brider en plus
+#   le throttle ne protegeait rien (pas de grip lateral dans ce modele).
+# - LIDAR_FRONT_SAFE 250 -> 70 : avec 250, le PID n'etait a fond que 0.7%
+#   des frames sur ces pistes sinueuses -- c'etait LE frein cache.
+# Mesure : best lap gen_000 32.0s -> 16.45s, 0% offtrack sur 7 circuits
+# (a 1-4% de l'oracle theorique). NE PAS retirer TIGHT_BOOST : porteur
+# (son retrait seul = DNF gen_014, teste).
+THROTTLE_MAX = 1.0         # plafond a vitesse de croisiere
 THROTTLE_MIN = 0.25        # plancher en approche virage
-LIDAR_FRONT_SAFE = 250.0   # pixels : throttle max au-dessus de ce seuil
+LIDAR_FRONT_SAFE = 70.0    # pixels : throttle max au-dessus de ce seuil
 LIDAR_FRONT_SLOW = 40.0    # pixels : throttle min en-dessous
 
 # Vitesse cible (km/h) — utile quand on aura la classif panneaux
