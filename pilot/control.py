@@ -31,14 +31,38 @@ FRONT_TURN_GAIN = 0.8       # degres par px de difference de marge laterale
 TIGHT_THRESHOLD = 40.0
 TIGHT_BOOST = 35.0
 
-# Throttle : reduit quand un obstacle est proche devant
-THROTTLE_MAX = 0.85        # plafond a vitesse de croisiere
+# Throttle : reduit quand un obstacle est proche devant.
+# Retune 2026-07-10 (phase optimisation, mesures agent B au banc LapTimer) :
+# - THROTTLE_MAX 0.85 -> 1.0 : la friction (2%/frame) plafonne de toute
+#   facon l'equilibre pleine accel a ~98 px/s (~70 km/h) ; brider en plus
+#   le throttle ne protegeait rien (pas de grip lateral dans ce modele).
+# - LIDAR_FRONT_SAFE 250 -> 70 : avec 250, le PID n'etait a fond que 0.7%
+#   des frames sur ces pistes sinueuses -- c'etait LE frein cache.
+# Mesure : best lap gen_000 32.0s -> 16.45s, 0% offtrack sur 7 circuits
+# (a 1-4% de l'oracle theorique). NE PAS retirer TIGHT_BOOST : porteur
+# (son retrait seul = DNF gen_014, teste).
+THROTTLE_MAX = 1.0         # plafond a vitesse de croisiere
 THROTTLE_MIN = 0.25        # plancher en approche virage
-LIDAR_FRONT_SAFE = 250.0   # pixels : throttle max au-dessus de ce seuil
+LIDAR_FRONT_SAFE = 70.0    # pixels : throttle max au-dessus de ce seuil
 LIDAR_FRONT_SLOW = 40.0    # pixels : throttle min en-dessous
 
-# Vitesse cible (km/h) — utile quand on aura la classif panneaux
-SPEED_TARGET_DEFAULT = 80.0
+# Vitesse cible (km/h). 120 = au-dessus du plafond physique (~100 km/h
+# depuis MAX_ACCELERATION=170) : le soft cap ne bride plus, ce sont les
+# panneaux (governor) et la physique qui fixent la vitesse.
+SPEED_TARGET_DEFAULT = 120.0
+
+# Amortissement de la commande de steering (filtre passe-bas 1er ordre :
+# steering_t = kd*prev + (1-kd)*brut). Mesure agent B (10/07) : kd=0.5
+# reduit l'oscillation frame-a-frame (11% d'inversions de signe en
+# baseline) et gagne ~0.5-1% au chrono, sans contrepartie sur 7 circuits.
+# ATTENTION : la derivee classique sur l'ERREUR a ete testee et est
+# DANGEREUSE ici (bruit de quantification lidar amplifie -> 86% offtrack
+# a kd=1.0) -- ne pas "ameliorer" dans ce sens.
+STEER_DAMPING = 0.5
+
+# Etat du filtre (module-level, comme _cnn_model). Pas de reset entre runs :
+# converge en ~5 frames et le spawn se fait a steering ~0.
+_prev_steering = 0.0
 
 
 def pid_policy(
@@ -87,6 +111,12 @@ def pid_policy(
         steering -= TIGHT_BOOST
 
     steering = float(np.clip(steering, -45.0, 45.0))
+
+    # Amortissement de sortie (cf STEER_DAMPING) : moyenne de deux valeurs
+    # dans [-45, 45], donc pas de re-clip necessaire.
+    global _prev_steering
+    steering = STEER_DAMPING * _prev_steering + (1.0 - STEER_DAMPING) * steering
+    _prev_steering = steering
 
     # Longitudinal : throttle interpole sur la distance frontale.
     t = (front - LIDAR_FRONT_SLOW) / (LIDAR_FRONT_SAFE - LIDAR_FRONT_SLOW)

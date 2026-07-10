@@ -249,4 +249,4 @@ mlruns/
 assets/tracks/gen_*.png
 assets/tracks/gen_*.json
 
-best_laps.json
+best_laps.json.superpowers/

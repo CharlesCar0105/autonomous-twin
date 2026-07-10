@@ -52,7 +52,17 @@ MIN_DIST_PX = 200.0         # >= 200 px entre centres : garantit <=1 panneau
                             # boucle sur lui-meme (epingle, multi-tours) peut
                             # rapprocher physiquement deux points eloignes en
                             # arclength cumule.
-OFFSETS_PX = (55.0, 70.0, 85.0)   # offsets lateraux candidats
+# Offset lateral UNIQUE : 46 px = demi-crop camera (64) - demi-panneau (18) :
+# panneau entierement visible au passage (le detecteur tolere ~4 px de
+# rognage residuel, chiffres centres non touches).
+# Au-dela, le panneau depasse du champ camera au passage -> le premier
+# chiffre (discriminant 30/50/90) peut etre rogne -> misclassification
+# STRUCTURELLE (un "x0" ampute est reellement ambigu ; constat 10/07 :
+# un '30' lu 50/90 a conf 0.94-1.00). Les anciens offsets 55/70/85
+# placaient des panneaux partiellement hors champ. Un candidat trajectoire
+# dont l'offset 46 ne croise pas de bordure est simplement rejete (le scan
+# trouve d'autres points ; demi-largeur piste max ~41 px < 46).
+OFFSETS_PX = (46.0,)
 SIGN_HALF = SIGN_SIZE_DEFAULT / 2.0            # demi-taille panneau (36 px)
 
 

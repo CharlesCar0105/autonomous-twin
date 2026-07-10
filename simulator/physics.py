@@ -24,7 +24,12 @@ LF = 8.5   # distance CG → essieu avant (augmenté = virages plus stables)
 LR = 8.5   # distance CG → essieu arrière
 
 # Paramètres de dynamique
-MAX_ACCELERATION = 120.0   # accélération max (pixels/s²)
+# MAX_ACCELERATION 120 -> 170 (proposition equipe 2026-07-10, a valider par
+# Charles) : la friction par frame (2%) fixe l'equilibre pleine charge a
+# v* = (1-f)/f * MAX_ACC * dt, soit 70.6 km/h avec 120 -- les panneaux 90
+# n'etaient jamais contraignants. Avec 170 : v* = 138.9 px/s = 100.0 km/h,
+# donc limite 90 = ecart visible de 10 km/h. Freinage/friction inchanges.
+MAX_ACCELERATION = 170.0   # accélération max (pixels/s²)
 BRAKE_FORCE = 200.0        # force de freinage (pixels/s²)
 FRICTION = 0.02            # coefficient de frottement (augmenté)
 MAX_SPEED_PX = 300.0       # vitesse max en pixels/s

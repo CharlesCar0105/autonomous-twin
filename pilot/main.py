@@ -63,14 +63,19 @@ def main() -> None:
                         help="Path du .pth du CNN conduite (utile si --policy cnn).")
     parser.add_argument("--record", metavar="SESSION", default=None,
                         help="Active le dump dataset dans data/records/SESSION/.")
-    parser.add_argument("--speed-target", type=float, default=80.0,
-                        help="Vitesse cible (km/h) pour le PID.")
+    parser.add_argument("--speed-target", type=float, default=120.0,
+                        help="Vitesse cible (km/h) pour le PID. 120 = au-dessus "
+                             "du plafond physique (~100) : ne bride pas.")
     parser.add_argument("--no-emergency", action="store_true",
                         help="Desactive le freinage d'urgence (utile tant que "
                              "le mur dynamique n'est pas cote simu : evite les "
                              "blocages quand la voiture frole une bordure en virage).")
     parser.add_argument("--no-signs", action="store_true",
                         help="Desactive la lecture de panneaux (detection+classif+decision).")
+    parser.add_argument("--dashboard", action="store_true",
+                        help="Ouvre le tableau de bord temps reel (fenetre Pygame "
+                             "separee : camera, masque, lidar, vitesse, panneau, "
+                             "etat pilote). Opt-in, aucun impact si absent.")
     args = parser.parse_args()
 
     session_dir = None
@@ -81,6 +86,13 @@ def main() -> None:
 
     client = PilotClient(args.address)
     tracker = None if args.no_signs else SignTracker()
+
+    dashboard = None
+    if args.dashboard:
+        from pilot.dashboard import Dashboard   # import local : zero cout si absent
+        dashboard = Dashboard()
+        print("[Pilote] Dashboard temps reel active (fenetre separee).")
+
     print(f"[Pilote] Politique : {args.policy.upper()}  |  speed_target = {args.speed_target} km/h")
     print("[Pilote] Boucle demarree (Ctrl+C pour quitter).")
 
@@ -128,12 +140,19 @@ def main() -> None:
             # le seuil -> l'urgence ne relacherait jamais (constat demo
             # 2026-07-10 : 21 s de brake=1.0 a v=0). Des qu'elle re-accelere,
             # l'urgence se re-arme : un mur devant la stoppe toujours.
-            if (not args.no_emergency and speed > 5.0
-                    and check_emergency_brake(lidar)):
+            emergency_triggered = (
+                not args.no_emergency and speed > 5.0
+                and check_emergency_brake(lidar, speed)
+            )
+            if emergency_triggered:
                 commands["throttle"] = 0.0
                 commands["brake"] = 1.0
 
             client.send_commands(**commands)
+
+            if dashboard is not None:
+                dashboard.update(sensors["camera"], lidar, speed, commands,
+                                  tracker, args.policy, emergency_triggered)
 
             if session_dir is not None:
                 _dump_frame(session_dir, frame_id, sensors, commands)
