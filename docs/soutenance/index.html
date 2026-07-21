@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autonomous Twin — Soutenance M1</title>
+  <link rel="stylesheet" href="vendor/reset.css">
+  <link rel="stylesheet" href="vendor/reveal.css">
+  <link rel="stylesheet" href="theme-twin.css">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- 1. Titre -->
+    <section data-anim="intro">
+      <p class="kicker">ESGI M1 — Architecture Logicielle &amp; IA Big Data · Juillet 2026</p>
+      <h1 id="titre-principal">AUTONOMOUS&nbsp;TWIN</h1>
+      <p class="soustitre">Jumeau numérique automobile — conduite autonome sur circuits inconnus</p>
+      <p class="equipe">Charles · Nohlan · Lorenzo</p>
+      <aside class="notes">
+        Ouverture (Charles) : « Bonjour, nous allons vous présenter Autonomous Twin,
+        un jumeau numérique automobile : un simulateur qui fait rouler une voiture,
+        et une IA qui la conduit sans jamais voir autre chose que ses capteurs. »
+        Durée cible slide : 20 s.
+      </aside>
+    </section>
+
+    <!-- 2. Le concept -->
+    <section data-anim="concept">
+      <h2>Deux processus, deux mondes</h2>
+      <div class="deux-cartes">
+        <div class="carte carte-simu">
+          <h3>SIMULATEUR</h3>
+          <p class="sous">la vérité terrain</p>
+          <ul>
+            <li>Physique, circuit, chrono</li>
+            <li>Panneaux, murs dynamiques</li>
+            <li>Rend les capteurs au pilote</li>
+          </ul>
+        </div>
+        <div class="carte carte-pilote">
+          <h3>PILOTE&nbsp;IA</h3>
+          <p class="sous">aveugle, sauf ses capteurs</p>
+          <ul>
+            <li>Caméra 128&nbsp;px alignée monde</li>
+            <li>Lidar 5 rayons, vitesse</li>
+            <li>Décide : volant, gaz, frein</li>
+          </ul>
+        </div>
+      </div>
+      <p class="punchline">Le pilote ne triche jamais : il ne voit que ce qu'une vraie voiture verrait.</p>
+      <aside class="notes">
+        Charles : insister sur la séparation stricte — le pilote n'a AUCUN accès à
+        l'état interne du simulateur. C'est ce qui fait du projet un vrai jumeau
+        numérique et pas un jeu scripté.
+      </aside>
+    </section>
+
+    <!-- 3. Architecture -->
+    <section data-anim="zmq">
+      <div class="bareme">Barème · Architecture client/serveur — 3 pts</div>
+      <h2>Architecture — ZeroMQ REQ/REP</h2>
+      <div class="schema-zmq">
+        <div class="boite boite-simu">SIMULATEUR<br><span class="petit">serveur :5555</span></div>
+        <div class="canal">
+          <div class="flux flux-capteurs">
+            <span class="msg m1"></span><span class="msg m2"></span><span class="msg m3"></span>
+            <span class="flux-label">caméra JPEG · lidar · vitesse</span>
+          </div>
+          <div class="flux flux-commandes">
+            <span class="msg c1"></span><span class="msg c2"></span><span class="msg c3"></span>
+            <span class="flux-label">steering · throttle · brake</span>
+          </div>
+        </div>
+        <div class="boite boite-pilote">PILOTE<br><span class="petit">client ZMQ</span></div>
+      </div>
+      <ul class="compact">
+        <li>Deux processus indépendants — le simulateur reste jouable au clavier sans pilote</li>
+        <li>Boucle à 60&nbsp;Hz, messages JSON, caméra encodée JPEG base64</li>
+      </ul>
+      <aside class="notes">
+        Charles : REQ/REP synchrone = une requête capteurs, une réponse commandes,
+        pas de dérive d'horloge entre les deux process. Mentionner que l'archi a
+        permis de développer simulateur et pilote en parallèle pendant tout le
+        semestre sans se bloquer.
+      </aside>
+    </section>
+
+    <!-- 4. Le monde -->
+    <section data-anim="monde">
+      <div class="bareme">Barème · Simulateur — 3 pts + Esthétique — 1 pt</div>
+      <h2>Un monde qui vit</h2>
+      <div class="grille-monde">
+        <div class="tuile"><span class="ico">🚗</span><strong>Physique bicycle</strong><br>4 équations du sujet, plafond calibré 100&nbsp;km/h</div>
+        <div class="tuile"><span class="ico">🧱</span><strong>Mur dynamique</strong><br>apparaît devant la voiture, visible du lidar et de la caméra</div>
+        <div class="tuile"><span class="ico">⏱️</span><strong>LapTimer</strong><br>3 tours détectés par franchissement de ligne</div>
+        <div class="tuile"><span class="ico">🚸</span><strong>Panneaux</strong><br>placés par fichier sidecar, composés dans la caméra</div>
+      </div>
+      <p class="ligne-bonus">+ sprite voiture, sons moteur, traces de pneus qui s'estompent, compteur à cadran</p>
+      <aside class="notes">
+        Charles : la démo montrera tout ça en live. Le mur a une durée de vie de
+        3 secondes — détail qui compte pour la slide freinage d'urgence de Lorenzo.
+      </aside>
+    </section>
+
+    <!-- 5. Percevoir -->
+    <section data-anim="percevoir">
+      <h2>Percevoir la route</h2>
+      <div class="percevoir-scene">
+        <div class="vue">
+          <svg viewBox="0 0 120 120" class="svg-cam">
+            <rect width="120" height="120" fill="#1a2432"/>
+            <path d="M10,120 C30,60 90,80 110,10 L120,10 L120,120 Z" fill="#3d4a5c"/>
+            <path d="M30,120 C45,75 85,85 100,25" stroke="#93a4b8" stroke-width="14" fill="none"/>
+          </svg>
+          <p>vue caméra</p>
+        </div>
+        <div class="fleche">→</div>
+        <div class="vue">
+          <svg viewBox="0 0 120 120" class="svg-mask">
+            <rect width="120" height="120" fill="#000"/>
+            <path d="M30,120 C45,75 85,85 100,25" stroke="#fff" stroke-width="14" fill="none"/>
+          </svg>
+          <p>masque route</p>
+        </div>
+      </div>
+      <p>U-Net entraîné from scratch — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
+      <p class="honnete">Verdict : il avait appris… un seuillage de luminance. On l'a donc remplacé
+      par le seuillage — équivalent strict, zéro coût. Le modèle reste prêt si le visuel se complexifie.</p>
+      <aside class="notes">
+        Nohlan : assumer pleinement — c'est un point de maturité, pas un aveu de
+        faiblesse. Le domaine (piste blanche sur fond sombre) est objectivement
+        soluble par seuillage ; l'important est de l'avoir PROUVÉ par la métrique
+        avant de simplifier.
+      </aside>
+    </section>
+
+    <!-- 6. Conduire -->
+    <section data-anim="conduire">
+      <div class="bareme">Barème · Conduite autonome — 3 pts + IA avancée — 2 pts</div>
+      <h2>Conduire par imitation</h2>
+      <div class="conduire-layout">
+        <div class="grand-chiffre"><span id="compteur-circuits">0</span><span class="sur">/30</span>
+          <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
+        </div>
+        <ul>
+          <li>Behavioral cloning d'un PID qui fait des tours propres</li>
+          <li>Entrée : masque 64×64 + lidar — <strong>jamais l'image brute</strong> → le CNN ne voit que la forme de la route</li>
+          <li>Sortie : volant (MAE 1,80°) et gaz — régression</li>
+          <li>Filet de sécurité : retour PID à tout moment</li>
+        </ul>
+      </div>
+      <aside class="notes">
+        Nohlan : le choix « masque en entrée, pas l'image » est LE choix qui paie la
+        généralisation : changez le style visuel du circuit, le CNN s'en moque.
+        Alternative écartée : RL end-to-end — trop long à entraîner, surapprend le
+        circuit d'entraînement, boîte noire en soutenance (détail en annexe si question).
+      </aside>
+    </section>
+
+    <!-- 7. Généraliser -->
+    <section data-anim="circuits">
+      <div class="bareme">Barème · Multi-circuits — 1,5 pt</div>
+      <h2>Généraliser — la consigne n°1</h2>
+      <blockquote>« Souvent la solution ne généralise pas et ne permet pas d'exécuter
+      la conduite sur différents circuits. » — l'avertissement du sujet</blockquote>
+      <div class="galerie-circuits">
+        <img src="assets/circuits/gen_000.png" alt="circuit gen_000">
+        <img src="assets/circuits/gen_003.png" alt="circuit gen_003">
+        <img src="assets/circuits/gen_007.png" alt="circuit gen_007">
+        <img src="assets/circuits/gen_014.png" alt="circuit gen_014">
+        <img src="assets/circuits/gen_021.png" alt="circuit gen_021">
+        <img src="assets/circuits/gen_026.png" alt="circuit gen_026">
+      </div>
+      <ul class="compact">
+        <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible</li>
+        <li>Split train/validation <strong>par circuit</strong> : aucune évaluation sur du déjà-vu</li>
+      </ul>
+      <aside class="notes">
+        Nohlan : le générateur v2 produit des vraies features de circuit (pas des
+        patates rondes). Les 5 circuits de validation ne sont JAMAIS vus à
+        l'entraînement — tous les chiffres de la présentation sont mesurés dessus.
+      </aside>
+    </section>
+
+    <!-- 8. Panneaux -->
+    <section data-anim="panneaux">
+      <div class="bareme">Barème · Lecture de panneaux — 3 pts</div>
+      <h2>Lire les panneaux — et obéir</h2>
+      <div class="pipeline">
+        <div class="etape">Détection<br><span class="petit">pixels rouges + filtre de blob</span></div>
+        <div class="pipe-fleche">→</div>
+        <div class="etape">Classification<br><span class="petit">MobileNetV2 gelé + tête MLP</span></div>
+        <div class="pipe-fleche">→</div>
+        <div class="etape">Hystérésis<br><span class="petit">3 frames confirmées</span></div>
+        <div class="pipe-fleche">→</div>
+        <div class="etape">Governor<br><span class="petit">30 · 50 · 90 · STOP 0,8&nbsp;s</span></div>
+      </div>
+      <div class="accuracy-ligne">
+        <span class="acc-etape">96&nbsp;px linéaire : 0,83</span>
+        <span class="acc-sep">→</span>
+        <span class="acc-etape">224&nbsp;px : 0,90</span>
+        <span class="acc-sep">→</span>
+        <span class="acc-final"><span id="compteur-acc">0,00</span> en validation</span>
+      </div>
+      <aside class="notes">
+        Lorenzo : transfer learning assumé — backbone ImageNet gelé, seule la tête
+        est entraînée (~4 min CPU). La progression 0,83 → 0,95 vient de deux
+        décisions mesurées : résolution 224 px, puis tête MLP au lieu de linéaire.
+        Dataset 9k images synthétiques, fonds caméra réels.
+      </aside>
+    </section>
+
+    <!-- 9. Le bug -->
+    <section data-anim="occlusion">
+      <h2>« Le bug ML n'était pas dans le ML »</h2>
+      <p class="symptome">Symptôme en démo : un panneau <strong>30</strong> lu <strong>90</strong>, confiance 1.00</p>
+      <div class="scene-occlusion">
+        <div class="cam-frame">
+          <span class="cam-label">champ caméra 128&nbsp;px</span>
+          <div class="sign-panneau" id="sign-occlusion"><span>3</span><span>0</span></div>
+        </div>
+        <div class="pred" id="pred-occlusion">panneau lu : <strong>—</strong></div>
+      </div>
+      <p class="lecon">La caméra est un crop aligné monde : à 55&nbsp;px d'offset, le « 3 » sortait
+      du champ. Un «&nbsp;<s>3</s>0&nbsp;» est réellement ambigu — le modèle répondait juste.</p>
+      <p class="fix">Fix mesuré : placement 46&nbsp;px max + filtre de troncature + padding symétrique
+      → confiance 0,94+. <em>Leçon : instrumenter avant d'accuser le modèle.</em></p>
+      <aside class="notes">
+        Lorenzo : LA slide signature. Raconter la chronologie : on a d'abord soupçonné
+        le classifieur, on a instrumenté frame par frame, et la sonde a montré que le
+        crop caméra rognait le premier chiffre. Le « bug ML » était une occlusion
+        géométrique. Pause après « le modèle répondait juste ».
+      </aside>
+    </section>
+
+    <!-- 10. Mesurer -->
+    <section data-anim="mesurer">
+      <h2>On ne règle pas ce qu'on ne mesure pas</h2>
+      <ul class="compact">
+        <li><strong>Banc de mesure</strong> : vrais tours (franchissement de ligne), headless,
+          dt fixe → déterministe, résultats JSON committés</li>
+        <li><strong>Oracle</strong> : temps du tour parfait théorique calculé par circuit —
+          la borne de ce qui est physiquement possible</li>
+      </ul>
+      <p class="diag-titre">Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
+      <div class="barres-urgence">
+        <div class="groupe-barre"><div class="barre b-urg" data-h="41"></div><span class="val">6,1&nbsp;%</span><span class="nom">gen_000</span></div>
+        <div class="groupe-barre"><div class="barre b-urg" data-h="55"></div><span class="val">8,2&nbsp;%</span><span class="nom">gen_003</span></div>
+        <div class="groupe-barre"><div class="barre b-urg" data-h="100"></div><span class="val">15,0&nbsp;%</span><span class="nom">gen_014</span></div>
+      </div>
+      <p class="legende-barres">% du temps passé en freinage d'urgence parasite — gen_014 n'arrivait même pas à finir 3 tours</p>
+      <aside class="notes">
+        Lorenzo : le banc a été LA condition de la phase d'optimisation — chaque
+        modification a son avant/après committé. Le correctif urgence : seuil
+        dynamique en v²/2B + filtre de planéité (un mur est plat, une bordure de
+        virage est asymétrique) → zéro faux positif sur 40 000 frames, et l'arrêt
+        au mur reste garanti sur toute la plage de vitesse.
+      </aside>
+    </section>
+
+    <!-- 11. Résultats -->
+    <section data-anim="resultats">
+      <div class="bareme">Barème · Freinage d'urgence — 2 pts + Dashboard — 1,5 pt</div>
+      <h2>Avant / après — mêmes règles, mêmes circuits</h2>
+      <div class="barres-resultats">
+        <div class="paire">
+          <div class="duo">
+            <div class="barre b-avant" data-h="54"></div>
+            <div class="barre b-apres" data-h="22"></div>
+          </div>
+          <span class="gain">-60&nbsp;%</span>
+          <span class="nom">gen_000<br><span class="detail">161,6 → 64,5&nbsp;s</span></span>
+        </div>
+        <div class="paire">
+          <div class="duo">
+            <div class="barre b-avant" data-h="54"></div>
+            <div class="barre b-apres" data-h="25"></div>
+          </div>
+          <span class="gain">-54&nbsp;%</span>
+          <span class="nom">gen_003<br><span class="detail">162,0 → 74,0&nbsp;s</span></span>
+        </div>
+        <div class="paire">
+          <div class="duo">
+            <div class="barre b-avant b-dnf" data-h="100"></div>
+            <div class="barre b-apres" data-h="28"></div>
+          </div>
+          <span class="gain">DNF → 3/3</span>
+          <span class="nom">gen_014<br><span class="detail">timeout → 83,7&nbsp;s</span></span>
+        </div>
+      </div>
+      <p class="legende-barres">Temps 3 tours en conditions réglementaires · urgence parasite 15&nbsp;% → 0,8&nbsp;% ·
+      en configuration libre, le PID roule à 1-4&nbsp;% de l'oracle</p>
+      <aside class="notes">
+        Lorenzo : 4 optimisations mesurées (urgence, 2 paramètres PID, perception,
+        règles STOP/zone de limite) — aucune ne désactive une règle, tout est
+        revalidé par les tests panneaux et la non-régression conduite. Le dashboard
+        temps réel (caméra, masque, lidar, courbe de vitesse) sera visible en démo.
+      </aside>
+    </section>
+
+    <!-- 12. Démo live -->
+    <section>
+      <h2>Démo</h2>
+      <ol class="checklist-demo">
+        <li>Un tour réglementaire — <strong>50,0&nbsp;km/h</strong> pile sous la limite 50</li>
+        <li>Arrêt STOP exécuté depuis ~95&nbsp;km/h</li>
+        <li>Mur surgi à vitesse de croisière → arrêt net, zéro contact</li>
+        <li>Épingle à 70&nbsp;km/h, braquage complet, sans freinage d'urgence</li>
+        <li>Dashboard pilote en temps réel</li>
+      </ol>
+      <details class="backup">
+        <summary>Backup enregistré (si démon de la démo)</summary>
+        <p class="petit">Déposer les GIF dans <code>assets/demo-backup/</code> — voir le README du dossier.</p>
+      </details>
+      <aside class="notes">
+        Équipe : basculer sur le simulateur (déjà lancé AVANT la soutenance, en
+        pause). Charles au clavier pour le mur (Espace), Lorenzo commente le
+        dashboard. Si plantage : revenir ici, ouvrir le backup. Budget 2 min 30 max.
+      </aside>
+    </section>
+
+    <!-- 13. Conclusion -->
+    <section data-anim="conclusion">
+      <h2 class="phrase-finale">«&nbsp;Nous savons pourquoi nous ne pouvons pas aller plus vite.&nbsp;»</h2>
+      <div class="vitesse-finale">
+        <span id="compteur-vitesse">70,6</span><span class="unite">km/h</span>
+      </div>
+      <p>Le plafond était <strong>physique</strong>, pas logiciel — démontré par l'oracle,
+      puis déplacé sciemment de 70,6 à 100&nbsp;km/h. Quand le mur gênait le produit,
+      c'est le mur qu'on a déplacé.</p>
+      <p class="ouverture">Et après ? Trajectoire de corde (6-9&nbsp;% identifiés), physique
+      indépendante du framerate, ré-entraînement du CNN sur le PID optimisé — le
+      chantier M2 est déjà chiffré.</p>
+      <p class="merci">Merci — place aux questions.</p>
+      <aside class="notes">
+        Lorenzo : conclusion en 45 s. L'écart restant en conditions réglementaires
+        est le coût LÉGITIME des règles — s'arrêter à un STOP coûte de l'énergie
+        cinétique. Chaque pourcent résiduel est identifié et chiffré. Enchaîner
+        sur les questions — les annexes sont prêtes (flèche bas).
+      </aside>
+    </section>
+
+    <!-- Annexes (stack vertical) -->
+    <section>
+      <section>
+        <h2>Annexes</h2>
+        <p>Matériel pour les questions — flèche ↓</p>
+        <ul class="compact sommaire-annexes">
+          <li>A1 · Pourquoi pas du RL end-to-end</li>
+          <li>A2 · La classe « aucun » et les murs</li>
+          <li>A3 · Variance d'entraînement &amp; reproductibilité</li>
+          <li>A4 · Barème ↔ preuves</li>
+          <li>A5 · Protocole de mesure détaillé</li>
+          <li>A6 · Méthode : décisions tracées</li>
+        </ul>
+      </section>
+      <section>
+        <h3>A1 · Pourquoi pas du RL end-to-end ?</h3>
+        <ul>
+          <li>Temps d'entraînement long, surapprend le circuit d'entraînement — or le critère est la généralisation</li>
+          <li>Pipeline perception → contrôle : chaque étage se valide indépendamment (masque, commandes)</li>
+          <li>Lisible en soutenance — un RL est une boîte noire</li>
+          <li>Décision D1, actée en février et jamais regrettée</li>
+        </ul>
+      </section>
+      <section>
+        <h3>A2 · La classe « aucun » et les murs</h3>
+        <ul>
+          <li>Le dataset « aucun » contient des crops de mur brique <em>texturés</em>, la caméra pilote voit un aplat</li>
+          <li>Sans conséquence mesurée : le rouge brique (~150-180) reste sous le seuil du détecteur (190) — le classifieur n'est jamais sollicité</li>
+          <li>Vérifié en boucle fermée : zéro déclenchement sur mur pendant tous les scénarios</li>
+        </ul>
+      </section>
+      <section>
+        <h3>A3 · Variance &amp; reproductibilité</h3>
+        <ul>
+          <li>Val accuracy du classifieur : 0,90-0,95 selon la seed (0,9513 committé) — seuil d'échec dur à 0,90 (bascule GTSRB, jamais déclenchée)</li>
+          <li>Tout est régénérable : circuits (seed 1000), sidecars panneaux (seed par nom), dataset, entraînement ~4 min CPU</li>
+          <li>Modèles .pth versionnés — clone et ça tourne</li>
+        </ul>
+      </section>
+      <section>
+        <h3>A4 · Barème ↔ preuves</h3>
+        <table class="tableau-bareme">
+          <tr><th>Critère</th><th>Pts</th><th>Preuve</th></tr>
+          <tr><td>Architecture client/serveur</td><td>3</td><td>2 process ZMQ, démo</td></tr>
+          <tr><td>Simulateur</td><td>3</td><td>Démo live</td></tr>
+          <tr><td>Conduite 1 tour</td><td>3</td><td>Démo + 30/30 en éval</td></tr>
+          <tr><td>Freinage d'urgence</td><td>2</td><td>Démo mur + 0 faux positif/40k frames</td></tr>
+          <tr><td>Lecture panneaux</td><td>+3</td><td>Démo + 95,13&nbsp;% val</td></tr>
+          <tr><td>IA avancée</td><td>+2</td><td>U-Net + CNN vs PID baseline</td></tr>
+          <tr><td>Multi-circuits</td><td>+1,5</td><td>30 générés, éval sur jamais-vus</td></tr>
+          <tr><td>Dashboard</td><td>+1,5</td><td>Démo --dashboard</td></tr>
+          <tr><td>Esthétique / fun</td><td>+1</td><td>Sprites, sons, traces</td></tr>
+        </table>
+      </section>
+      <section>
+        <h3>A5 · Protocole de mesure</h3>
+        <ul>
+          <li>Headless, dt fixe 1/60 — temps simulés déterministes, indépendants du CPU</li>
+          <li>Par run : temps/tour, best lap, % arrêt, % urgence, % hors-piste, arrêts STOP</li>
+          <li>Configs : règles (CDC) / libre (potentiel châssis) / CNN</li>
+          <li>JSON datés committés dans <code>bench/</code> — chaque optimisation a son avant/après traçable</li>
+        </ul>
+      </section>
+      <section>
+        <h3>A6 · Méthode : décisions tracées</h3>
+        <ul>
+          <li>12 décisions structurantes loggées : date, justification, <strong>alternatives écartées</strong>, risques</li>
+          <li>Audits par revue systématique avant chaque reprise (5 angles : physique, contrôle, urgence, règles, perception)</li>
+          <li>Le diagnostic « urgence parasite » et l'oracle sortent de ces audits</li>
+        </ul>
+      </section>
+    </section>
+
+  </div>
+</div>
+
+<script src="vendor/reveal.js"></script>
+<script src="vendor/notes.js"></script>
+<script src="vendor/anime.umd.min.js"></script>
+<script src="animations.js"></script>
+</body>
+</html>
