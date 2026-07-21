@@ -1,0 +1,202 @@
+/* Thème Autonomous Twin — fonts système, aucune dépendance réseau */
+
+:root {
+  --fond: #0b1220;
+  --fond-carte: #131e30;
+  --texte: #dbe4f0;
+  --titre: #f8fafc;
+  --accent: #3b82f6;
+  --accent-clair: #93c5fd;
+  --ok: #22c55e;
+  --alerte: #ef4444;
+  --gris: #64748b;
+}
+
+.reveal-viewport { background: radial-gradient(ellipse at 30% 10%, #12203a 0%, var(--fond) 60%); }
+
+.reveal {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 34px;
+  color: var(--texte);
+}
+.reveal h1, .reveal h2, .reveal h3 {
+  font-family: inherit;
+  color: var(--titre);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.6em;
+}
+.reveal h1 { font-size: 2.6em; }
+.reveal h2 { font-size: 1.5em; }
+.reveal h3 { font-size: 1.15em; }
+.reveal section { text-align: left; }
+.reveal section > *:not(.bareme) { max-width: 100%; }
+.reveal strong { color: var(--accent-clair); }
+.reveal em { color: var(--ok); font-style: normal; }
+.reveal code { background: #1e293b; padding: 0.1em 0.35em; border-radius: 6px; font-size: 0.85em; }
+.reveal ul, .reveal ol { display: block; margin-left: 1em; }
+.reveal li { margin: 0.35em 0; line-height: 1.35; }
+.reveal ul.compact li { font-size: 0.78em; }
+.reveal blockquote {
+  background: var(--fond-carte); border-left: 5px solid var(--alerte);
+  padding: 0.5em 0.9em; font-size: 0.8em; font-style: italic;
+  margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box;
+}
+.reveal .slide-number { background: transparent; color: var(--gris); font-size: 16px; }
+
+/* ---- Slide 1 : titre ---- */
+.kicker { font-size: 0.55em; text-transform: uppercase; letter-spacing: 0.2em; color: var(--gris); }
+#titre-principal { text-align: center; margin: 0.3em 0 0.2em; }
+#titre-principal span { display: inline-block; }
+.soustitre { text-align: center; font-size: 0.85em; color: var(--accent-clair); }
+.equipe { text-align: center; font-size: 0.7em; color: var(--gris); margin-top: 2em; }
+
+/* ---- Badge barème ---- */
+.bareme {
+  position: absolute; top: -70px; right: 0;
+  font-size: 0.45em; color: var(--fond);
+  background: var(--accent-clair); border-radius: 999px;
+  padding: 0.45em 1.1em; font-weight: 600;
+}
+
+/* ---- Slide 2 : concept ---- */
+.deux-cartes { display: flex; gap: 1em; justify-content: center; margin: 0.5em 0; }
+.carte {
+  background: var(--fond-carte); border-radius: 16px; padding: 0.7em 1em;
+  width: 46%; border-top: 4px solid var(--accent);
+}
+.carte-pilote { border-top-color: var(--ok); }
+.carte h3 { margin-bottom: 0; }
+.carte .sous { font-size: 0.6em; color: var(--gris); margin-bottom: 0.5em; }
+.carte ul { margin-left: 0.8em; }
+.carte li { font-size: 0.62em; }
+.punchline { text-align: center; font-size: 0.8em; color: var(--accent-clair); margin-top: 0.6em; }
+
+/* ---- Slide 3 : schéma ZMQ ---- */
+.schema-zmq { display: flex; align-items: center; gap: 0.5em; margin: 0.8em 0; }
+.boite {
+  background: var(--fond-carte); border: 2px solid var(--accent);
+  border-radius: 14px; padding: 0.8em 1em; font-weight: 700;
+  font-size: 0.75em; text-align: center; flex-shrink: 0;
+}
+.boite-pilote { border-color: var(--ok); }
+.boite .petit { font-weight: 400; font-size: 0.7em; color: var(--gris); }
+.canal { flex-grow: 1; display: flex; flex-direction: column; gap: 1.2em; padding: 0 0.5em; }
+.flux { position: relative; height: 34px; border-bottom: 2px dashed #2c3e57; }
+.flux-label {
+  position: absolute; left: 50%; transform: translateX(-50%); top: 100%;
+  font-size: 0.42em; color: var(--gris); white-space: nowrap; padding-top: 3px;
+}
+.msg {
+  position: absolute; top: 10px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); opacity: 0;
+}
+.flux-commandes .msg { background: var(--ok); }
+
+/* ---- Slide 4 : le monde ---- */
+.grille-monde { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; margin: 0.5em 0; }
+.tuile {
+  background: var(--fond-carte); border-radius: 12px; padding: 0.55em 0.8em;
+  font-size: 0.62em; line-height: 1.3;
+}
+.tuile .ico { font-size: 1.4em; margin-right: 0.3em; }
+.ligne-bonus { font-size: 0.62em; color: var(--gris); text-align: center; }
+
+/* ---- Slide 5 : percevoir ---- */
+.percevoir-scene { display: flex; align-items: center; justify-content: center; gap: 1em; margin: 0.4em 0; }
+.vue { text-align: center; }
+.vue svg { width: 210px; height: 210px; border-radius: 12px; }
+.vue p { font-size: 0.55em; color: var(--gris); margin-top: 0.2em; }
+.fleche { font-size: 1.6em; color: var(--accent); }
+.percevoir-scene + p { font-size: 0.8em; }
+.honnete { font-size: 0.72em; background: var(--fond-carte); border-left: 5px solid var(--ok);
+  padding: 0.5em 0.8em; border-radius: 0 10px 10px 0; }
+
+/* ---- Slide 6 : conduire ---- */
+.conduire-layout { display: flex; align-items: center; gap: 1.2em; }
+.grand-chiffre { font-size: 2.6em; font-weight: 800; color: var(--ok); flex-shrink: 0; text-align: center; }
+.grand-chiffre .sur { color: var(--gris); font-size: 0.6em; }
+.legende-chiffre { font-size: 0.24em; font-weight: 400; color: var(--texte); line-height: 1.3; }
+.conduire-layout ul { flex-grow: 1; }
+.conduire-layout li { font-size: 0.72em; }
+
+/* ---- Slide 7 : galerie circuits ---- */
+.galerie-circuits { display: flex; gap: 0.5em; justify-content: center; margin: 0.6em 0; }
+.galerie-circuits img {
+  width: 150px; height: 150px; object-fit: cover; border-radius: 10px;
+  border: 1px solid #2c3e57; opacity: 0;
+}
+
+/* ---- Slide 8 : pipeline panneaux ---- */
+.pipeline { display: flex; align-items: stretch; gap: 0.3em; margin: 0.7em 0; }
+.etape {
+  background: var(--fond-carte); border-radius: 12px; padding: 0.55em 0.6em;
+  font-size: 0.6em; font-weight: 600; text-align: center; flex: 1;
+  border-top: 3px solid var(--accent); opacity: 0;
+}
+.etape .petit { font-weight: 400; font-size: 0.78em; color: var(--gris); }
+.pipe-fleche { align-self: center; color: var(--accent); font-size: 0.9em; opacity: 0; }
+.accuracy-ligne { display: flex; align-items: baseline; justify-content: center; gap: 0.6em; margin-top: 0.9em; }
+.acc-etape { font-size: 0.62em; color: var(--gris); }
+.acc-sep { color: var(--accent); }
+.acc-final { font-size: 1em; font-weight: 800; color: var(--ok); }
+
+/* ---- Slide 9 : occlusion ---- */
+.symptome { font-size: 0.75em; }
+.scene-occlusion { display: flex; align-items: center; gap: 1.5em; justify-content: center; margin: 0.5em 0; }
+.cam-frame {
+  position: relative; width: 340px; height: 190px; overflow: hidden;
+  border: 3px dashed var(--accent); border-radius: 10px; background: #0e1826;
+  flex-shrink: 0;
+}
+.cam-label { position: absolute; bottom: 4px; left: 10px; font-size: 0.42em; color: var(--gris); }
+.sign-panneau {
+  position: absolute; top: 40px; left: 110px; width: 110px; height: 110px;
+  background: #fff; border: 9px solid var(--alerte); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.5em; color: #111;
+}
+.pred { font-size: 0.85em; background: var(--fond-carte); padding: 0.5em 0.9em; border-radius: 10px; }
+.pred strong { font-size: 1.2em; }
+.pred.pred-ko strong { color: var(--alerte); }
+.pred.pred-ok strong { color: var(--ok); }
+.lecon, .fix { font-size: 0.66em; line-height: 1.35; }
+
+/* ---- Slides 10-11 : barres ---- */
+.diag-titre { font-size: 0.72em; margin-top: 0.5em; }
+.barres-urgence, .barres-resultats { display: flex; gap: 2em; justify-content: center; align-items: flex-end; height: 230px; margin: 0.4em 0 0.2em; }
+.groupe-barre, .paire { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.duo { display: flex; gap: 6px; align-items: flex-end; height: 170px; }
+.barre { width: 54px; border-radius: 6px 6px 0 0; height: 0; }
+.b-urg { background: var(--alerte); }
+.b-avant { background: var(--gris); }
+.b-apres { background: var(--accent); }
+.b-dnf {
+  background: repeating-linear-gradient(45deg, var(--gris), var(--gris) 8px, #47566d 8px, #47566d 16px);
+}
+.barres-urgence .barre { height: 0; }
+.val { font-size: 0.6em; font-weight: 700; margin-top: 0.3em; }
+.gain { font-size: 0.7em; font-weight: 800; color: var(--ok); margin-top: 0.3em; }
+.nom { font-size: 0.55em; color: var(--gris); text-align: center; line-height: 1.25; }
+.nom .detail { font-size: 0.85em; }
+.legende-barres { font-size: 0.55em; color: var(--gris); text-align: center; }
+
+/* ---- Slide 12 : démo ---- */
+.checklist-demo li { font-size: 0.8em; margin: 0.5em 0; }
+.backup { margin-top: 1em; font-size: 0.7em; }
+.backup summary { cursor: pointer; color: var(--gris); }
+.petit { font-size: 0.8em; }
+
+/* ---- Slide 13 : conclusion ---- */
+.phrase-finale { font-size: 1.25em; text-align: center; color: var(--accent-clair); }
+.vitesse-finale { text-align: center; font-size: 2.8em; font-weight: 800; color: var(--titre); margin: 0.15em 0; }
+.vitesse-finale .unite { font-size: 0.4em; color: var(--gris); margin-left: 0.2em; }
+.reveal section[data-anim="conclusion"] p { font-size: 0.72em; text-align: center; }
+.ouverture { color: var(--gris); }
+.merci { color: var(--ok); font-weight: 700; margin-top: 0.8em; }
+
+/* ---- Annexes ---- */
+.sommaire-annexes li { font-size: 0.72em !important; }
+.tableau-bareme { font-size: 0.52em; width: 100%; border-collapse: collapse; }
+.tableau-bareme th, .tableau-bareme td { border-bottom: 1px solid #2c3e57; padding: 0.3em 0.6em; text-align: left; }
+.tableau-bareme th { color: var(--accent-clair); }

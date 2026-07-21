@@ -247,3 +247,6 @@ assets/tracks/gen_*.png
 assets/tracks/gen_*.json
 
 best_laps.json.superpowers/
+
+# Artefacts Playwright (captures de verification locales)
+.playwright-mcp/

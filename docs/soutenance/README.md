@@ -1,0 +1,35 @@
+# Soutenance M1 — support de présentation
+
+Deck HTML autonome (Reveal.js 5.2 + anime.js 4.3, vendorés dans `vendor/`).
+**Aucun réseau ni serveur requis** : double-cliquer `index.html`.
+
+## Présenter
+
+| Touche | Action |
+|---|---|
+| `→` / `Espace` | Slide suivante |
+| `S` | Vue présentateur (notes + chrono + slide suivante) |
+| `F` | Plein écran |
+| `Échap` | Vue d'ensemble |
+| `↓` | Entrer dans les annexes (dernière slide) |
+
+- 13 slides principales (~15 min à 3 voix : Charles 2-4, Nohlan 5-7, Lorenzo 8-13).
+- Les **annexes A1-A6** (dernière slide, flèche bas) couvrent les questions
+  prévisibles — ne pas les présenter, les dégainer en Q&R.
+- Les animations se rejouent à chaque entrée de slide (pratique en répétition).
+
+## Démo live (slide 12)
+
+Lancer AVANT la soutenance, laisser en pause en arrière-plan :
+
+```bash
+.venv/Scripts/python.exe -m simulator.main --server --circuit gen_014
+.venv/Scripts/python.exe -m pilot.main --dashboard
+```
+
+Backup : déposer les GIF/vidéos dans `assets/demo-backup/` (voir son README).
+
+## Export PDF
+
+Ouvrir `index.html?print-pdf` dans Chrome → Imprimer → « Enregistrer en PDF »
+(destination A4 paysage, marges par défaut).
