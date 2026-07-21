@@ -4,6 +4,11 @@
 
 const { animate, createTimeline, stagger, utils } = anime;
 
+/* Rendu statique : export PDF (?print-pdf), ou préférence système
+   reduced-motion. Dans ces cas on n'anime pas — on pose les états finaux. */
+const STATIQUE = /print-pdf/.test(location.search)
+  || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
 /* Découpe le titre en lettres une seule fois (pour l'anim d'intro). */
 const titre = document.getElementById('titre-principal');
 titre.innerHTML = titre.textContent.replace(/\S/g, '<span>$&</span>');
@@ -153,6 +158,23 @@ function jouer(slide) {
   if (nom && ANIMS[nom]) animEnCours = ANIMS[nom](slide);
 }
 
+/* Rendu statique : pas de timeline. La classe .statique (+ CSS) révèle les
+   états initiaux opacity:0 ; on pose ici les valeurs que le CSS ne peut pas
+   déduire — hauteurs de barres (même formule que les timelines) et compteurs
+   à leur valeur finale, pour un export PDF complet. */
+function finaliserStatique() {
+  document.documentElement.classList.add('statique');
+  document.querySelectorAll('.barre[data-h]').forEach((b) => {
+    b.style.height = (b.dataset.h * 1.7) + 'px';
+  });
+  const poser = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  poser('compteur-circuits', '30');
+  poser('compteur-acc', '0,9513');
+  poser('compteur-vitesse', '100,0');
+  const pred = document.getElementById('pred-occlusion');
+  if (pred) pred.innerHTML = 'panneau lu : <strong>30 · conf 0.98</strong>';
+}
+
 Reveal.initialize({
   width: 1280,
   height: 720,
@@ -164,7 +186,7 @@ Reveal.initialize({
   progress: true,
   plugins: [RevealNotes],
 }).then(() => {
+  if (STATIQUE) { finaliserStatique(); return; }
   jouer(Reveal.getCurrentSlide());
+  Reveal.on('slidechanged', (e) => jouer(e.currentSlide));
 });
-
-Reveal.on('slidechanged', (e) => jouer(e.currentSlide));

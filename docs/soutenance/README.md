@@ -3,6 +3,14 @@
 Deck HTML autonome (Reveal.js 5.2 + anime.js 4.3, vendorés dans `vendor/`).
 **Aucun réseau ni serveur requis** : double-cliquer `index.html`.
 
+## Préparer (à lire avant la répétition)
+
+- **`TRAME.md`** — script oral minuté (14:00 cible), quasi mot à mot par slide
+  et par orateur, transitions, réserves conditionnelles, points de contrôle
+  chrono (4:00 / 7:30 / 11:30).
+- **`QR.md`** — 22 questions probables du jury avec réponses recommandées,
+  porteur et renvoi annexe. Document interne : à réviser, **ne pas projeter**.
+
 ## Présenter
 
 | Touche | Action |
