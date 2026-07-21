@@ -27,7 +27,8 @@ Lancer AVANT la soutenance, laisser en pause en arrière-plan :
 .venv/Scripts/python.exe -m pilot.main --dashboard
 ```
 
-Backup : déposer les GIF/vidéos dans `assets/demo-backup/` (voir son README).
+Pas de backup enregistré (décision 21/07) : en cas de plantage, relancer
+les deux process (~10 s).
 
 ## Export PDF
 

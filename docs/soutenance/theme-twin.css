@@ -183,8 +183,6 @@
 
 /* ---- Slide 12 : démo ---- */
 .checklist-demo li { font-size: 0.8em; margin: 0.5em 0; }
-.backup { margin-top: 1em; font-size: 0.7em; }
-.backup summary { cursor: pointer; color: var(--gris); }
 .petit { font-size: 0.8em; }
 
 /* ---- Slide 13 : conclusion ---- */
