@@ -127,16 +127,20 @@ const ANIMS = {
   },
 
   mesurer(slide) {
+    // Barres diagnostic « urgence » horizontales : on anime la LARGEUR (% de
+    // la cellule), pas la hauteur — le layout est passé en histogramme couché.
     return animate(slide.querySelectorAll('.barres-urgence .barre'), {
-      height: (el) => [0, (el.dataset.h * 1.7) + 'px'],
+      width: (el) => ['0%', el.dataset.h + '%'],
       delay: stagger(200), duration: 900, ease: 'outCubic',
     });
   },
 
   resultats(slide) {
-    return animate(slide.querySelectorAll('.barres-resultats .barre'), {
-      height: (el) => [0, (el.dataset.h * 1.7) + 'px'],
-      delay: stagger(130), duration: 900, ease: 'outCubic',
+    // Les barres CSS ont été remplacées par les deux graphes matplotlib réels ;
+    // on anime leur apparition (fondu + montée) pour garder le mouvement.
+    return animate(slide.querySelectorAll('.result-graph'), {
+      opacity: [0, 1], translateY: ['26px', 0],
+      delay: stagger(180), duration: 700, ease: 'outCubic',
     });
   },
 
@@ -154,7 +158,16 @@ let animEnCours = null;
 
 function jouer(slide) {
   if (animEnCours) { animEnCours.revert(); animEnCours = null; }
+  LiveDrive.stop(); // coupe le pilote live dès qu'on quitte sa slide
   const nom = slide && slide.dataset.anim;
+  if (nom === 'demo-live') {
+    LiveDrive.start(
+      slide.querySelector('#live-canvas'),
+      'gen_014',
+      { hud: slide.querySelector('#live-hud') },
+    );
+    return;
+  }
   if (nom && ANIMS[nom]) animEnCours = ANIMS[nom](slide);
 }
 
@@ -164,8 +177,10 @@ function jouer(slide) {
    à leur valeur finale, pour un export PDF complet. */
 function finaliserStatique() {
   document.documentElement.classList.add('statique');
-  document.querySelectorAll('.barre[data-h]').forEach((b) => {
-    b.style.height = (b.dataset.h * 1.7) + 'px';
+  // Barres « urgence » horizontales : largeur = % (pas de hauteur). Les graphes
+  // .result-graph sont révélés par le CSS .statique (opacity:1).
+  document.querySelectorAll('.barres-urgence .barre[data-h]').forEach((b) => {
+    b.style.width = b.dataset.h + '%';
   });
   const poser = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   poser('compteur-circuits', '30');
