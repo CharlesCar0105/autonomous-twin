@@ -9,7 +9,13 @@
   --accent-clair: #93c5fd;
   --ok: #22c55e;
   --alerte: #ef4444;
-  --gris: #64748b;
+  /* Gris texte : remonté de #64748b (~3.5:1) à #94a3b8 (~6.5:1 sur fond
+     sombre) pour rester lisible une fois lavé par un vidéoprojecteur. */
+  --gris: #94a3b8;
+  /* Gris « barre » : les barres « avant/DNF » gardent l'ancienne teinte
+     terne (face au bleu « après »), sans suivre l'éclaircissement du gris
+     texte — visibilité inchangée, sémantique « avant » préservée. */
+  --gris-barre: #64748b;
 }
 
 .reveal-viewport { background: radial-gradient(ellipse at 30% 10%, #12203a 0%, var(--fond) 60%); }
@@ -43,6 +49,24 @@
   margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box;
 }
 .reveal .slide-number { background: transparent; color: var(--gris); font-size: 16px; }
+
+/* ---- États initiaux animés (anti-flash) ----
+   Ces cibles sont animées depuis opacity 0 par animations.js ; sans état
+   initial en CSS elles clignotent (visibles une frame avant le démarrage de
+   la timeline). anime.js revert() retombe sur ces valeurs, donc le rejeu à
+   chaque entrée de slide reste intact. (.msg / .etape / .pipe-fleche /
+   .galerie-circuits img portent déjà opacity:0 dans leur propre règle.)
+   L'affichage statique (export PDF, impression, reduced-motion) est rétabli
+   plus bas — voir bloc « États statiques ». */
+#titre-principal span,
+.soustitre, .equipe,
+.carte, .punchline,
+.boite,
+.tuile, .ligne-bonus,
+.svg-cam, .svg-mask, .fleche,
+.honnete {
+  opacity: 0;
+}
 
 /* ---- Slide 1 : titre ---- */
 .kicker { font-size: 0.55em; text-transform: uppercase; letter-spacing: 0.2em; color: var(--gris); }
@@ -169,10 +193,10 @@
 .duo { display: flex; gap: 6px; align-items: flex-end; height: 170px; }
 .barre { width: 54px; border-radius: 6px 6px 0 0; height: 0; }
 .b-urg { background: var(--alerte); }
-.b-avant { background: var(--gris); }
+.b-avant { background: var(--gris-barre); }
 .b-apres { background: var(--accent); }
 .b-dnf {
-  background: repeating-linear-gradient(45deg, var(--gris), var(--gris) 8px, #47566d 8px, #47566d 16px);
+  background: repeating-linear-gradient(45deg, var(--gris-barre), var(--gris-barre) 8px, #47566d 8px, #47566d 16px);
 }
 .barres-urgence .barre { height: 0; }
 .val { font-size: 0.6em; font-weight: 700; margin-top: 0.3em; }
@@ -183,8 +207,6 @@
 
 /* ---- Slide 12 : démo ---- */
 .checklist-demo li { font-size: 0.8em; margin: 0.5em 0; }
-.backup { margin-top: 1em; font-size: 0.7em; }
-.backup summary { cursor: pointer; color: var(--gris); }
 .petit { font-size: 0.8em; }
 
 /* ---- Slide 13 : conclusion ---- */
@@ -200,3 +222,30 @@
 .tableau-bareme { font-size: 0.52em; width: 100%; border-collapse: collapse; }
 .tableau-bareme th, .tableau-bareme td { border-bottom: 1px solid #2c3e57; padding: 0.3em 0.6em; text-align: left; }
 .tableau-bareme th { color: var(--accent-clair); }
+
+/* ---- États statiques : rendu sans animation ----
+   Sans JS de timeline (export PDF via ?print-pdf, impression réelle, ou
+   prefers-reduced-motion), on force l'affichage des cibles dont l'état
+   initial est opacity:0 — sinon elles restent invisibles. Les points de flux
+   .msg (pure décoration de mouvement) restent volontairement masqués.
+   Les hauteurs de barres et compteurs sont posés en JS (finaliserStatique).
+   .statique est ajouté sur <html> par animations.js ; il couvre l'aperçu
+   ?print-pdf à l'écran et reduced-motion. @media print couvre l'impression. */
+.statique #titre-principal span,
+.statique .soustitre, .statique .equipe,
+.statique .carte, .statique .punchline, .statique .boite,
+.statique .tuile, .statique .ligne-bonus,
+.statique .svg-cam, .statique .svg-mask, .statique .fleche,
+.statique .honnete,
+.statique .etape, .statique .pipe-fleche,
+.statique .galerie-circuits img {
+  opacity: 1 !important;
+}
+
+@media print, (prefers-reduced-motion: reduce) {
+  #titre-principal span, .soustitre, .equipe, .carte, .punchline, .boite,
+  .tuile, .ligne-bonus, .svg-cam, .svg-mask, .fleche, .honnete,
+  .etape, .pipe-fleche, .galerie-circuits img {
+    opacity: 1 !important;
+  }
+}
