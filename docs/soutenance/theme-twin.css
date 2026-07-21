@@ -1,63 +1,681 @@
-/* Thème Autonomous Twin — fonts système, aucune dépendance réseau */
+/* ============================================================================
+   AUTONOMOUS TWIN — thème « TWIN TELEMETRY »
+   Direction : télémétrie racing / HUD broadcast F1. L'ADN visuel est le
+   dashboard pilote du projet (assets/game/dash-*.png) : carbone quasi-noir,
+   ambre « LIMITE », cyan « CAMERA », vert « MASQUE », rouge « URGENCE »,
+   data en monospace. Chaque slide = un panneau d'instruments.
+
+   100 % autonome file:// — polices SYSTÈME uniquement (Bahnschrift = DIN
+   condensé livré avec Windows ; Consolas = monospace Windows), aucune
+   dépendance réseau. Dégrade proprement si une police manque.
+
+   Contraintes héritées respectées : gris texte ≥ AA (var --gris conservé),
+   états initiaux anti-flash + rendu statique (.statique / @media print)
+   voir les deux derniers blocs.
+   ============================================================================ */
 
 :root {
-  --fond: #0b1220;
-  --fond-carte: #131e30;
-  --texte: #dbe4f0;
-  --titre: #f8fafc;
-  --accent: #3b82f6;
-  --accent-clair: #93c5fd;
-  --ok: #22c55e;
-  --alerte: #ef4444;
-  /* Gris texte : remonté de #64748b (~3.5:1) à #94a3b8 (~6.5:1 sur fond
-     sombre) pour rester lisible une fois lavé par un vidéoprojecteur. */
-  --gris: #94a3b8;
-  /* Gris « barre » : les barres « avant/DNF » gardent l'ancienne teinte
-     terne (face au bleu « après »), sans suivre l'éclaircissement du gris
-     texte — visibilité inchangée, sémantique « avant » préservée. */
-  --gris-barre: #64748b;
+  /* ---- Carbone (fond) : calé sur le dashboard pilote (~#0d0d0f), légèrement
+         bleuté pour la profondeur ---- */
+  --carbon:    #080b11;
+  --carbon-1:  #0b0f17;
+  --carbon-2:  #10151f;   /* panneau surélevé */
+  --carbon-3:  #161d2b;   /* carte / inset */
+  --carbon-4:  #1c2536;   /* survol / inset clair */
+
+  /* ---- Filets / châssis HUD ---- */
+  --line:      #223047;
+  --line-hot:  #37506f;
+  --grid:      rgba(75, 110, 160, 0.06);
+
+  /* ---- Instruments (accents) ----
+     AMBRE = accent primaire (header « LIMITE », ligne limite, barres oracle).
+     Choix d'identité : ambre-forward, pas le bleu générique tech. */
+  --amber:     #ff9f1c;
+  --amber-2:   #ffb84d;
+  --amber-dim: #7a5a1e;
+  --cyan:      #2dd4ee;   /* secondaire froid : CAMERA, aiguille, data live */
+  --cyan-dim:  #1c6f80;
+  --green:     #22c55e;   /* OK / validation / masque (assorti aux graphes) */
+  --green-2:   #34d97a;
+  --red:       #ff3b30;   /* alerte / urgence / « avant » */
+  --red-2:     #ef4444;
+  --blue:      #2f6fed;   /* bleu DATA (continuité avec les PNG « après »/PID) */
+
+  /* ---- Texte ---- */
+  --ink:       #f4f7fb;   /* readout principal / titres */
+  --texte:     #d7e0ee;   /* corps */
+  --titre:     #f8fafc;
+  /* Gris texte calibré ≥ AA (≈7:1 sur carbone) — NE PAS éclaircir/foncer. */
+  --gris:      #94a3b8;
+  /* Gris « barre avant/DNF » : teinte terne conservée (sémantique « avant »). */
+  --gris-barre:#64748b;
+
+  /* alias hérités (compat sélecteurs existants) */
+  --fond:       var(--carbon);
+  --fond-carte: var(--carbon-3);
+  --accent:      var(--amber);
+  --accent-clair:var(--amber-2);
+  --ok:          var(--green);
+  --alerte:      var(--red);
+
+  /* ---- Polices SYSTÈME ---- */
+  --f-display: "Bahnschrift", "DIN Alternate", "Oswald", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --f-mono:    "Consolas", ui-monospace, "Cascadia Mono", "SF Mono", "Roboto Mono", monospace;
+  --f-body:    "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
 }
 
-.reveal-viewport { background: radial-gradient(ellipse at 30% 10%, #12203a 0%, var(--fond) 60%); }
+/* ============================================================================
+   FOND — dalle carbone + grille technique fine + vignette
+   ============================================================================ */
+.reveal-viewport {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, #14203a 0%, rgba(20,32,58,0) 55%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 44px 44px,
+    var(--carbon);
+}
+.reveal-viewport::after {   /* vignette pour concentrer le regard */
+  content: ""; position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
+}
 
 .reveal {
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: var(--f-body);
   font-size: 34px;
   color: var(--texte);
+  font-weight: 400;
 }
+
+/* ---- Titres : Bahnschrift condensé, allure instrument ---- */
 .reveal h1, .reveal h2, .reveal h3 {
-  font-family: inherit;
+  font-family: var(--f-display);
   color: var(--titre);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.6em;
+  font-weight: 600;
+  font-stretch: 90%;
+  letter-spacing: 0.01em;
+  line-height: 1.02;
+  margin: 0 0 0.5em;
+  text-transform: none;
 }
-.reveal h1 { font-size: 2.6em; }
-.reveal h2 { font-size: 1.5em; }
-.reveal h3 { font-size: 1.15em; }
+.reveal h1 { font-size: 2.9em; letter-spacing: 0.04em; }
+.reveal h2 {
+  font-size: 1.62em; text-transform: uppercase; letter-spacing: 0.02em;
+  padding-bottom: 0.28em; position: relative;
+}
+/* Soulignement « timing » ambre sous chaque titre de slide */
+.reveal [data-anim] > h2::after,
+.reveal .slides > section > section > h2::after,
+.reveal .slides > section > section > h3::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 2.2em; height: 3px;
+  background: linear-gradient(90deg, var(--amber), var(--amber) 62%, transparent);
+  box-shadow: 0 0 12px rgba(255,159,28,0.5);
+}
+.reveal h3 { font-size: 1.18em; color: var(--amber-2); }
+
 .reveal section { text-align: left; }
 .reveal section > *:not(.bareme) { max-width: 100%; }
-.reveal strong { color: var(--accent-clair); }
-.reveal em { color: var(--ok); font-style: normal; }
-.reveal code { background: #1e293b; padding: 0.1em 0.35em; border-radius: 6px; font-size: 0.85em; }
-.reveal ul, .reveal ol { display: block; margin-left: 1em; }
-.reveal li { margin: 0.35em 0; line-height: 1.35; }
-.reveal ul.compact li { font-size: 0.78em; }
-.reveal blockquote {
-  background: var(--fond-carte); border-left: 5px solid var(--alerte);
-  padding: 0.5em 0.9em; font-size: 0.8em; font-style: italic;
-  margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box;
-}
-.reveal .slide-number { background: transparent; color: var(--gris); font-size: 16px; }
 
-/* ---- États initiaux animés (anti-flash) ----
-   Ces cibles sont animées depuis opacity 0 par animations.js ; sans état
-   initial en CSS elles clignotent (visibles une frame avant le démarrage de
-   la timeline). anime.js revert() retombe sur ces valeurs, donc le rejeu à
-   chaque entrée de slide reste intact. (.msg / .etape / .pipe-fleche /
-   .galerie-circuits img portent déjà opacity:0 dans leur propre règle.)
-   L'affichage statique (export PDF, impression, reduced-motion) est rétabli
-   plus bas — voir bloc « États statiques ». */
+.reveal p { line-height: 1.4; }
+.reveal strong { color: var(--amber-2); font-weight: 600; }
+.reveal em { color: var(--green-2); font-style: normal; font-weight: 600; }
+.reveal s { color: var(--gris); }
+.reveal code {
+  font-family: var(--f-mono);
+  background: var(--carbon-2); color: var(--cyan);
+  padding: 0.08em 0.4em; border-radius: 5px; font-size: 0.82em;
+  border: 1px solid var(--line);
+}
+.reveal ul, .reveal ol { display: block; margin-left: 1em; }
+.reveal li { margin: 0.32em 0; line-height: 1.34; }
+.reveal ul.compact li { font-size: 0.78em; }
+
+/* Puces « chevron » façon liste télémétrie */
+.reveal ul { list-style: none; margin-left: 0; }
+.reveal ul li { position: relative; padding-left: 1.15em; }
+.reveal ul li::before {
+  content: "›"; position: absolute; left: 0; top: -0.02em;
+  color: var(--amber); font-family: var(--f-mono); font-weight: 700;
+}
+
+.reveal blockquote {
+  background: linear-gradient(90deg, rgba(255,59,48,0.10), rgba(255,59,48,0) 70%), var(--carbon-2);
+  border: 1px solid var(--line); border-left: 4px solid var(--red);
+  padding: 0.55em 0.9em; font-size: 0.8em; font-style: italic;
+  color: var(--texte);
+  margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box; border-radius: 0 8px 8px 0;
+}
+.reveal blockquote::before {
+  content: "⚠ CONSIGNE SUJET"; display: block;
+  font-family: var(--f-mono); font-style: normal; font-size: 0.62em;
+  letter-spacing: 0.16em; color: var(--red); margin-bottom: 0.35em;
+}
+
+/* Numéro de slide Reveal (bas) — discret, mono */
+.reveal .slide-number {
+  background: transparent; color: var(--gris);
+  font-family: var(--f-mono); font-size: 15px; letter-spacing: 0.08em;
+}
+.reveal .progress { color: var(--amber); height: 3px; }
+.reveal .controls { color: var(--line-hot); }
+
+/* ============================================================================
+   CHÂSSIS HUD — cadre viseur (4 coins), eyebrow secteur, réglette télémétrie
+   Appliqué aux 13 slides principales ([data-anim]) et aux annexes-feuilles.
+   ============================================================================ */
+.reveal .slides > section[data-anim],
+.reveal .slides > section > section {
+  /* PAS de position ici : reveal.css pose position:absolute sur les sections
+     (superposition des slides) — l'écraser en relative les empile dans le
+     flux et pousse tout hors écran. absolute est déjà un containing block
+     pour l'eyebrow/les coins du châssis. */
+  padding: 58px 30px 42px;      /* place pour l'eyebrow (haut) + réglette (bas) */
+  box-sizing: border-box;
+  /* 4 coins « viseur » dessinés en gradients (2 barres par coin) */
+  background-image:
+    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0),
+    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0),
+    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0),
+    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0);
+  background-repeat: no-repeat;
+  background-size:
+    26px 2px, 2px 26px,   /* haut-gauche */
+    26px 2px, 2px 26px,   /* haut-droit */
+    26px 2px, 2px 26px,   /* bas-gauche */
+    26px 2px, 2px 26px;   /* bas-droit */
+  background-position:
+    top 6px left 6px, top 6px left 6px,
+    top 6px right 6px, top 6px right 6px,
+    bottom 6px left 6px, bottom 6px left 6px,
+    bottom 6px right 6px, bottom 6px right 6px;
+}
+
+/* Eyebrow secteur (haut-gauche) : numéro de « secteur » + phase (data-attr) */
+.reveal .slides > section[data-anim]::before {
+  content: "▸ " attr(data-sector) " / 13   " attr(data-phase);
+  position: absolute; top: 20px; left: 34px; right: 34px;
+  font-family: var(--f-mono); font-size: 15px; letter-spacing: 0.18em;
+  color: var(--gris); text-transform: uppercase;
+  border-bottom: 1px solid var(--line); padding-bottom: 10px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Point « live » clignotant au bout de l'eyebrow */
+.reveal .slides > section[data-anim]::after {
+  content: "● REC";
+  position: absolute; top: 18px; right: 34px;
+  font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.16em;
+  color: var(--red); animation: blink 1.4s steps(2, start) infinite;
+}
+@keyframes blink { 50% { opacity: 0.25; } }
+
+/* ---- Réglette télémétrie (bas) — ticks type compte-tours, décoratif ---- */
+.reveal .slides > section[data-anim] > .tele,
+.reveal .slides > section > section > .tele { display: none; } /* réservé futur */
+
+/* ============================================================================
+   BADGE BARÈME — « broadcast tag » (secteur de chrono)
+   ============================================================================ */
+.bareme {
+  position: absolute; top: 16px; right: 120px;
+  font-family: var(--f-mono); font-size: 14px; letter-spacing: 0.08em;
+  color: var(--amber-2);
+  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
+  border: 1px solid var(--amber-dim); border-left: 3px solid var(--amber);
+  border-radius: 4px; padding: 0.35em 0.8em; font-weight: 600;
+  text-transform: uppercase; z-index: 3;
+}
+
+/* ============================================================================
+   COMPOSANT IMAGE — « écran HUD » (cadre viseur autour des captures)
+   ============================================================================ */
+.hud-screen {
+  position: relative; display: block;
+  border: 1px solid var(--line-hot); border-radius: 8px;
+  background: var(--carbon-1); overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.6), 0 8px 26px rgba(0,0,0,0.5);
+}
+.hud-screen img { display: block; width: 100%; height: auto; }
+.hud-screen > .tag {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.14em;
+  color: var(--cyan); background: rgba(8,11,17,0.82);
+  border: 1px solid var(--cyan-dim); border-radius: 4px; padding: 0.15em 0.5em;
+  text-transform: uppercase;
+}
+.hud-screen > .tag.tag-amber { color: var(--amber-2); border-color: var(--amber-dim); }
+.hud-screen > .tag.tag-red   { color: var(--red); border-color: #7a2a26; }
+/* coins viseur cyan sur les écrans */
+.hud-screen::before, .hud-screen::after {
+  content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none; z-index: 2;
+}
+.hud-screen::before { top: 6px; right: 6px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+.hud-screen::after  { bottom: 6px; left: 6px; border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+
+/* Recadrage (montrer une région d'une capture) */
+.crop { overflow: hidden; position: relative; }
+.crop img { width: 100%; height: auto; display: block; }
+
+/* Instrument portrait (dashboards dash-*.png) */
+.instrument { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-hot);
+  background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.55); }
+.instrument img { display: block; width: 100%; height: auto; }
+
+/* Petit badge télémétrie réutilisable */
+.tel-badge {
+  display: inline-flex; align-items: baseline; gap: 0.4em;
+  font-family: var(--f-mono); font-size: 0.5em; letter-spacing: 0.06em;
+  color: var(--cyan); background: var(--carbon-2);
+  border: 1px solid var(--line); border-radius: 5px; padding: 0.3em 0.6em;
+}
+.tel-badge b { color: var(--ink); font-size: 1.3em; font-weight: 700; }
+.tel-badge.amber { color: var(--amber-2); border-color: var(--amber-dim); }
+.tel-badge.green { color: var(--green-2); }
+
+/* Garde-fous hauteur : les graphes matplotlib sont larges/transparents —
+   on les letterbox (object-fit contain) pour tenir dans le 16:9. */
+.mesurer-graph img { max-height: 166px; object-fit: contain; }
+.mesurer-side .instrument { max-width: 124px; margin: 0 auto; }
+.panneaux-graph img { max-height: 214px; object-fit: contain; }
+.result-graph img { max-height: 250px; object-fit: contain; }
+.conclusion-visuel img { max-height: 236px; object-fit: contain; }
+.annexe-graph img { max-height: 296px; object-fit: contain; }
+
+/* ============================================================================
+   S1 — TITRE (hero télémétrie)
+   Spécificité alignée sur le châssis générique (.reveal .slides > section…)
+   pour que le fond « course » l'emporte sur les coins seuls.
+   ============================================================================ */
+.reveal .slides > section[data-anim="intro"] {
+  text-align: center;
+  background-image:
+    /* scrim très sombre sur la capture course */
+    linear-gradient(180deg, rgba(6,9,14,0.90) 0%, rgba(6,9,14,0.82) 45%, rgba(6,9,14,0.95) 100%),
+    /* coins viseur (repris du châssis) */
+    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
+    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
+    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
+    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
+    url("assets/game/course.png");
+  background-repeat: no-repeat;
+  background-size:
+    cover,
+    30px 2px, 2px 30px, 30px 2px, 2px 30px,
+    30px 2px, 2px 30px, 30px 2px, 2px 30px,
+    cover;
+  background-position:
+    center,
+    top 6px left 6px, top 6px left 6px, top 6px right 6px, top 6px right 6px,
+    bottom 6px left 6px, bottom 6px left 6px, bottom 6px right 6px, bottom 6px right 6px,
+    center;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.kicker {
+  font-family: var(--f-mono); font-size: 0.5em; text-transform: uppercase;
+  letter-spacing: 0.28em; color: var(--amber-2);
+}
+/* Damier « ligne d'arrivée » discret sous le kicker */
+.reveal section[data-anim="intro"] .kicker::before,
+.reveal section[data-anim="intro"] .kicker::after {
+  content: ""; display: inline-block; vertical-align: middle;
+  width: 66px; height: 12px; margin: 0 0.7em;
+  background:
+    conic-gradient(var(--ink) 90deg, transparent 0 180deg, var(--ink) 0 270deg, transparent 0) 0 0 / 6px 6px;
+  opacity: 0.55;
+}
+#titre-principal {
+  text-align: center; margin: 0.16em 0 0.14em;
+  font-weight: 700; font-stretch: 100%;
+  text-shadow: 0 3px 24px rgba(0,0,0,0.8);
+}
+#titre-principal span { display: inline-block; }
+.soustitre {
+  text-align: center; font-size: 0.82em; color: var(--cyan);
+  font-family: var(--f-display); font-stretch: 90%; letter-spacing: 0.02em;
+}
+.equipe {
+  text-align: center; font-size: 0.62em; color: var(--gris);
+  font-family: var(--f-mono); letter-spacing: 0.14em; margin-top: 1.7em;
+  text-transform: uppercase;
+}
+.equipe::before { content: "PILOTES · "; color: var(--amber); }
+
+/* Bandeau télémétrie hero (décoratif, sous l'équipe) */
+.hero-tel {
+  display: flex; gap: 0; justify-content: center; margin-top: 1.5em;
+  font-family: var(--f-mono); font-size: 0.42em; letter-spacing: 0.12em;
+}
+.hero-tel span { padding: 0.5em 1.2em; color: var(--gris); border-left: 1px solid var(--line); text-transform: uppercase; }
+.hero-tel span:first-child { border-left: 0; }
+.hero-tel span b { color: var(--cyan); font-weight: 700; }
+.hero-tel .on b { color: var(--green-2); }
+
+/* ============================================================================
+   S2 — CONCEPT (deux cartes + capture d'ancrage)
+   ============================================================================ */
+.concept-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1em; align-items: stretch; margin: 0.3em 0 0.4em; }
+.deux-cartes { display: flex; flex-direction: row; gap: 0.7em; }
+.carte {
+  flex: 1;
+  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
+  border: 1px solid var(--line); border-left: 4px solid var(--amber);
+  border-radius: 10px; padding: 0.6em 0.85em; width: auto;
+  position: relative;
+}
+.carte-pilote { border-left-color: var(--cyan); }
+.carte h3 { margin: 0 0 0.05em; color: var(--amber-2); }
+.carte-pilote h3 { color: var(--cyan); }
+.carte h3::after { display: none; }
+.carte .sous { font-family: var(--f-mono); font-size: 0.5em; color: var(--gris); margin-bottom: 0.45em; letter-spacing: 0.06em; text-transform: uppercase; }
+.carte ul { margin-left: 0; }
+.carte li { font-size: 0.6em; }
+.punchline {
+  grid-column: 1 / -1; text-align: center; font-size: 0.76em; color: var(--cyan);
+  border-top: 1px solid var(--line); padding-top: 0.5em; margin-top: 0.1em;
+}
+.concept-visuel { align-self: stretch; }
+.concept-visuel .hud-screen { height: 100%; max-height: 258px; }
+.concept-visuel .hud-screen img { height: 100%; object-fit: cover; object-position: 62% 50%; }
+.concept-visuel .cap { font-family: var(--f-mono); font-size: 0.44em; color: var(--gris); margin-top: 0.35em; letter-spacing: 0.06em; }
+
+/* ============================================================================
+   S3 — ARCHITECTURE ZMQ (schéma enrichi HUD)
+   ============================================================================ */
+.schema-zmq {
+  display: flex; align-items: center; gap: 0.6em; margin: 1.1em 0 0.9em;
+  background: var(--carbon-1); border: 1px solid var(--line); border-radius: 12px;
+  padding: 1.1em 1em;
+}
+.boite {
+  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
+  border: 1px solid var(--amber-dim); border-top: 3px solid var(--amber);
+  border-radius: 10px; padding: 0.7em 1em; font-family: var(--f-display);
+  font-weight: 600; font-stretch: 90%; letter-spacing: 0.04em;
+  font-size: 0.72em; text-align: center; flex-shrink: 0; color: var(--ink);
+}
+.boite-pilote { border-color: var(--cyan-dim); border-top-color: var(--cyan); }
+.boite .petit { display: block; font-family: var(--f-mono); font-weight: 400; font-size: 0.6em; color: var(--gris); margin-top: 0.2em; letter-spacing: 0.05em; }
+.canal { flex-grow: 1; display: flex; flex-direction: column; gap: 1.5em; padding: 0 0.4em; }
+.flux { position: relative; height: 30px; border-bottom: 2px dashed var(--line-hot); }
+.flux-label {
+  position: absolute; left: 50%; transform: translateX(-50%); top: 100%;
+  font-family: var(--f-mono); font-size: 0.4em; color: var(--gris);
+  white-space: nowrap; padding-top: 4px; letter-spacing: 0.05em;
+}
+.msg {
+  position: absolute; top: 8px; width: 13px; height: 13px; border-radius: 50%;
+  background: var(--amber); opacity: 0; box-shadow: 0 0 10px var(--amber);
+}
+.flux-commandes .msg { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+/* Badges télémétrie de l'archi */
+.zmq-badges { display: flex; gap: 0.6em; justify-content: center; margin: 0.2em 0 0.6em; flex-wrap: wrap; }
+
+/* ============================================================================
+   S4 — LE MONDE (mur-arret héros + tuiles)
+   ============================================================================ */
+.monde-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1em; align-items: start; margin: 0.3em 0 0.4em; }
+.monde-visuel .cap { font-family: var(--f-mono); font-size: 0.44em; color: var(--gris); margin-top: 0.35em; letter-spacing: 0.05em; }
+.grille-monde { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55em; }
+.tuile {
+  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
+  border: 1px solid var(--line); border-radius: 10px; padding: 0.5em 0.7em;
+  font-size: 0.58em; line-height: 1.28; position: relative;
+}
+.tuile strong { color: var(--ink); }
+.tuile .ico { font-size: 1.3em; margin-right: 0.25em; filter: saturate(0.7); }
+.ligne-bonus {
+  grid-column: 1 / -1; font-family: var(--f-mono); font-size: 0.54em;
+  color: var(--gris); text-align: center; border-top: 1px solid var(--line);
+  padding-top: 0.5em; margin-top: 0.15em; letter-spacing: 0.03em;
+}
+
+/* ============================================================================
+   S5 — PERCEVOIR (SVG cam→masque + vrai couple du dashboard)
+   ============================================================================ */
+.percevoir-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.2em; align-items: center; margin: 0.2em 0 0.4em; }
+.percevoir-scene { display: flex; align-items: center; justify-content: center; gap: 0.8em; }
+.vue { text-align: center; }
+.vue svg { width: 180px; height: 180px; border-radius: 10px; border: 1px solid var(--line-hot); }
+.vue p { font-family: var(--f-mono); font-size: 0.46em; color: var(--gris); margin-top: 0.3em; letter-spacing: 0.08em; text-transform: uppercase; }
+.fleche { font-size: 1.5em; color: var(--amber); }
+.percevoir-reel .crop { aspect-ratio: 42 / 21; }
+.percevoir-reel .crop img { object-fit: cover; object-position: top center; }
+.percevoir-reel .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.3em; letter-spacing: 0.05em; }
+.percevoir-grid + p { font-size: 0.8em; }
+.honnete {
+  font-size: 0.7em; background: linear-gradient(90deg, rgba(34,197,94,0.10), transparent 70%), var(--carbon-2);
+  border: 1px solid var(--line); border-left: 4px solid var(--green);
+  padding: 0.5em 0.85em; border-radius: 0 8px 8px 0;
+}
+.iou-line { font-size: 0.8em; }
+.iou-line strong { color: var(--green-2); }
+
+/* ============================================================================
+   S6 — CONDUIRE (compteur 30/30 + visuel)
+   ============================================================================ */
+.conduire-layout { display: grid; grid-template-columns: 0.9fr 1.35fr; gap: 1.2em; align-items: center; }
+.jauge {
+  text-align: center; background: var(--carbon-1); border: 1px solid var(--line-hot);
+  border-radius: 14px; padding: 0.5em 0.4em 0.6em; position: relative;
+}
+.jauge::before {
+  content: "◉ GÉNÉRALISATION"; display: block; font-family: var(--f-mono);
+  font-size: 0.32em; letter-spacing: 0.16em; color: var(--green-2); margin-bottom: 0.1em;
+}
+.grand-chiffre { font-family: var(--f-display); font-stretch: 90%; font-size: 3.1em; font-weight: 700; color: var(--green-2); line-height: 0.95; text-shadow: 0 0 30px rgba(34,197,94,0.35); }
+.grand-chiffre .sur { color: var(--gris); font-size: 0.5em; }
+.legende-chiffre { font-family: var(--f-mono); font-size: 0.26em; font-weight: 400; color: var(--texte); line-height: 1.3; margin-top: 0.4em; letter-spacing: 0.04em; }
+.conduire-layout ul { align-self: center; }
+.conduire-layout li { font-size: 0.68em; }
+
+/* ============================================================================
+   S7 — GÉNÉRALISER (galerie circuits + stats features)
+   ============================================================================ */
+.galerie-circuits { display: flex; gap: 0.5em; justify-content: center; margin: 0.55em 0; }
+.galerie-circuits img {
+  width: 148px; height: 148px; object-fit: cover; border-radius: 8px;
+  border: 1px solid var(--line-hot); opacity: 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+}
+.circuits-stats { display: flex; gap: 0.7em; justify-content: center; margin: 0.3em 0 0.4em; }
+.stat-pin {
+  font-family: var(--f-mono); font-size: 0.5em; color: var(--gris);
+  background: var(--carbon-2); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.35em 0.7em; letter-spacing: 0.04em;
+}
+.stat-pin b { color: var(--amber-2); font-size: 1.25em; }
+
+/* ============================================================================
+   S8 — PANNEAUX (pipeline + dashboard panneau + courbe accuracy)
+   ============================================================================ */
+.pipeline { display: flex; align-items: stretch; gap: 0.35em; margin: 0.7em 0; }
+.etape {
+  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
+  border: 1px solid var(--line); border-top: 3px solid var(--amber);
+  border-radius: 9px; padding: 0.5em 0.55em; font-family: var(--f-display);
+  font-stretch: 90%; font-size: 0.6em; font-weight: 600; text-align: center; flex: 1;
+  color: var(--ink); opacity: 0;
+}
+.etape .petit { display: block; font-family: var(--f-mono); font-weight: 400; font-size: 0.7em; color: var(--gris); margin-top: 0.15em; letter-spacing: 0.02em; }
+.pipe-fleche { align-self: center; color: var(--amber); font-size: 0.9em; opacity: 0; }
+.pipeline { margin: 0.5em 0; }
+.panneaux-grid { display: grid; grid-template-columns: 0.6fr 1.4fr; gap: 1em; align-items: center; margin-top: 0.4em; }
+.panneaux-dash .instrument { max-width: 150px; margin: 0 auto; }
+.panneaux-graph .hud-screen { background: var(--carbon-1); }
+.panneaux-graph .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.25em; letter-spacing: 0.04em; }
+.accuracy-ligne { display: flex; align-items: baseline; justify-content: center; gap: 0.55em; margin-top: 0.5em; font-family: var(--f-mono); }
+.acc-etape { font-size: 0.58em; color: var(--gris); }
+.acc-sep { color: var(--amber); }
+.acc-final { font-size: 0.95em; font-weight: 700; color: var(--green-2); }
+
+/* ============================================================================
+   S9 — OCCLUSION (scène animée signature, habillée « caméra onboard »)
+   ============================================================================ */
+.symptome { font-size: 0.74em; }
+.symptome strong:last-of-type { color: var(--red); }
+.scene-occlusion { display: flex; align-items: center; gap: 1.4em; justify-content: center; margin: 0.5em 0; }
+.cam-frame {
+  position: relative; width: 340px; height: 190px; overflow: hidden;
+  border: 1px solid var(--cyan-dim); border-radius: 8px;
+  background: repeating-linear-gradient(0deg, #0c1420, #0c1420 3px, #0e1826 3px, #0e1826 6px);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+}
+.cam-frame::before {   /* tag ONBOARD (broadcast) */
+  content: "◉ REC · ONBOARD"; position: absolute; top: 6px; left: 8px; z-index: 3;
+  font-family: var(--f-mono); font-size: 0.38em; color: var(--cyan); letter-spacing: 0.08em;
+}
+.cam-frame::after {   /* scanline */
+  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, transparent 48%, rgba(45,212,238,0.10) 50%, transparent 52%);
+}
+.cam-label { position: absolute; bottom: 5px; left: 10px; font-family: var(--f-mono); font-size: 0.4em; color: var(--gris); z-index: 3; }
+.sign-panneau {
+  position: absolute; top: 40px; left: 110px; width: 108px; height: 108px;
+  background: #fff; border: 9px solid var(--red); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-display); font-weight: 700; font-size: 1.5em; color: #111; z-index: 1;
+}
+.pred {
+  font-family: var(--f-mono); font-size: 0.8em;
+  background: var(--carbon-2); border: 1px solid var(--line);
+  padding: 0.5em 0.9em; border-radius: 8px; min-width: 6.5em;
+}
+.pred strong { font-size: 1.25em; color: var(--ink); }
+.pred.pred-ko { border-color: #7a2a26; }
+.pred.pred-ko strong { color: var(--red); }
+.pred.pred-ok { border-color: #1f6b3a; }
+.pred.pred-ok strong { color: var(--green-2); }
+.lecon, .fix { font-size: 0.64em; line-height: 1.36; }
+.fix { background: var(--carbon-2); border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 0.4em 0.8em; }
+
+/* ============================================================================
+   S10 — MESURER (oracle + dashboard urgence + diagnostic barres)
+   ============================================================================ */
+.mesurer-grid { display: grid; grid-template-columns: 1.5fr 0.55fr; gap: 1em; align-items: center; margin: 0.15em 0; }
+.mesurer-graph .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.2em; letter-spacing: 0.04em; }
+.mesurer-side .cap { font-family: var(--f-mono); font-size: 0.4em; color: var(--gris); margin-top: 0.25em; text-align: center; letter-spacing: 0.05em; }
+.diag-titre { font-size: 0.68em; margin: 0.3em 0 0.2em; }
+.diag-titre strong { color: var(--red); }
+
+/* Barres diagnostic « urgence » — mini histogramme télémétrie horizontal */
+.barres-urgence {
+  display: flex; flex-direction: column; gap: 0.35em; margin: 0.3em 0 0.15em;
+  background: var(--carbon-1); border: 1px solid var(--line); border-radius: 8px; padding: 0.55em 0.7em;
+}
+.barres-urgence .groupe-barre {
+  display: grid; grid-template-columns: 4.2em 1fr 2.6em; align-items: center; gap: 0.5em; height: auto;
+}
+.barres-urgence .nom { order: 0; font-family: var(--f-mono); font-size: 0.5em; color: var(--gris); text-align: left; }
+.barres-urgence .barre {
+  order: 1; height: 11px !important; width: 0; border-radius: 3px;
+  background: linear-gradient(90deg, #7a1d18, var(--red)); align-self: center;
+}
+.barres-urgence .val { order: 2; font-family: var(--f-mono); font-size: 0.5em; font-weight: 700; color: var(--red); margin: 0; text-align: right; }
+
+/* ============================================================================
+   S11 — RÉSULTATS (deux graphes matplotlib réels — remplacent les barres CSS)
+   ============================================================================ */
+.resultats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; align-items: stretch; margin: 0.4em 0 0.3em; }
+.result-graph {
+  opacity: 0; background: var(--carbon-1); border: 1px solid var(--line-hot);
+  border-radius: 10px; padding: 0.5em 0.6em 0.4em; position: relative;
+}
+.result-graph img { display: block; width: 100%; height: auto; }
+.result-graph .cap {
+  font-family: var(--f-mono); font-size: 0.44em; color: var(--gris);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.2em;
+}
+.result-graph .cap b { color: var(--amber-2); }
+
+/* ============================================================================
+   Barres génériques (compat — conservé pour d'éventuelles barres verticales)
+   ============================================================================ */
+.barres-resultats { display: flex; gap: 2em; justify-content: center; align-items: flex-end; height: 230px; margin: 0.4em 0 0.2em; }
+.paire { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.duo { display: flex; gap: 6px; align-items: flex-end; height: 170px; }
+.barre { width: 54px; border-radius: 5px 5px 0 0; height: 0; }
+.b-urg { background: var(--red); }
+.b-avant { background: var(--gris-barre); }
+.b-apres { background: var(--blue); }
+.b-dnf { background: repeating-linear-gradient(45deg, var(--gris-barre), var(--gris-barre) 8px, #47566d 8px, #47566d 16px); }
+.gain { font-family: var(--f-display); font-stretch: 90%; font-size: 0.72em; font-weight: 700; color: var(--green-2); margin-top: 0.3em; }
+.nom { font-family: var(--f-mono); font-size: 0.52em; color: var(--gris); text-align: center; line-height: 1.25; }
+.nom .detail { font-size: 0.85em; }
+.legende-barres { font-family: var(--f-mono); font-size: 0.52em; color: var(--gris); text-align: center; letter-spacing: 0.02em; }
+
+/* ============================================================================
+   S12 — DÉMO LIVE (habillage broadcast ; NE PAS toucher au fonctionnement)
+   ============================================================================ */
+.live-scene {
+  text-align: center; position: relative;
+  border: 1px solid var(--line-hot); border-radius: 12px;
+  background: var(--carbon-1); padding: 0.7em 0.7em 0.5em; margin: 0.2em auto 0.3em;
+  max-width: 84%;
+}
+.live-scene::before {   /* bandeau broadcast onboard */
+  content: "◉ ONBOARD  ·  LIVE  ·  PID"; display: block;
+  font-family: var(--f-mono); font-size: 0.44em; letter-spacing: 0.14em;
+  color: var(--cyan); text-align: left; margin-bottom: 0.4em; text-transform: uppercase;
+}
+.live-scene .rec {
+  position: absolute; top: 0.6em; right: 0.9em;
+  font-family: var(--f-mono); font-size: 0.42em; letter-spacing: 0.12em; color: var(--red);
+  animation: blink 1.4s steps(2, start) infinite;
+}
+#live-canvas {
+  width: 100%; border: 1px solid var(--line-hot); border-radius: 8px;
+  background: #fff; display: block;
+}
+.live-hud {
+  font-family: var(--f-mono); font-size: 0.58em; text-align: center;
+  color: var(--cyan); margin: 0.35em 0 0; letter-spacing: 0.03em;
+}
+.live-note { font-size: 0.56em; color: var(--gris); text-align: center; margin-top: 0.4em; }
+.print-fallback { display: none; }
+.statique .live-scene canvas { display: none; }
+.statique .print-fallback { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--line-hot); }
+.petit { font-size: 0.8em; }
+
+/* ============================================================================
+   S13 — CONCLUSION (phrase + compteur vitesse + graphe physique-100)
+   ============================================================================ */
+.conclusion-grid { display: grid; grid-template-columns: 1fr 0.95fr; gap: 1.2em; align-items: center; margin: 0.2em 0; }
+.phrase-finale { font-size: 1.15em; text-align: left; color: var(--cyan); font-style: italic; }
+.phrase-finale::after { display: none; }
+.vitesse-finale {
+  font-family: var(--f-display); font-stretch: 90%; text-align: left;
+  font-size: 3.1em; font-weight: 700; color: var(--ink); margin: 0.1em 0;
+  text-shadow: 0 0 34px rgba(45,212,238,0.3);
+}
+.vitesse-finale::before { content: "PLAFOND "; font-family: var(--f-mono); font-size: 0.2em; letter-spacing: 0.2em; color: var(--gris); vertical-align: middle; margin-right: 0.4em; }
+.vitesse-finale .unite { font-family: var(--f-mono); font-size: 0.3em; color: var(--amber-2); margin-left: 0.3em; }
+.conclusion-txt p { font-size: 0.66em; text-align: left; }
+.conclusion-visuel .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.25em; letter-spacing: 0.04em; }
+.ouverture { color: var(--gris); }
+.merci {
+  color: var(--green-2); font-family: var(--f-display); font-stretch: 90%;
+  font-weight: 600; font-size: 0.85em !important; letter-spacing: 0.04em;
+  text-transform: uppercase; margin-top: 0.6em; border-top: 1px solid var(--line); padding-top: 0.5em;
+}
+
+/* ============================================================================
+   ANNEXES
+   ============================================================================ */
+.sommaire-annexes li { font-size: 0.72em !important; }
+.annexe-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.2em; align-items: center; }
+.annexe-grid .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.25em; letter-spacing: 0.04em; }
+.tableau-bareme { font-family: var(--f-mono); font-size: 0.5em; width: 100%; border-collapse: collapse; }
+.tableau-bareme th, .tableau-bareme td { border-bottom: 1px solid var(--line); padding: 0.32em 0.6em; text-align: left; }
+.tableau-bareme thead th { color: var(--amber-2); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 2px solid var(--amber-dim); }
+.tableau-bareme tbody tr:hover { background: var(--carbon-2); }
+.tableau-bareme td:nth-child(2) { color: var(--green-2); text-align: center; font-weight: 700; }
+
+/* ============================================================================
+   ÉTATS INITIAUX ANIMÉS (anti-flash) — cibles opacity:0 avant timeline anime.js
+   .msg / .etape / .pipe-fleche / .galerie-circuits img / .result-graph portent
+   déjà opacity:0 dans leur règle. anime.js revert() y retombe (rejeu OK).
+   ============================================================================ */
 #titre-principal span,
 .soustitre, .equipe,
 .carte, .punchline,
@@ -68,169 +686,12 @@
   opacity: 0;
 }
 
-/* ---- Slide 1 : titre ---- */
-.kicker { font-size: 0.55em; text-transform: uppercase; letter-spacing: 0.2em; color: var(--gris); }
-#titre-principal { text-align: center; margin: 0.3em 0 0.2em; }
-#titre-principal span { display: inline-block; }
-.soustitre { text-align: center; font-size: 0.85em; color: var(--accent-clair); }
-.equipe { text-align: center; font-size: 0.7em; color: var(--gris); margin-top: 2em; }
-
-/* ---- Badge barème ---- */
-.bareme {
-  position: absolute; top: -70px; right: 0;
-  font-size: 0.45em; color: var(--fond);
-  background: var(--accent-clair); border-radius: 999px;
-  padding: 0.45em 1.1em; font-weight: 600;
-}
-
-/* ---- Slide 2 : concept ---- */
-.deux-cartes { display: flex; gap: 1em; justify-content: center; margin: 0.5em 0; }
-.carte {
-  background: var(--fond-carte); border-radius: 16px; padding: 0.7em 1em;
-  width: 46%; border-top: 4px solid var(--accent);
-}
-.carte-pilote { border-top-color: var(--ok); }
-.carte h3 { margin-bottom: 0; }
-.carte .sous { font-size: 0.6em; color: var(--gris); margin-bottom: 0.5em; }
-.carte ul { margin-left: 0.8em; }
-.carte li { font-size: 0.62em; }
-.punchline { text-align: center; font-size: 0.8em; color: var(--accent-clair); margin-top: 0.6em; }
-
-/* ---- Slide 3 : schéma ZMQ ---- */
-.schema-zmq { display: flex; align-items: center; gap: 0.5em; margin: 0.8em 0; }
-.boite {
-  background: var(--fond-carte); border: 2px solid var(--accent);
-  border-radius: 14px; padding: 0.8em 1em; font-weight: 700;
-  font-size: 0.75em; text-align: center; flex-shrink: 0;
-}
-.boite-pilote { border-color: var(--ok); }
-.boite .petit { font-weight: 400; font-size: 0.7em; color: var(--gris); }
-.canal { flex-grow: 1; display: flex; flex-direction: column; gap: 1.2em; padding: 0 0.5em; }
-.flux { position: relative; height: 34px; border-bottom: 2px dashed #2c3e57; }
-.flux-label {
-  position: absolute; left: 50%; transform: translateX(-50%); top: 100%;
-  font-size: 0.42em; color: var(--gris); white-space: nowrap; padding-top: 3px;
-}
-.msg {
-  position: absolute; top: 10px; width: 14px; height: 14px; border-radius: 50%;
-  background: var(--accent); opacity: 0;
-}
-.flux-commandes .msg { background: var(--ok); }
-
-/* ---- Slide 4 : le monde ---- */
-.grille-monde { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; margin: 0.5em 0; }
-.tuile {
-  background: var(--fond-carte); border-radius: 12px; padding: 0.55em 0.8em;
-  font-size: 0.62em; line-height: 1.3;
-}
-.tuile .ico { font-size: 1.4em; margin-right: 0.3em; }
-.ligne-bonus { font-size: 0.62em; color: var(--gris); text-align: center; }
-
-/* ---- Slide 5 : percevoir ---- */
-.percevoir-scene { display: flex; align-items: center; justify-content: center; gap: 1em; margin: 0.4em 0; }
-.vue { text-align: center; }
-.vue svg { width: 210px; height: 210px; border-radius: 12px; }
-.vue p { font-size: 0.55em; color: var(--gris); margin-top: 0.2em; }
-.fleche { font-size: 1.6em; color: var(--accent); }
-.percevoir-scene + p { font-size: 0.8em; }
-.honnete { font-size: 0.72em; background: var(--fond-carte); border-left: 5px solid var(--ok);
-  padding: 0.5em 0.8em; border-radius: 0 10px 10px 0; }
-
-/* ---- Slide 6 : conduire ---- */
-.conduire-layout { display: flex; align-items: center; gap: 1.2em; }
-.grand-chiffre { font-size: 2.6em; font-weight: 800; color: var(--ok); flex-shrink: 0; text-align: center; }
-.grand-chiffre .sur { color: var(--gris); font-size: 0.6em; }
-.legende-chiffre { font-size: 0.24em; font-weight: 400; color: var(--texte); line-height: 1.3; }
-.conduire-layout ul { flex-grow: 1; }
-.conduire-layout li { font-size: 0.72em; }
-
-/* ---- Slide 7 : galerie circuits ---- */
-.galerie-circuits { display: flex; gap: 0.5em; justify-content: center; margin: 0.6em 0; }
-.galerie-circuits img {
-  width: 150px; height: 150px; object-fit: cover; border-radius: 10px;
-  border: 1px solid #2c3e57; opacity: 0;
-}
-
-/* ---- Slide 8 : pipeline panneaux ---- */
-.pipeline { display: flex; align-items: stretch; gap: 0.3em; margin: 0.7em 0; }
-.etape {
-  background: var(--fond-carte); border-radius: 12px; padding: 0.55em 0.6em;
-  font-size: 0.6em; font-weight: 600; text-align: center; flex: 1;
-  border-top: 3px solid var(--accent); opacity: 0;
-}
-.etape .petit { font-weight: 400; font-size: 0.78em; color: var(--gris); }
-.pipe-fleche { align-self: center; color: var(--accent); font-size: 0.9em; opacity: 0; }
-.accuracy-ligne { display: flex; align-items: baseline; justify-content: center; gap: 0.6em; margin-top: 0.9em; }
-.acc-etape { font-size: 0.62em; color: var(--gris); }
-.acc-sep { color: var(--accent); }
-.acc-final { font-size: 1em; font-weight: 800; color: var(--ok); }
-
-/* ---- Slide 9 : occlusion ---- */
-.symptome { font-size: 0.75em; }
-.scene-occlusion { display: flex; align-items: center; gap: 1.5em; justify-content: center; margin: 0.5em 0; }
-.cam-frame {
-  position: relative; width: 340px; height: 190px; overflow: hidden;
-  border: 3px dashed var(--accent); border-radius: 10px; background: #0e1826;
-  flex-shrink: 0;
-}
-.cam-label { position: absolute; bottom: 4px; left: 10px; font-size: 0.42em; color: var(--gris); }
-.sign-panneau {
-  position: absolute; top: 40px; left: 110px; width: 110px; height: 110px;
-  background: #fff; border: 9px solid var(--alerte); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 1.5em; color: #111;
-}
-.pred { font-size: 0.85em; background: var(--fond-carte); padding: 0.5em 0.9em; border-radius: 10px; }
-.pred strong { font-size: 1.2em; }
-.pred.pred-ko strong { color: var(--alerte); }
-.pred.pred-ok strong { color: var(--ok); }
-.lecon, .fix { font-size: 0.66em; line-height: 1.35; }
-
-/* ---- Slides 10-11 : barres ---- */
-.diag-titre { font-size: 0.72em; margin-top: 0.5em; }
-.barres-urgence, .barres-resultats { display: flex; gap: 2em; justify-content: center; align-items: flex-end; height: 230px; margin: 0.4em 0 0.2em; }
-.groupe-barre, .paire { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
-.duo { display: flex; gap: 6px; align-items: flex-end; height: 170px; }
-.barre { width: 54px; border-radius: 6px 6px 0 0; height: 0; }
-.b-urg { background: var(--alerte); }
-.b-avant { background: var(--gris-barre); }
-.b-apres { background: var(--accent); }
-.b-dnf {
-  background: repeating-linear-gradient(45deg, var(--gris-barre), var(--gris-barre) 8px, #47566d 8px, #47566d 16px);
-}
-.barres-urgence .barre { height: 0; }
-.val { font-size: 0.6em; font-weight: 700; margin-top: 0.3em; }
-.gain { font-size: 0.7em; font-weight: 800; color: var(--ok); margin-top: 0.3em; }
-.nom { font-size: 0.55em; color: var(--gris); text-align: center; line-height: 1.25; }
-.nom .detail { font-size: 0.85em; }
-.legende-barres { font-size: 0.55em; color: var(--gris); text-align: center; }
-
-/* ---- Slide 12 : démo ---- */
-.checklist-demo li { font-size: 0.8em; margin: 0.5em 0; }
-.petit { font-size: 0.8em; }
-
-/* ---- Slide 13 : conclusion ---- */
-.phrase-finale { font-size: 1.25em; text-align: center; color: var(--accent-clair); }
-.vitesse-finale { text-align: center; font-size: 2.8em; font-weight: 800; color: var(--titre); margin: 0.15em 0; }
-.vitesse-finale .unite { font-size: 0.4em; color: var(--gris); margin-left: 0.2em; }
-.reveal section[data-anim="conclusion"] p { font-size: 0.72em; text-align: center; }
-.ouverture { color: var(--gris); }
-.merci { color: var(--ok); font-weight: 700; margin-top: 0.8em; }
-
-/* ---- Annexes ---- */
-.sommaire-annexes li { font-size: 0.72em !important; }
-.tableau-bareme { font-size: 0.52em; width: 100%; border-collapse: collapse; }
-.tableau-bareme th, .tableau-bareme td { border-bottom: 1px solid #2c3e57; padding: 0.3em 0.6em; text-align: left; }
-.tableau-bareme th { color: var(--accent-clair); }
-
-/* ---- États statiques : rendu sans animation ----
-   Sans JS de timeline (export PDF via ?print-pdf, impression réelle, ou
-   prefers-reduced-motion), on force l'affichage des cibles dont l'état
-   initial est opacity:0 — sinon elles restent invisibles. Les points de flux
-   .msg (pure décoration de mouvement) restent volontairement masqués.
-   Les hauteurs de barres et compteurs sont posés en JS (finaliserStatique).
-   .statique est ajouté sur <html> par animations.js ; il couvre l'aperçu
-   ?print-pdf à l'écran et reduced-motion. @media print couvre l'impression. */
+/* ============================================================================
+   RENDU STATIQUE — ?print-pdf (aperçu écran via .statique) + reduced-motion
+   On révèle toutes les cibles opacity:0. Les barres data-h + compteurs sont
+   posés en JS (finaliserStatique). Les .msg (déco pure de mouvement) restent
+   masqués volontairement.
+   ============================================================================ */
 .statique #titre-principal span,
 .statique .soustitre, .statique .equipe,
 .statique .carte, .statique .punchline, .statique .boite,
@@ -238,14 +699,43 @@
 .statique .svg-cam, .statique .svg-mask, .statique .fleche,
 .statique .honnete,
 .statique .etape, .statique .pipe-fleche,
-.statique .galerie-circuits img {
+.statique .galerie-circuits img,
+.statique .result-graph {
   opacity: 1 !important;
 }
 
 @media print, (prefers-reduced-motion: reduce) {
   #titre-principal span, .soustitre, .equipe, .carte, .punchline, .boite,
   .tuile, .ligne-bonus, .svg-cam, .svg-mask, .fleche, .honnete,
-  .etape, .pipe-fleche, .galerie-circuits img {
+  .etape, .pipe-fleche, .galerie-circuits img, .result-graph {
     opacity: 1 !important;
   }
 }
+
+/* Impression : fond carbone forcé (sinon blanc), coins viseur allégés */
+@media print {
+  .reveal-viewport, .reveal, body, html { background: var(--carbon) !important; }
+  .reveal .slides > section[data-anim]::after { animation: none; }
+  .live-scene .rec { animation: none; }
+}
+
+/* ============================================================================
+   Caps anti-débordement — finition post-refonte (S10 : 760px, S12 : 1021px
+   mesurés à 1280×720 ; cible : toute slide ≤ 720px)
+   ============================================================================ */
+/* S10 : les caps images de la refonte (166px/124px) sont bons — on gagne les
+   ~40px restants sur les marges verticales du bas de slide. */
+section[data-anim="mesurer"] .diag-titre { margin: 0.15em 0 0.1em; }
+section[data-anim="mesurer"] .barres-urgence { margin: 0.1em 0 0; padding: 0.3em 0.7em; gap: 0.2em; }
+section[data-anim="mesurer"] .legende-barres { margin: 0.05em 0 0; }
+section[data-anim="mesurer"] ul.compact li { margin: 0.12em 0; }
+section[data-anim="mesurer"] .mesurer-graph img { max-height: 148px; }
+section[data-anim="mesurer"] .mesurer-grid { gap: 0.7em; }
+/* S12 : le canvas plein cadre dépassait de 300px — hauteur fixe, ratio 16:9
+   préservé par width:auto. */
+section[data-anim="demo-live"] #live-canvas { height: 352px; width: auto; max-width: 96%; display: block; margin: 0 auto; }
+section[data-anim="demo-live"] .live-note { margin-top: 0.1em; }
+.statique section[data-anim="demo-live"] .print-fallback { height: 352px; width: auto; display: block; margin: 0 auto; }
+/* L'ID du centrage ci-dessus bat la règle .statique générique : on la
+   redouble avec l'ID pour que le canvas disparaisse bien à l'export. */
+.statique section[data-anim="demo-live"] #live-canvas { display: none; }

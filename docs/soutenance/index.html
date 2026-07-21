@@ -14,11 +14,17 @@
   <div class="slides">
 
     <!-- 1. Titre -->
-    <section data-anim="intro">
+    <section data-anim="intro" data-sector="01" data-phase="Ouverture">
       <p class="kicker">ESGI M1 — Architecture Logicielle &amp; IA Big Data · Juillet 2026</p>
       <h1 id="titre-principal">AUTONOMOUS&nbsp;TWIN</h1>
       <p class="soustitre">Jumeau numérique automobile — conduite autonome sur circuits inconnus</p>
       <p class="equipe">Charles · Nohlan · Lorenzo</p>
+      <div class="hero-tel" aria-hidden="true">
+        <span class="on">ÉTAT <b>SYSTÈME PRÊT</b></span>
+        <span>BOUCLE <b>60 Hz</b></span>
+        <span>ZMQ <b>:5555</b></span>
+        <span>CIRCUITS <b>30</b></span>
+      </div>
       <aside class="notes">
         Ouverture (Charles) : « Bonjour, nous allons vous présenter Autonomous Twin,
         un jumeau numérique automobile : un simulateur qui fait rouler une voiture,
@@ -28,29 +34,38 @@
     </section>
 
     <!-- 2. Le concept -->
-    <section data-anim="concept">
+    <section data-anim="concept" data-sector="02" data-phase="Concept">
       <h2>Deux processus, deux mondes</h2>
-      <div class="deux-cartes">
-        <div class="carte carte-simu">
-          <h3>SIMULATEUR</h3>
-          <p class="sous">la vérité terrain</p>
-          <ul>
-            <li>Physique, circuit, chrono</li>
-            <li>Panneaux, murs dynamiques</li>
-            <li>Rend les capteurs au pilote</li>
-          </ul>
+      <div class="concept-grid">
+        <div class="deux-cartes">
+          <div class="carte carte-simu">
+            <h3>SIMULATEUR</h3>
+            <p class="sous">la vérité terrain</p>
+            <ul>
+              <li>Physique, circuit, chrono</li>
+              <li>Panneaux, murs dynamiques</li>
+              <li>Rend les capteurs au pilote</li>
+            </ul>
+          </div>
+          <div class="carte carte-pilote">
+            <h3>PILOTE&nbsp;IA</h3>
+            <p class="sous">aveugle, sauf ses capteurs</p>
+            <ul>
+              <li>Caméra 128&nbsp;px alignée monde</li>
+              <li>Lidar 5 rayons, vitesse</li>
+              <li>Décide : volant, gaz, frein</li>
+            </ul>
+          </div>
         </div>
-        <div class="carte carte-pilote">
-          <h3>PILOTE&nbsp;IA</h3>
-          <p class="sous">aveugle, sauf ses capteurs</p>
-          <ul>
-            <li>Caméra 128&nbsp;px alignée monde</li>
-            <li>Lidar 5 rayons, vitesse</li>
-            <li>Décide : volant, gaz, frein</li>
-          </ul>
+        <div class="concept-visuel">
+          <div class="hud-screen">
+            <span class="tag">Simulateur // course</span>
+            <img src="assets/game/course.png" alt="La voiture rouge en course sur un circuit généré, traces de pneus visibles">
+          </div>
+          <p class="cap">Capture réelle · tour 2/3 · 80 km/h</p>
         </div>
+        <p class="punchline">Le pilote ne triche jamais : il ne voit que ce qu'une vraie voiture verrait.</p>
       </div>
-      <p class="punchline">Le pilote ne triche jamais : il ne voit que ce qu'une vraie voiture verrait.</p>
       <aside class="notes">
         Charles : insister sur la séparation stricte — le pilote n'a AUCUN accès à
         l'état interne du simulateur. C'est ce qui fait du projet un vrai jumeau
@@ -59,7 +74,7 @@
     </section>
 
     <!-- 3. Architecture -->
-    <section data-anim="zmq">
+    <section data-anim="zmq" data-sector="03" data-phase="Architecture">
       <div class="bareme">Barème · Architecture client/serveur — 3 pts</div>
       <h2>Architecture — ZeroMQ REQ/REP</h2>
       <div class="schema-zmq">
@@ -76,6 +91,12 @@
         </div>
         <div class="boite boite-pilote">PILOTE<br><span class="petit">client ZMQ</span></div>
       </div>
+      <div class="zmq-badges" aria-hidden="true">
+        <span class="tel-badge amber">SOCKET <b>REQ / REP</b></span>
+        <span class="tel-badge">BOUCLE <b>60 Hz</b></span>
+        <span class="tel-badge">MSG <b>JSON</b></span>
+        <span class="tel-badge">CAMÉRA <b>JPEG b64</b></span>
+      </div>
       <ul class="compact">
         <li>Deux processus indépendants — le simulateur reste jouable au clavier sans pilote</li>
         <li>Boucle à 60&nbsp;Hz, messages JSON, caméra encodée JPEG base64</li>
@@ -89,16 +110,25 @@
     </section>
 
     <!-- 4. Le monde -->
-    <section data-anim="monde">
+    <section data-anim="monde" data-sector="04" data-phase="Simulateur">
       <div class="bareme">Barème · Simulateur — 3 pts + Esthétique — 1 pt</div>
       <h2>Un monde qui vit</h2>
-      <div class="grille-monde">
-        <div class="tuile"><span class="ico">🚗</span><strong>Physique bicycle</strong><br>4 équations du sujet, plafond calibré 100&nbsp;km/h</div>
-        <div class="tuile"><span class="ico">🧱</span><strong>Mur dynamique</strong><br>apparaît devant la voiture, visible du lidar et de la caméra</div>
-        <div class="tuile"><span class="ico">⏱️</span><strong>LapTimer</strong><br>3 tours détectés par franchissement de ligne</div>
-        <div class="tuile"><span class="ico">🚸</span><strong>Panneaux</strong><br>placés par fichier sidecar, composés dans la caméra</div>
+      <div class="monde-grid">
+        <div class="monde-visuel">
+          <div class="hud-screen">
+            <span class="tag tag-red">Mur // arrêt net</span>
+            <img src="assets/game/mur-arret.png" alt="La voiture arrêtée net devant un mur de briques dynamique">
+          </div>
+          <p class="cap">Le mur apparaît devant la voiture · durée de vie 3 s</p>
+        </div>
+        <div class="grille-monde">
+          <div class="tuile"><span class="ico">🚗</span><strong>Physique bicycle</strong><br>4 équations du sujet, plafond calibré 100&nbsp;km/h</div>
+          <div class="tuile"><span class="ico">🧱</span><strong>Mur dynamique</strong><br>apparaît devant la voiture, visible du lidar et de la caméra</div>
+          <div class="tuile"><span class="ico">⏱️</span><strong>LapTimer</strong><br>3 tours détectés par franchissement de ligne</div>
+          <div class="tuile"><span class="ico">🚸</span><strong>Panneaux</strong><br>placés par fichier sidecar, composés dans la caméra</div>
+          <p class="ligne-bonus">+ sprite voiture, sons moteur, traces de pneus qui s'estompent, compteur à cadran</p>
+        </div>
       </div>
-      <p class="ligne-bonus">+ sprite voiture, sons moteur, traces de pneus qui s'estompent, compteur à cadran</p>
       <aside class="notes">
         Charles : la démo montrera tout ça en live. Le mur a une durée de vie de
         3 secondes — détail qui compte pour la slide freinage d'urgence de Lorenzo.
@@ -106,27 +136,36 @@
     </section>
 
     <!-- 5. Percevoir -->
-    <section data-anim="percevoir">
+    <section data-anim="percevoir" data-sector="05" data-phase="Perception">
       <h2>Percevoir la route</h2>
-      <div class="percevoir-scene">
-        <div class="vue">
-          <svg viewBox="0 0 120 120" class="svg-cam">
-            <rect width="120" height="120" fill="#1a2432"/>
-            <path d="M10,120 C30,60 90,80 110,10 L120,10 L120,120 Z" fill="#3d4a5c"/>
-            <path d="M30,120 C45,75 85,85 100,25" stroke="#93a4b8" stroke-width="14" fill="none"/>
-          </svg>
-          <p>vue caméra</p>
+      <div class="percevoir-grid">
+        <div class="percevoir-scene">
+          <div class="vue">
+            <svg viewBox="0 0 120 120" class="svg-cam">
+              <rect width="120" height="120" fill="#1a2432"/>
+              <path d="M10,120 C30,60 90,80 110,10 L120,10 L120,120 Z" fill="#3d4a5c"/>
+              <path d="M30,120 C45,75 85,85 100,25" stroke="#93a4b8" stroke-width="14" fill="none"/>
+            </svg>
+            <p>vue caméra</p>
+          </div>
+          <div class="fleche">→</div>
+          <div class="vue">
+            <svg viewBox="0 0 120 120" class="svg-mask">
+              <rect width="120" height="120" fill="#000"/>
+              <path d="M30,120 C45,75 85,85 100,25" stroke="#fff" stroke-width="14" fill="none"/>
+            </svg>
+            <p>masque route</p>
+          </div>
         </div>
-        <div class="fleche">→</div>
-        <div class="vue">
-          <svg viewBox="0 0 120 120" class="svg-mask">
-            <rect width="120" height="120" fill="#000"/>
-            <path d="M30,120 C45,75 85,85 100,25" stroke="#fff" stroke-width="14" fill="none"/>
-          </svg>
-          <p>masque route</p>
+        <div class="percevoir-reel">
+          <div class="hud-screen">
+            <span class="tag">Caméra + masque · réel</span>
+            <div class="crop"><img src="assets/game/dash-panneau90.png" alt="Le couple caméra et masque route vus dans le dashboard pilote"></div>
+          </div>
+          <p class="cap">Le vrai couple caméra / masque du dashboard pilote</p>
         </div>
       </div>
-      <p>U-Net entraîné from scratch — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
+      <p class="iou-line">U-Net entraîné from scratch — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
       <p class="honnete">Verdict : il avait appris… un seuillage de luminance. On l'a donc remplacé
       par le seuillage — équivalent strict, zéro coût. Le modèle reste prêt si le visuel se complexifie.</p>
       <aside class="notes">
@@ -138,11 +177,12 @@
     </section>
 
     <!-- 6. Conduire -->
-    <section data-anim="conduire">
+    <section data-anim="conduire" data-sector="06" data-phase="Conduite">
       <div class="bareme">Barème · Conduite autonome — 3 pts + IA avancée — 2 pts</div>
       <h2>Conduire par imitation</h2>
       <div class="conduire-layout">
-        <div class="grand-chiffre"><span id="compteur-circuits">0</span><span class="sur">/30</span>
+        <div class="jauge">
+          <div class="grand-chiffre"><span id="compteur-circuits">0</span><span class="sur">/30</span></div>
           <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
         </div>
         <ul>
@@ -161,7 +201,7 @@
     </section>
 
     <!-- 7. Généraliser -->
-    <section data-anim="circuits">
+    <section data-anim="circuits" data-sector="07" data-phase="Généralisation">
       <div class="bareme">Barème · Multi-circuits — 1,5 pt</div>
       <h2>Généraliser — la consigne n°1</h2>
       <blockquote>« Souvent la solution ne généralise pas et ne permet pas d'exécuter
@@ -173,6 +213,13 @@
         <img src="assets/circuits/gen_014.png" alt="circuit gen_014">
         <img src="assets/circuits/gen_021.png" alt="circuit gen_021">
         <img src="assets/circuits/gen_026.png" alt="circuit gen_026">
+      </div>
+      <div class="circuits-stats" aria-hidden="true">
+        <span class="stat-pin"><b>30</b> générés</span>
+        <span class="stat-pin"><b>épingles</b></span>
+        <span class="stat-pin"><b>chicanes</b></span>
+        <span class="stat-pin"><b>5</b> jamais-vus en éval</span>
+        <span class="stat-pin">seed <b>1000</b></span>
       </div>
       <ul class="compact">
         <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible</li>
@@ -186,7 +233,7 @@
     </section>
 
     <!-- 8. Panneaux -->
-    <section data-anim="panneaux">
+    <section data-anim="panneaux" data-sector="08" data-phase="Panneaux">
       <div class="bareme">Barème · Lecture de panneaux — 3 pts</div>
       <h2>Lire les panneaux — et obéir</h2>
       <div class="pipeline">
@@ -198,12 +245,25 @@
         <div class="pipe-fleche">→</div>
         <div class="etape">Governor<br><span class="petit">30 · 50 · 90 · STOP 0,8&nbsp;s</span></div>
       </div>
-      <div class="accuracy-ligne">
-        <span class="acc-etape">96&nbsp;px linéaire : 0,83</span>
-        <span class="acc-sep">→</span>
-        <span class="acc-etape">224&nbsp;px : 0,90</span>
-        <span class="acc-sep">→</span>
-        <span class="acc-final"><span id="compteur-acc">0,00</span> en validation</span>
+      <div class="panneaux-grid">
+        <div class="panneaux-dash">
+          <div class="instrument">
+            <img src="assets/game/dash-panneau90.png" alt="Le dashboard pilote détecte et lit un panneau limite 90">
+          </div>
+        </div>
+        <div class="panneaux-graph">
+          <div class="hud-screen">
+            <span class="tag tag-amber">Accuracy // 100 époques</span>
+            <img src="assets/graphs/accuracy-panneaux.png" alt="Courbe d'accuracy train et validation sur circuits jamais vus, best 0,9513">
+          </div>
+          <div class="accuracy-ligne">
+            <span class="acc-etape">96&nbsp;px linéaire : 0,83</span>
+            <span class="acc-sep">→</span>
+            <span class="acc-etape">224&nbsp;px : 0,90</span>
+            <span class="acc-sep">→</span>
+            <span class="acc-final"><span id="compteur-acc">0,00</span> en validation</span>
+          </div>
+        </div>
       </div>
       <aside class="notes">
         Lorenzo : transfer learning assumé — backbone ImageNet gelé, seule la tête
@@ -214,7 +274,7 @@
     </section>
 
     <!-- 9. Le bug -->
-    <section data-anim="occlusion">
+    <section data-anim="occlusion" data-sector="09" data-phase="Diagnostic ML">
       <h2>« Le bug ML n'était pas dans le ML »</h2>
       <p class="symptome">Symptôme en démo : un panneau <strong>30</strong> lu <strong>90</strong>, confiance 1.00</p>
       <div class="scene-occlusion">
@@ -237,7 +297,7 @@
     </section>
 
     <!-- 10. Mesurer -->
-    <section data-anim="mesurer">
+    <section data-anim="mesurer" data-sector="10" data-phase="Mesure &amp; oracle">
       <h2>On ne règle pas ce qu'on ne mesure pas</h2>
       <ul class="compact">
         <li><strong>Banc de mesure</strong> : vrais tours (franchissement de ligne), headless,
@@ -245,6 +305,21 @@
         <li><strong>Oracle</strong> : temps du tour parfait théorique calculé par circuit —
           la borne de ce qui est physiquement possible</li>
       </ul>
+      <div class="mesurer-grid">
+        <div class="mesurer-graph">
+          <div class="hud-screen">
+            <span class="tag tag-amber">Oracle // tour parfait</span>
+            <img src="assets/graphs/oracle.png" alt="Comparaison oracle, PID libre et PID règles : le PID libre à 1-4 % de l'oracle">
+          </div>
+          <p class="cap">PID libre à 1-4 % du tour parfait théorique</p>
+        </div>
+        <div class="mesurer-side">
+          <div class="instrument">
+            <img src="assets/game/dash-urgence.png" alt="Le dashboard pilote en freinage d'urgence, courbe de vitesse qui plonge, brk 1.00">
+          </div>
+          <p class="cap">Freinage d'urgence · brk 1.00</p>
+        </div>
+      </div>
       <p class="diag-titre">Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
       <div class="barres-urgence">
         <div class="groupe-barre"><div class="barre b-urg" data-h="41"></div><span class="val">6,1&nbsp;%</span><span class="nom">gen_000</span></div>
@@ -262,33 +337,17 @@
     </section>
 
     <!-- 11. Résultats -->
-    <section data-anim="resultats">
+    <section data-anim="resultats" data-sector="11" data-phase="Résultats">
       <div class="bareme">Barème · Freinage d'urgence — 2 pts + Dashboard — 1,5 pt</div>
       <h2>Avant / après — mêmes règles, mêmes circuits</h2>
-      <div class="barres-resultats">
-        <div class="paire">
-          <div class="duo">
-            <div class="barre b-avant" data-h="54"></div>
-            <div class="barre b-apres" data-h="22"></div>
-          </div>
-          <span class="gain">-60&nbsp;%</span>
-          <span class="nom">gen_000<br><span class="detail">161,6 → 64,5&nbsp;s</span></span>
+      <div class="resultats-grid">
+        <div class="result-graph">
+          <p class="cap">Temps 3 tours · gain <b>-54 à -60 %</b> · gen_014 <b>DNF → 3/3</b></p>
+          <img src="assets/graphs/temps-avant-apres.png" alt="Temps sur 3 tours avant et après optimisation : -60 %, -54 %, et gen_014 DNF vers 3/3">
         </div>
-        <div class="paire">
-          <div class="duo">
-            <div class="barre b-avant" data-h="54"></div>
-            <div class="barre b-apres" data-h="25"></div>
-          </div>
-          <span class="gain">-54&nbsp;%</span>
-          <span class="nom">gen_003<br><span class="detail">162,0 → 74,0&nbsp;s</span></span>
-        </div>
-        <div class="paire">
-          <div class="duo">
-            <div class="barre b-avant b-dnf" data-h="100"></div>
-            <div class="barre b-apres" data-h="28"></div>
-          </div>
-          <span class="gain">DNF → 3/3</span>
-          <span class="nom">gen_014<br><span class="detail">timeout → 83,7&nbsp;s</span></span>
+        <div class="result-graph">
+          <p class="cap">Urgence parasite · <b>15 % → 0,8 %</b></p>
+          <img src="assets/graphs/urgence-avant-apres.png" alt="Pourcentage de frames en freinage d'urgence parasite, avant vers après : 15 % à 0,8 %">
         </div>
       </div>
       <p class="legende-barres">Temps 3 tours en conditions réglementaires · urgence parasite 15&nbsp;% → 0,8&nbsp;% ·
@@ -302,35 +361,50 @@
     </section>
 
     <!-- 12. Démo live -->
-    <section>
-      <h2>Démo</h2>
-      <ol class="checklist-demo">
-        <li>Un tour réglementaire — <strong>50,0&nbsp;km/h</strong> pile sous la limite 50</li>
-        <li>Arrêt STOP exécuté depuis ~95&nbsp;km/h</li>
-        <li>Mur surgi à vitesse de croisière → arrêt net, zéro contact</li>
-        <li>Épingle à 70&nbsp;km/h, braquage complet, sans freinage d'urgence</li>
-        <li>Dashboard pilote en temps réel</li>
-      </ol>
+    <section data-anim="demo-live" data-sector="12" data-phase="Démo live">
+      <h2>Le pilote conduit dans cette slide</h2>
+      <div class="live-scene">
+        <span class="rec" aria-hidden="true">● REC</span>
+        <canvas id="live-canvas" width="1024" height="576"></canvas>
+        <img class="print-fallback" src="assets/game/course.png" alt="Course sur gen_014">
+      </div>
+      <p id="live-hud" class="live-hud">initialisation…</p>
+      <p class="live-note">Ce qui roule ici n'est pas une vidéo : c'est le contrôleur du banc,
+      porté en JavaScript — mêmes équations bicycle, même lidar 5 rayons, mêmes gains.
+      La démo complète (CNN, panneaux, mur) suit sur le simulateur.</p>
       <aside class="notes">
-        Équipe : basculer sur le simulateur (déjà lancé AVANT la soutenance, en
-        pause). Charles au clavier pour le mur (Espace), Lorenzo commente le
-        dashboard. Si plantage : relancer les deux process (~10 s, déjà éprouvé).
-        Budget 2 min 30 max.
+        Lorenzo lance la slide et laisse la voiture tourner en parlant. Punch :
+        « ce n'est pas une vidéo, le contrôleur tourne dans la slide ». Puis
+        bascule sur le VRAI simulateur : Charles au clavier pour le mur (Espace),
+        Lorenzo commente le dashboard, Nohlan tient les étapes : tour
+        réglementaire 50 km/h, STOP depuis ~95, mur à vitesse de croisière,
+        épingle à 70 sans urgence. Si plantage : relance ~10 s. Budget 2 min 30.
       </aside>
     </section>
 
     <!-- 13. Conclusion -->
-    <section data-anim="conclusion">
+    <section data-anim="conclusion" data-sector="13" data-phase="Conclusion">
       <h2 class="phrase-finale">«&nbsp;Nous savons pourquoi nous ne pouvons pas aller plus vite.&nbsp;»</h2>
-      <div class="vitesse-finale">
-        <span id="compteur-vitesse">70,6</span><span class="unite">km/h</span>
+      <div class="conclusion-grid">
+        <div class="conclusion-txt">
+          <div class="vitesse-finale">
+            <span id="compteur-vitesse">70,6</span><span class="unite">km/h</span>
+          </div>
+          <p>Le plafond était <strong>physique</strong>, pas logiciel — démontré par l'oracle,
+          puis déplacé sciemment de 70,6 à 100&nbsp;km/h. Quand le mur gênait le produit,
+          c'est le mur qu'on a déplacé.</p>
+          <p class="ouverture">Et après ? Trajectoire de corde (6-9&nbsp;% identifiés), physique
+          indépendante du framerate, ré-entraînement du CNN sur le PID optimisé — le
+          chantier M2 est déjà chiffré.</p>
+        </div>
+        <div class="conclusion-visuel">
+          <div class="hud-screen">
+            <span class="tag tag-amber">Plafond // 70,6 → 100 km/h</span>
+            <img src="assets/graphs/physique-100.png" alt="Best lap libre selon le plafond physique : 70,6 km/h d'origine contre 100 km/h après déplacement du mur">
+          </div>
+          <p class="cap">Best lap libre · mur déplacé, plafond porté à 100&nbsp;km/h</p>
+        </div>
       </div>
-      <p>Le plafond était <strong>physique</strong>, pas logiciel — démontré par l'oracle,
-      puis déplacé sciemment de 70,6 à 100&nbsp;km/h. Quand le mur gênait le produit,
-      c'est le mur qu'on a déplacé.</p>
-      <p class="ouverture">Et après ? Trajectoire de corde (6-9&nbsp;% identifiés), physique
-      indépendante du framerate, ré-entraînement du CNN sur le PID optimisé — le
-      chantier M2 est déjà chiffré.</p>
       <p class="merci">Merci — place aux questions.</p>
       <aside class="notes">
         Lorenzo : conclusion en 45 s. L'écart restant en conditions réglementaires
@@ -373,16 +447,26 @@
       </section>
       <section>
         <h3>A3 · Variance &amp; reproductibilité</h3>
-        <ul>
-          <li>Val accuracy du classifieur : 0,90-0,95 selon la seed (0,9513 committé) — seuil d'échec dur à 0,90 (bascule GTSRB, jamais déclenchée)</li>
-          <li>Tout est régénérable : circuits (seed 1000), sidecars panneaux (seed par nom), dataset, entraînement ~4 min CPU</li>
-          <li>Modèles .pth versionnés — clone et ça tourne</li>
-        </ul>
+        <div class="annexe-grid">
+          <ul>
+            <li>Val accuracy du classifieur : 0,90-0,95 selon la seed (0,9513 committé) — seuil d'échec dur à 0,90 (bascule GTSRB, jamais déclenchée)</li>
+            <li>Tout est régénérable : circuits (seed 1000), sidecars panneaux (seed par nom), dataset, entraînement ~4 min CPU</li>
+            <li>Modèles .pth versionnés — clone et ça tourne</li>
+          </ul>
+          <div class="annexe-graph">
+            <div class="hud-screen">
+              <span class="tag">Matrice de confusion · 5×5</span>
+              <img src="assets/graphs/confusion-panneaux.png" alt="Matrice de confusion 5x5 : 30, 50, 90, aucun, stop ; classes aucun et stop parfaites à 300/300">
+            </div>
+            <p class="cap">Classes aucun et stop parfaites (300/300)</p>
+          </div>
+        </div>
       </section>
       <section>
         <h3>A4 · Barème ↔ preuves</h3>
         <table class="tableau-bareme">
-          <tr><th>Critère</th><th>Pts</th><th>Preuve</th></tr>
+          <thead><tr><th>Critère</th><th>Pts</th><th>Preuve</th></tr></thead>
+          <tbody>
           <tr><td>Architecture client/serveur</td><td>3</td><td>2 process ZMQ, démo</td></tr>
           <tr><td>Simulateur</td><td>3</td><td>Démo live</td></tr>
           <tr><td>Conduite 1 tour</td><td>3</td><td>Démo + 30/30 en éval</td></tr>
@@ -392,6 +476,7 @@
           <tr><td>Multi-circuits</td><td>+1,5</td><td>30 générés, éval sur jamais-vus</td></tr>
           <tr><td>Dashboard</td><td>+1,5</td><td>Démo --dashboard</td></tr>
           <tr><td>Esthétique / fun</td><td>+1</td><td>Sprites, sons, traces</td></tr>
+          </tbody>
         </table>
       </section>
       <section>
@@ -419,6 +504,7 @@
 <script src="vendor/reveal.js"></script>
 <script src="vendor/notes.js"></script>
 <script src="vendor/anime.umd.min.js"></script>
+<script src="live-drive.js"></script>
 <script src="animations.js"></script>
 </body>
 </html>
