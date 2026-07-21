@@ -22,3 +22,7 @@ pyyaml>=6.0
 
 # --- Utilitaires ---
 Pillow>=10.0.0
+
+# --- Visualisation (graphes bench/soutenance) ---
+matplotlib>=3.8.0
+seaborn>=0.13.0
