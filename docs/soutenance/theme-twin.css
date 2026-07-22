@@ -147,9 +147,10 @@
   margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box; border-radius: 0 8px 8px 0;
 }
 .reveal blockquote::before {
-  content: "⚠ CONSIGNE SUJET"; display: block;
-  font-family: var(--f-mono); font-style: normal; font-size: 0.62em;
-  letter-spacing: 0.16em; color: var(--red); margin-bottom: 0.35em;
+  content: "Consigne du sujet"; display: block;
+  font-family: var(--f-body); font-style: normal; font-size: 0.62em;
+  letter-spacing: 0.04em; color: var(--amber-2); font-weight: 600;
+  margin-bottom: 0.35em;
 }
 
 /* Numéro de slide Reveal (bas) — discret, mono */
@@ -191,23 +192,9 @@
     bottom 6px right 6px, bottom 6px right 6px;
 }
 
-/* Eyebrow secteur (haut-gauche) : numéro de « secteur » + phase (data-attr) */
-.reveal .slides > section[data-anim]::before {
-  content: "▸ " attr(data-sector) " / 13   " attr(data-phase);
-  position: absolute; top: 20px; left: 34px; right: 34px;
-  font-family: var(--f-mono); font-size: 15px; letter-spacing: 0.18em;
-  color: var(--gris); text-transform: uppercase;
-  border-bottom: 1px solid var(--line); padding-bottom: 10px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-/* Point « live » clignotant au bout de l'eyebrow */
-.reveal .slides > section[data-anim]::after {
-  content: "● REC";
-  position: absolute; top: 18px; right: 34px;
-  font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.16em;
-  color: var(--red); animation: blink 1.4s steps(2, start) infinite;
-}
-@keyframes blink { 50% { opacity: 0.25; } }
+/* Eyebrow secteur et « ● REC » du châssis : SUPPRIMÉS (audit sobriété 22/07 —
+   pagination redondante avec Reveal + faux témoin d'enregistrement, Mayer
+   coherence principle). Les data-sector/data-phase du HTML restent inertes. */
 
 /* ---- Réglette télémétrie (bas) — ticks type compte-tours, décoratif ---- */
 .reveal .slides > section[data-anim] > .tele,
@@ -217,13 +204,13 @@
    BADGE BARÈME — « broadcast tag » (secteur de chrono)
    ============================================================================ */
 .bareme {
-  position: absolute; top: 16px; right: 120px;
-  font-family: var(--f-mono); font-size: 14px; letter-spacing: 0.08em;
+  position: absolute; top: 16px; right: 34px;
+  font-family: var(--f-body); font-size: 14px; letter-spacing: 0.02em;
   color: var(--amber-2);
   background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
   border: 1px solid var(--amber-dim); border-left: 3px solid var(--amber);
   border-radius: 4px; padding: 0.35em 0.8em; font-weight: 600;
-  text-transform: uppercase; z-index: 3;
+  z-index: 3;
 }
 
 /* ============================================================================
@@ -315,14 +302,7 @@
   letter-spacing: 0.28em; color: var(--amber-2);
 }
 /* Damier « ligne d'arrivée » discret sous le kicker */
-.reveal section[data-anim="intro"] .kicker::before,
-.reveal section[data-anim="intro"] .kicker::after {
-  content: ""; display: inline-block; vertical-align: middle;
-  width: 66px; height: 12px; margin: 0 0.7em;
-  background:
-    conic-gradient(var(--ink) 90deg, transparent 0 180deg, var(--ink) 0 270deg, transparent 0) 0 0 / 6px 6px;
-  opacity: 0.55;
-}
+/* Damiers du kicker : SUPPRIMÉS (cliché course sans information). */
 #titre-principal {
   text-align: center; margin: 0.16em 0 0.14em;
   font-weight: 700; font-stretch: 100%;
@@ -338,17 +318,8 @@
   font-family: var(--f-mono); letter-spacing: 0.14em; margin-top: 1.7em;
   text-transform: uppercase;
 }
-.equipe::before { content: "PILOTES · "; color: var(--amber); }
-
-/* Bandeau télémétrie hero (décoratif, sous l'équipe) */
-.hero-tel {
-  display: flex; gap: 0; justify-content: center; margin-top: 1.5em;
-  font-family: var(--f-mono); font-size: 0.42em; letter-spacing: 0.12em;
-}
-.hero-tel span { padding: 0.5em 1.2em; color: var(--gris); border-left: 1px solid var(--line); text-transform: uppercase; }
-.hero-tel span:first-child { border-left: 0; }
-.hero-tel span b { color: var(--cyan); font-weight: 700; }
-.hero-tel .on b { color: var(--green-2); }
+/* « PILOTES · » et bandeau hero-tel : SUPPRIMÉS (métaphore course plaquée +
+   fausse télémétrie ; 60 Hz et 30 circuits sont dits en S3 et S7). */
 
 /* ============================================================================
    S2 — CONCEPT (deux cartes + capture d'ancrage)
@@ -459,8 +430,9 @@
   border-radius: 14px; padding: 0.5em 0.4em 0.6em; position: relative;
 }
 .jauge::before {
-  content: "◉ GÉNÉRALISATION"; display: block; font-family: var(--f-mono);
-  font-size: 0.32em; letter-spacing: 0.16em; color: var(--green-2); margin-bottom: 0.1em;
+  content: "Généralisation"; display: block; font-family: var(--f-body);
+  font-size: 0.32em; letter-spacing: 0.04em; color: var(--green-2);
+  font-weight: 600; margin-bottom: 0.1em;
 }
 .grand-chiffre { font-family: var(--f-display); font-stretch: 90%; font-size: 3.1em; font-weight: 700; color: var(--green-2); line-height: 0.95; text-shadow: 0 0 30px rgba(34,197,94,0.35); }
 .grand-chiffre .sur { color: var(--gris); font-size: 0.5em; }
@@ -521,10 +493,8 @@
   flex-shrink: 0;
   box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
 }
-.cam-frame::before {   /* tag ONBOARD (broadcast) */
-  content: "◉ REC · ONBOARD"; position: absolute; top: 6px; left: 8px; z-index: 3;
-  font-family: var(--f-mono); font-size: 0.38em; color: var(--cyan); letter-spacing: 0.08em;
-}
+/* Tag « ◉ REC · ONBOARD » du cadre caméra : SUPPRIMÉ (2e REC de la slide ;
+   le label « champ caméra 128 px » porte déjà l'info). Scanline conservée. */
 .cam-frame::after {   /* scanline */
   content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
   background: linear-gradient(180deg, transparent 48%, rgba(45,212,238,0.10) 50%, transparent 52%);
@@ -613,16 +583,13 @@
   background: var(--carbon-1); padding: 0.7em 0.7em 0.5em; margin: 0.2em auto 0.3em;
   max-width: 84%;
 }
-.live-scene::before {   /* bandeau broadcast onboard */
-  content: "◉ ONBOARD  ·  LIVE  ·  PID"; display: block;
-  font-family: var(--f-mono); font-size: 0.44em; letter-spacing: 0.14em;
-  color: var(--cyan); text-align: left; margin-bottom: 0.4em; text-transform: uppercase;
+.live-scene::before {   /* un seul marqueur : c'est réellement en direct */
+  content: "Pilote en direct"; display: block;
+  font-family: var(--f-body); font-size: 0.44em; letter-spacing: 0.04em;
+  color: var(--cyan); font-weight: 600; text-align: left; margin-bottom: 0.4em;
 }
-.live-scene .rec {
-  position: absolute; top: 0.6em; right: 0.9em;
-  font-family: var(--f-mono); font-size: 0.42em; letter-spacing: 0.12em; color: var(--red);
-  animation: blink 1.4s steps(2, start) infinite;
-}
+/* .rec S12 : SUPPRIMÉ (témoin clignotant factice). */
+.live-scene .rec { display: none; }
 #live-canvas {
   width: 100%; border: 1px solid var(--line-hot); border-radius: 8px;
   background: #fff; display: block;
@@ -739,3 +706,19 @@ section[data-anim="demo-live"] .live-note { margin-top: 0.1em; }
 /* L'ID du centrage ci-dessus bat la règle .statique générique : on la
    redouble avec l'ID pour que le canvas disparaisse bien à l'export. */
 .statique section[data-anim="demo-live"] #live-canvas { display: none; }
+
+/* ============================================================================
+   Sobriété (audit 22/07) — mono réservé aux données ; légendes en fonte du
+   corps ; S10 recentrée sur banc + oracle + diagnostic (dash-urgence → A5)
+   ============================================================================ */
+.reveal .cap, .reveal .legende-barres, .reveal .ligne-bonus,
+.reveal .flux-label, .reveal .carte .sous, .reveal .vue p,
+.reveal .legende-chiffre, .reveal .live-note,
+.mesurer-graph .cap, .mesurer-side .cap {
+  font-family: var(--f-body); letter-spacing: 0.01em; text-transform: none;
+}
+section[data-anim="mesurer"] .mesurer-grid { grid-template-columns: 1fr; }
+section[data-anim="mesurer"] .mesurer-graph img { max-height: 178px; }
+.a5-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1em; align-items: center; }
+.a5-visuel .instrument { max-width: 150px; margin: 0 auto; }
+.a5-visuel .cap { text-align: center; }

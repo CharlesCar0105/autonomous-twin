@@ -19,12 +19,6 @@
       <h1 id="titre-principal">AUTONOMOUS&nbsp;TWIN</h1>
       <p class="soustitre">Jumeau numérique automobile — conduite autonome sur circuits inconnus</p>
       <p class="equipe">Charles · Nohlan · Lorenzo</p>
-      <div class="hero-tel" aria-hidden="true">
-        <span class="on">ÉTAT <b>SYSTÈME PRÊT</b></span>
-        <span>BOUCLE <b>60 Hz</b></span>
-        <span>ZMQ <b>:5555</b></span>
-        <span>CIRCUITS <b>30</b></span>
-      </div>
       <aside class="notes">
         Ouverture (Charles) : « Bonjour, nous allons vous présenter Autonomous Twin,
         un jumeau numérique automobile : un simulateur qui fait rouler une voiture,
@@ -59,7 +53,7 @@
         </div>
         <div class="concept-visuel">
           <div class="hud-screen">
-            <span class="tag">Simulateur // course</span>
+            <span class="tag">Simulateur · course</span>
             <img src="assets/game/course.png" alt="La voiture rouge en course sur un circuit généré, traces de pneus visibles">
           </div>
           <p class="cap">Capture réelle · tour 2/3 · 80 km/h</p>
@@ -91,12 +85,6 @@
         </div>
         <div class="boite boite-pilote">PILOTE<br><span class="petit">client ZMQ</span></div>
       </div>
-      <div class="zmq-badges" aria-hidden="true">
-        <span class="tel-badge amber">SOCKET <b>REQ / REP</b></span>
-        <span class="tel-badge">BOUCLE <b>60 Hz</b></span>
-        <span class="tel-badge">MSG <b>JSON</b></span>
-        <span class="tel-badge">CAMÉRA <b>JPEG b64</b></span>
-      </div>
       <ul class="compact">
         <li>Deux processus indépendants — le simulateur reste jouable au clavier sans pilote</li>
         <li>Boucle à 60&nbsp;Hz, messages JSON, caméra encodée JPEG base64</li>
@@ -116,7 +104,7 @@
       <div class="monde-grid">
         <div class="monde-visuel">
           <div class="hud-screen">
-            <span class="tag tag-red">Mur // arrêt net</span>
+            <span class="tag tag-red">Mur · arrêt net</span>
             <img src="assets/game/mur-arret.png" alt="La voiture arrêtée net devant un mur de briques dynamique">
           </div>
           <p class="cap">Le mur apparaît devant la voiture · durée de vie 3 s</p>
@@ -216,10 +204,7 @@
       </div>
       <div class="circuits-stats" aria-hidden="true">
         <span class="stat-pin"><b>30</b> générés</span>
-        <span class="stat-pin"><b>épingles</b></span>
-        <span class="stat-pin"><b>chicanes</b></span>
         <span class="stat-pin"><b>5</b> jamais-vus en éval</span>
-        <span class="stat-pin">seed <b>1000</b></span>
       </div>
       <ul class="compact">
         <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible</li>
@@ -253,7 +238,7 @@
         </div>
         <div class="panneaux-graph">
           <div class="hud-screen">
-            <span class="tag tag-amber">Accuracy // 100 époques</span>
+            <span class="tag tag-amber">Accuracy · 100 époques</span>
             <img src="assets/graphs/accuracy-panneaux.png" alt="Courbe d'accuracy train et validation sur circuits jamais vus, best 0,9513">
           </div>
           <div class="accuracy-ligne">
@@ -308,16 +293,10 @@
       <div class="mesurer-grid">
         <div class="mesurer-graph">
           <div class="hud-screen">
-            <span class="tag tag-amber">Oracle // tour parfait</span>
+            <span class="tag tag-amber">Oracle · tour parfait</span>
             <img src="assets/graphs/oracle.png" alt="Comparaison oracle, PID libre et PID règles : le PID libre à 1-4 % de l'oracle">
           </div>
           <p class="cap">PID libre à 1-4 % du tour parfait théorique</p>
-        </div>
-        <div class="mesurer-side">
-          <div class="instrument">
-            <img src="assets/game/dash-urgence.png" alt="Le dashboard pilote en freinage d'urgence, courbe de vitesse qui plonge, brk 1.00">
-          </div>
-          <p class="cap">Freinage d'urgence · brk 1.00</p>
         </div>
       </div>
       <p class="diag-titre">Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
@@ -364,7 +343,6 @@
     <section data-anim="demo-live" data-sector="12" data-phase="Démo live">
       <h2>Le pilote conduit dans cette slide</h2>
       <div class="live-scene">
-        <span class="rec" aria-hidden="true">● REC</span>
         <canvas id="live-canvas" width="1024" height="576"></canvas>
         <img class="print-fallback" src="assets/game/course.png" alt="Course sur gen_014">
       </div>
@@ -399,7 +377,7 @@
         </div>
         <div class="conclusion-visuel">
           <div class="hud-screen">
-            <span class="tag tag-amber">Plafond // 70,6 → 100 km/h</span>
+            <span class="tag tag-amber">Plafond · 70,6 → 100 km/h</span>
             <img src="assets/graphs/physique-100.png" alt="Best lap libre selon le plafond physique : 70,6 km/h d'origine contre 100 km/h après déplacement du mur">
           </div>
           <p class="cap">Best lap libre · mur déplacé, plafond porté à 100&nbsp;km/h</p>
@@ -481,12 +459,20 @@
       </section>
       <section>
         <h3>A5 · Protocole de mesure</h3>
-        <ul>
-          <li>Headless, dt fixe 1/60 — temps simulés déterministes, indépendants du CPU</li>
-          <li>Par run : temps/tour, best lap, % arrêt, % urgence, % hors-piste, arrêts STOP</li>
-          <li>Configs : règles (CDC) / libre (potentiel châssis) / CNN</li>
-          <li>JSON datés committés dans <code>bench/</code> — chaque optimisation a son avant/après traçable</li>
-        </ul>
+        <div class="a5-grid">
+          <ul>
+            <li>Headless, dt fixe 1/60 — temps simulés déterministes, indépendants du CPU</li>
+            <li>Par run : temps/tour, best lap, % arrêt, % urgence, % hors-piste, arrêts STOP</li>
+            <li>Configs : règles (CDC) / libre (potentiel châssis) / CNN</li>
+            <li>JSON datés committés dans <code>bench/</code> — chaque optimisation a son avant/après traçable</li>
+          </ul>
+          <div class="a5-visuel">
+            <div class="instrument">
+              <img src="assets/game/dash-urgence.png" alt="Le dashboard pilote en freinage d'urgence, courbe de vitesse qui plonge, brk 1.00">
+            </div>
+            <p class="cap">Freinage d'urgence vu du dashboard · brk 1.00</p>
+          </div>
+        </div>
       </section>
       <section>
         <h3>A6 · Méthode : décisions tracées</h3>
