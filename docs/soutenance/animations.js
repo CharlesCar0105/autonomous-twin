@@ -22,7 +22,9 @@ const ANIMS = {
         delay: stagger(45), duration: 700, ease: 'outExpo',
       })
       .add('.soustitre', { opacity: [0, 1], duration: 600 }, '-=300')
-      .add('.equipe', { opacity: [0, 1], duration: 600 }, '-=200');
+      .add('.filet-garde', { opacity: [0, 1], scaleX: [0, 1], duration: 500 }, '-=250')
+      .add('.equipe', { opacity: [0, 1], duration: 600 }, '-=200')
+      .add('.date-garde', { opacity: [0, 1], duration: 500 }, '-=350');
   },
 
   concept(slide) {
