@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide de maîtrise · Soutenance Autonomous Twin</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#f4f6f9; --card:#ffffff; --ink:#29374b; --muted:#5b6b7f;
+  --line:#dbe2ea; --accent:#2563eb; --accent-soft:#eaf1fe;
+  --ok:#16a34a; --ok-soft:#e9f7ee; --bad:#dc2626; --bad-soft:#fdecec;
+  --warn:#b45309; --warn-soft:#fdf3e3;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+code,.mono{font-family:Consolas,"Cascadia Mono","Courier New",monospace;font-size:.92em}
+code{background:#eef2f7;border:1px solid var(--line);border-radius:4px;padding:0 .3em}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+/* ---------- header ---------- */
+header.top{padding:34px 0 18px;border-bottom:1px solid var(--line);background:var(--card)}
+header.top .wrap{padding-bottom:0}
+.kicker{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 6px}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 6px}
+.lead{color:var(--muted);margin:0 0 16px;max-width:70ch}
+
+/* ---------- nav ---------- */
+nav.sticky{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(4px)}
+nav.sticky .inner{max-width:1080px;margin:0 auto;padding:8px 20px;display:flex;gap:4px;
+  align-items:center;overflow-x:auto;white-space:nowrap}
+nav.sticky a{font-size:.82rem;font-weight:600;color:var(--muted);padding:5px 9px;border-radius:6px}
+nav.sticky a:hover{background:var(--accent-soft);color:var(--accent);text-decoration:none}
+nav.sticky button{margin-left:auto;font:inherit;font-size:.75rem;font-weight:600;color:var(--muted);
+  background:none;border:1px solid var(--line);border-radius:6px;padding:4px 8px;cursor:pointer}
+nav.sticky button:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ---------- sections ---------- */
+section.bloc{margin-top:46px;scroll-margin-top:64px}
+.numtitre{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:18px}
+.numtitre .n{font-family:Consolas,monospace;font-weight:700;color:var(--accent);font-size:1rem}
+.numtitre h2{margin:0;font-size:1.45rem}
+.numtitre .obj{margin-left:auto;font-size:.78rem;color:var(--muted);font-weight:500;display:none}
+@media(min-width:760px){.numtitre .obj{display:block}}
+h3{font-size:1.08rem;margin:26px 0 10px}
+h4{font-size:.95rem;margin:18px 0 8px}
+
+/* ---------- cartes ---------- */
+.carte{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+.grille{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+
+/* chiffres d'or */
+.chiffre{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.chiffre .v{font-family:Consolas,monospace;font-weight:700;font-size:1.55rem;color:var(--accent);line-height:1.15}
+.chiffre .l{font-weight:700;font-size:.82rem}
+.chiffre .c{font-size:.75rem;color:var(--muted);line-height:1.35}
+
+/* punchline / citation */
+.punch{background:var(--accent-soft);border:1px solid #c7dafc;border-left:4px solid var(--accent);
+  border-radius:8px;padding:14px 16px;margin:14px 0;font-size:1.02rem}
+.punch strong{font-size:1.06rem}
+blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--line);color:var(--muted);font-style:italic}
+
+/* badges */
+.badge{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.04em;
+  padding:2px 8px;border-radius:99px;vertical-align:middle}
+.b-blue{background:var(--accent-soft);color:var(--accent)}
+.b-ok{background:var(--ok-soft);color:var(--ok)}
+.b-bad{background:var(--bad-soft);color:var(--bad)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-gris{background:#eef2f7;color:var(--muted)}
+
+/* ---------- details ---------- */
+details{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:8px 0;padding:0}
+details summary{cursor:pointer;list-style:none;padding:10px 14px;font-weight:600;font-size:.92rem;
+  display:flex;align-items:center;gap:10px}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+";font-family:Consolas,monospace;font-weight:700;color:var(--accent);
+  width:1em;display:inline-block;transition:transform .15s;flex-shrink:0}
+details[open] summary::before{transform:rotate(45deg)}
+details summary:hover{background:#f7fafd;border-radius:8px}
+details .corps{padding:2px 16px 14px 16px;font-size:.92rem;border-top:1px dashed var(--line)}
+details .corps p{margin:.6em 0}
+details.q summary{font-weight:600}
+details .corps ul{margin:.4em 0;padding-left:1.2em}
+
+/* ---------- tableaux ---------- */
+.scroll{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem;background:var(--card)}
+th{background:#eef2f7;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+th,td{border:1px solid var(--line);padding:7px 10px;vertical-align:top}
+tbody tr:nth-child(even){background:#fafcfe}
+td .mono,th .mono{white-space:nowrap}
+
+/* ---------- timeline ---------- */
+.timeline{list-style:none;margin:14px 0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.timeline li{position:relative;padding:0 0 18px 34px}
+.timeline li::before{content:"";position:absolute;left:3px;top:6px;width:14px;height:14px;border-radius:50%;
+  background:var(--card);border:3px solid var(--accent)}
+.timeline li.creux::before{border-color:var(--muted)}
+.timeline .tdate{font-family:Consolas,monospace;font-size:.8rem;font-weight:700;color:var(--accent)}
+.timeline .ttitre{font-weight:700;margin:1px 0 3px}
+.timeline .tjoue{font-size:.9rem;color:var(--muted)}
+
+/* ---------- schéma archi ---------- */
+.schema{display:flex;align-items:stretch;gap:0;margin:14px 0;flex-wrap:wrap}
+.schema .boite{flex:1 1 220px;background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:12px 14px}
+.schema .boite h4{margin:0 0 4px;font-size:1rem}
+.schema .boite .role{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.schema .boite ul{margin:0;padding-left:1.1em;font-size:.85rem}
+.schema .canal{flex:1 1 200px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:6px 14px;min-width:190px}
+.schema .flux{border-radius:6px;padding:6px 10px;font-size:.8rem;text-align:center;font-weight:600}
+.schema .flux small{display:block;font-weight:400;color:var(--muted)}
+.schema .f-cap{background:var(--accent-soft);border:1px solid #c7dafc}
+.schema .f-cmd{background:var(--ok-soft);border:1px solid #bfe8cd}
+.schema .hz{font-size:.75rem;text-align:center;color:var(--muted)}
+
+/* décisions */
+.dec .quatre{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:8px 0 4px}
+.dec .case{background:#fafcfe;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem}
+.dec .case b{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+.dec h4{margin:0}
+
+/* concepts / slides */
+.c30{background:var(--ok-soft);border:1px solid #bfe8cd;border-radius:8px;padding:10px 14px;font-size:.95rem;margin:8px 0}
+.c30 b{color:var(--ok)}
+.piege{background:var(--bad-soft);border:1px solid #f5c6c6;border-radius:8px;padding:10px 14px;font-size:.92rem;margin:8px 0}
+.piege b{color:var(--bad)}
+.script{background:#fafcfe;border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:8px;padding:10px 14px;font-size:.92rem;margin:8px 0}
+.voit{font-size:.9rem;color:var(--muted)}
+img.illu{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.illu-cap{font-size:.75rem;color:var(--muted);margin:4px 0 0}
+
+/* lexique */
+.lex{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:8px}
+.lex .terme{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.88rem}
+.lex .terme b{color:var(--accent)}
+
+/* alertes jour J */
+.alerte{border:1px solid #f5c6c6;border-left:5px solid var(--bad);background:var(--card);border-radius:8px;padding:12px 16px;margin:10px 0}
+.alerte h4{margin:0 0 6px;color:var(--bad)}
+.alerte .tenir{background:var(--ok-soft);border-radius:6px;padding:8px 10px;font-size:.9rem;margin-top:8px}
+.alerte .tenir b{color:var(--ok)}
+ul.check{list-style:none;padding:0}
+ul.check li{padding:4px 0 4px 26px;position:relative}
+ul.check li::before{content:"";position:absolute;left:2px;top:9px;width:12px;height:12px;
+  border:2px solid var(--accent);border-radius:3px}
+
+/* ---------- print ---------- */
+@media print{
+  nav.sticky,header.top .lead{display:none}
+  body{background:#fff;font-size:12px}
+  .carte,details,.chiffre{break-inside:avoid}
+  details summary{list-style:none}
+  details summary::before{content:""}
+  details::details-content{content-visibility:visible!important;display:block!important;height:auto!important}
+  a{color:inherit}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="kicker">Soutenance M1 · ESGI · Juillet 2026</p>
+    <h1>Autonomous Twin : le guide de maîtrise</h1>
+    <p class="lead">Tout le projet en un document : tes slides (S8 à S13), l'archi de Charles, le ML de Nohlan,
+    les 22 questions du jury et chaque chiffre citable. Version imprimable (les dépliables s'ouvrent seuls à l'impression).</p>
+  </div>
+</header>
+
+<nav class="sticky">
+  <div class="inner">
+    <a href="#essentiel">90 s</a>
+    <a href="#projet">Projet</a>
+    <a href="#dates">10 dates</a>
+    <a href="#decisions">Décisions</a>
+    <a href="#concepts">Concepts</a>
+    <a href="#slides">S8-S13</a>
+    <a href="#qr">Q&amp;R</a>
+    <a href="#chiffres">Chiffres</a>
+    <a href="#lexique">Lexique</a>
+    <a href="#jourj">Jour J</a>
+    <button type="button" id="btn-deplier">Tout déplier</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ================================================================ -->
+<section class="bloc" id="essentiel">
+  <div class="numtitre"><span class="n">01</span><h2>L'essentiel en 90 secondes</h2><span class="obj">le pitch, les 8 chiffres, la phrase finale</span></div>
+
+  <div class="carte">
+    <h3 style="margin-top:0">Le pitch en 3 phrases</h3>
+    <p><strong>1.</strong> Deux programmes qui ne partagent rien : un simulateur qui possède la vérité (physique bicycle, circuit, chrono, panneaux, murs) et un pilote IA aveugle, qui ne reçoit que ses capteurs par ZeroMQ : une caméra de 128 px, 5 rayons lidar, sa vitesse.</p>
+    <p><strong>2.</strong> Le pilote apprend par imitation d'un PID (behavioral cloning) et ne voit jamais l'image brute, seulement le masque de la route : il généralise à 30 circuits jamais vus, 30/30 sans sortir de piste, et lit les panneaux à 95,13 %.</p>
+    <p><strong>3.</strong> Tout est mesuré : un banc chronométré a divisé les temps réglementaires par deux (-54 à -60 %), prouvé que le plafond de vitesse était physique (70,6 km/h), et ce plafond a été déplacé à 100 km/h par une décision produit assumée.</p>
+  </div>
+
+  <div class="grille g4">
+    <div class="chiffre"><span class="v">30/30</span><span class="l">circuits jamais vus</span><span class="c">CNN conduite, 0 % hors-piste (gen_026 : 0,4 %, sous le seuil de 5 %)</span></div>
+    <div class="chiffre"><span class="v">95,13 %</span><span class="l">classifieur panneaux</span><span class="c">accuracy validation, fonds caméra réels de circuits jamais vus</span></div>
+    <div class="chiffre"><span class="v">-54 / -60 %</span><span class="l">temps 3 tours, règles</span><span class="c">gen_003 : -54 % · gen_000 : -60 %, après optimisation, règles constantes</span></div>
+    <div class="chiffre"><span class="v">DNF vers 3/3</span><span class="l">gen_014</span><span class="c">le circuit serré ne finissait jamais ; il boucle ses 3 tours après le fix urgence</span></div>
+    <div class="chiffre"><span class="v">15 % vers 0,8 %</span><span class="l">urgence parasite</span><span class="c">frames en freinage d'urgence sans mur, sur gen_014 (6,1 et 8,2 % vers 0,0 ailleurs)</span></div>
+    <div class="chiffre"><span class="v">+1 à +4 %</span><span class="l">de l'oracle</span><span class="c">PID libre vs tour parfait théorique : +0,6 / +2,0 / +3,5 % sur les 3 circuits</span></div>
+    <div class="chiffre"><span class="v">70,6 vers 100</span><span class="l">km/h, le mur déplacé</span><span class="c">plafond physique friction/accélération, relevé par décision produit (MAX_ACCELERATION 120 vers 170)</span></div>
+    <div class="chiffre"><span class="v">0,9513</span><span class="l">la valeur exacte</span><span class="c">best checkpoint epoch 46/100, committé, reproductible bit à bit ; plancher selon seed : 0,90</span></div>
+  </div>
+
+  <div class="punch">
+    <strong>La phrase finale, mot pour mot :</strong><br>
+    « Nous savons pourquoi nous ne pouvons pas aller plus vite. »<br>
+    puis : « Quand le mur gênait le produit, c'est le mur qu'on a déplacé. »
+  </div>
+
+  <details>
+    <summary>Comprendre à fond : pourquoi ces deux phrases, dans cet ordre</summary>
+    <div class="corps">
+      <p>La première pose que le plafond est <b>physique et mesuré</b> (équilibre friction/accélération, démontré par l'oracle : le PID libre colle à 1-4 % du tour parfait), pas un manque de temps ni un bug. La seconde raconte la <b>décision produit consciente</b> : à 70,6 km/h, un panneau « 90 » n'est jamais contraignant, donc la hiérarchie des limites (30/50/90) n'est pas démontrable ; on a relevé le plafond à 100 km/h et tout revalidé (test_signs 2/2, arrêt au mur sans contact, CNN 30/30, STOP depuis 95,8 km/h).</p>
+      <p>L'arc en une respiration : on a trouvé le mur, on l'a mesuré, et on a choisi de le déplacer plutôt que de prétendre qu'il n'existait pas. L'écart restant en conditions réglementaires est le coût <b>légitime</b> des règles : s'arrêter à un STOP coûte de l'énergie cinétique.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="projet">
+  <div class="numtitre"><span class="n">02</span><h2>Le projet en une carte</h2><span class="obj">archi, qui a fait quoi, où se gagnent les points</span></div>
+
+  <div class="schema">
+    <div class="boite">
+      <h4>SIMULATEUR</h4>
+      <p class="role">serveur ZMQ :5555 · la vérité terrain</p>
+      <ul>
+        <li>Physique bicycle (4 équations du sujet)</li>
+        <li>Circuits PNG + spawn JSON</li>
+        <li>LapTimer (armement 90 px)</li>
+        <li>Mur dynamique, panneaux composés dans la caméra</li>
+        <li>Jouable au clavier sans pilote</li>
+      </ul>
+    </div>
+    <div class="canal">
+      <div class="flux f-cap">capteurs<small>caméra 128 px JPEG · lidar 5 rayons · vitesse</small></div>
+      <div class="flux f-cmd">commandes<small>steering · throttle · brake</small></div>
+      <p class="hz">REQ/REP synchrone · 60 Hz · JSON<br>une requête = une réponse, zéro dérive d'horloge</p>
+    </div>
+    <div class="boite">
+      <h4>PILOTE IA</h4>
+      <p class="role">client ZMQ · aveugle sauf capteurs</p>
+      <ul>
+        <li>Perception : seuillage (ex U-Net, IoU 1,0)</li>
+        <li>Conduite : CNN behavioral cloning ou PID</li>
+        <li>Panneaux : détection + MobileNetV2 + governor</li>
+        <li>Urgence : seuil v²/2B + planéité</li>
+        <li>Dashboard temps réel</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Qui a fait quoi</h3>
+  <div class="grille g3">
+    <div class="carte">
+      <h4 style="margin-top:0">Charles <span class="badge b-gris">S1 à S4</span></h4>
+      <p style="font-size:.9rem;margin:6px 0">Simulateur, physique bicycle, architecture ZeroMQ, mur dynamique, LapTimer, esthétique (sprites, sons, traces). Proposition tracée du plafond 100 km/h (commit <code>edd3e27</code>, « PROPOSITION Charles »).</p>
+    </div>
+    <div class="carte">
+      <h4 style="margin-top:0">Nohlan <span class="badge b-gris">S5 à S7</span></h4>
+      <p style="font-size:.9rem;margin:6px 0">U-Net (perception route), CNN conduite (behavioral cloning), dataset conduite, PID backup. Porte le fond technique ML : IoU 1,0, 30/30, choix « masque en entrée, jamais l'image brute ».</p>
+    </div>
+    <div class="carte">
+      <h4 style="margin-top:0">Lorenzo <span class="badge b-blue">S8 à S13</span></h4>
+      <p style="font-size:.9rem;margin:6px 0">Panneaux (dataset, classifieur, governor), optimisation (banc, escouade, urgence, PID), méthode (audits, décisions tracées), démo et conclusion.</p>
+    </div>
+  </div>
+
+  <details>
+    <summary>Comprendre à fond : la réalité du git (à connaître AVANT qu'on la découvre)</summary>
+    <div class="corps">
+      <p>L'historique ne montre que <b>2 auteurs</b> sur 52 commits : Lorenzo (~45 commits) et Charles (~7). <b>Aucun commit signé Nohlan</b> : le travail ML a transité par la machine et l'identité de Lorenzo (pair-programming, commits groupés). Règle d'or : ne jamais revendiquer nominativement des commits qui n'existent pas. Nohlan présente sa contribution comme conception, design et pair-programming, et maîtrise techniquement ses slides 5 à 7. La réponse « qui a fait quoi » se cale à trois AVANT la répétition (voir Jour J, alerte 1).</p>
+    </div>
+  </details>
+
+  <h3>Le barème : 20 points, et où chacun se gagne</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Critère</th><th>Pts</th><th>La preuve qui gagne le point</th></tr></thead>
+    <tbody>
+      <tr><td>Architecture client/serveur</td><td class="mono">3</td><td>2 process ZMQ REQ/REP, simulateur jouable seul, démo</td></tr>
+      <tr><td>Simulateur</td><td class="mono">3</td><td>Démo live : physique, mur, LapTimer, panneaux</td></tr>
+      <tr><td>Conduite autonome (1 tour)</td><td class="mono">3</td><td>Démo + 30/30 en évaluation sur circuits jamais vus</td></tr>
+      <tr><td>Freinage d'urgence</td><td class="mono">2</td><td>Démo mur (arrêt net, zéro contact) + 0 faux positif sur 40 571 frames</td></tr>
+      <tr><td>Lecture de panneaux</td><td class="mono">+3</td><td>Démo (50,0 sous limite, STOP 0,8 s) + 95,13 % en validation</td></tr>
+      <tr><td>IA avancée</td><td class="mono">+2</td><td>CNN behavioral cloning vs PID baseline, généralisation démontrée</td></tr>
+      <tr><td>Multi-circuits</td><td class="mono">+1,5</td><td>30 circuits générés, éval uniquement sur jamais-vus</td></tr>
+      <tr><td>Dashboard</td><td class="mono">+1,5</td><td>Démo <code>--dashboard</code> : caméra, masque, lidar, courbe vitesse, panneau</td></tr>
+      <tr><td>Esthétique / fun</td><td class="mono">+1</td><td>Sprites, sons moteur, traces de pneus, compteur à cadran</td></tr>
+    </tbody>
+  </table></div>
+  <details>
+    <summary>Comprendre à fond : les points fragiles du barème et leur défense</summary>
+    <div class="corps">
+      <ul>
+        <li><b>IA avancée (2 pts)</b> : l'argument n'est pas le nombre de paramètres entraînés mais la chaîne complète : perception apprise, contrôle appris, généralisation démontrée sur données jamais vues, avec un PID baseline pour prouver l'apport (voir Q&amp;R E3).</li>
+        <li><b>Dashboard (1,5 pt)</b> : ce n'est pas « du debug », c'est de l'explicabilité en temps réel : la preuve visuelle que le pilote perçoit et décide ce qu'on affirme. L'esthétique est comptée séparément (+1), on ne mélange pas (Q&amp;R D2).</li>
+        <li><b>Freinage d'urgence (2 pts)</b> : toujours border la formulation : « zéro faux positif mesuré sur 40 571 frames de deux jeux, arrêt sans contact validé jusqu'à ~97 km/h ». Une mesure, jamais une garantie universelle.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="dates">
+  <div class="numtitre"><span class="n">03</span><h2>L'histoire en 10 dates</h2><span class="obj">l'arc dramatique à raconter</span></div>
+  <p class="voit">Une décision mûrie à froid, une journée fondatrice, un long silence, une reprise méthodique, une fausse piste, un diagnostic le soir même, une clôture volontaire.</p>
+
+  <ol class="timeline">
+    <li>
+      <span class="tdate">Février 2026</span>
+      <p class="ttitre">Le pari d'architecture, avant la moindre ligne de code</p>
+      <p class="tjoue">D1 est actée dans la doc Notion : pipeline perception vers contrôle plutôt que RL end-to-end. La décision fondatrice qui conditionnera tout, y compris, six mois plus tard, pourquoi un bug de panneaux se réglera par la géométrie de la caméra et pas par le modèle.</p>
+    </li>
+    <li>
+      <span class="tdate">24 avril 2026</span>
+      <p class="ttitre">La journée fondatrice : un pipeline ML complet en un jour</p>
+      <p class="tjoue">Le matin, M2 validé (PID, un tour complet). Quatre décisions structurantes tombent le même jour (D8, D9, D10, D11). Le soir, M3 et M4 validés : U-Net à IoU 1,0000 sur 5 circuits jamais vus, CNN conduite à 30/30. Le journal résume : « pipeline ML complet en 1 journée ».</p>
+      <details><summary>Comprendre à fond : le rythme exact</summary><div class="corps">
+        <p>13 commits en 4 h 20 (08 h 27 à 12 h 47), trois milestones dans la matinée : PID qui boucle un tour propre (M2, 10 h 23), générateur procédural v1 puis v2 (10 h 41 à 10 h 55), banc PID headless (10 h 57), dataset + masque GT + notebook U-Net (11 h 09), CNN behavioral cloning (12 h 15), deux fix d'infra dont le timeout ZMQ 100 ms vers 5 s (12 h 47, 32 minutes après l'arrivée du CNN). Dataset conduite : 18k paires (15k train + 3k val). U-Net entraîné sur Colab T4 en ~5 min, convergence en 3 epochs.</p>
+      </div></details>
+    </li>
+    <li class="creux">
+      <span class="tdate">Fin avril à 9 juillet</span>
+      <p class="ttitre">Le silence : deux mois et demi, toute l'équipe</p>
+      <p class="tjoue">Plus aucun commit, sur aucune branche, chez aucun des trois, Charles inclus. Pas un abandon individuel : un projet entier en pause. Le creux dramatique avant la reprise.</p>
+    </li>
+    <li>
+      <span class="tdate">9 juillet, matin</span>
+      <p class="ttitre">La reprise, mais pas à l'instinct</p>
+      <p class="tjoue">Lorenzo revient avec, dans ses mots, « plus rien en tête ». Plutôt que de foncer relire le code au hasard : vérification complète du repo et du cahier des charges avant de reprendre. Le réflexe qui a évité de repartir sur des hypothèses fausses.</p>
+    </li>
+    <li>
+      <span class="tdate">9 juillet</span>
+      <p class="ttitre">L'audit avant le code</p>
+      <p class="tjoue">Cinq revues en lecture seule auditent l'existant avant qu'une ligne ne soit retouchée. Cinq trous concrets et documentés (Q7 à Q11). Rien n'est corrigé ce jour-là : Lorenzo attend le feu vert de Charles.</p>
+      <details><summary>Comprendre à fond : les 5 trous Q7 à Q11</summary><div class="corps">
+        <ul>
+          <li><b>Q7</b> : l'éval « 3 tours » ne mesurait que 10 à 17 % d'un tour (durée fixe 15 s + distance odomètre, aucun compteur de tour dans le code).</li>
+          <li><b>Q8</b> : DriveCNN documenté ~300k paramètres, réel 557 490, dont 94 % dans une seule couche Flatten vers Linear(4096, 128) non régularisée.</li>
+          <li><b>Q9</b> : le frein n'a jamais été appris (brake=0 en dur) et l'urgence était dormante (seuil 10 px quasi désactivé).</li>
+          <li><b>Q10</b> : les augmentations de généralisation promises par D10 pour le CNN conduite n'ont jamais été codées (seul le flip miroir existe).</li>
+          <li><b>Q11</b> : risque d'intégration du mur côté simulateur (résolu proprement par Charles : classe Wall, source de vérité géométrique unique).</li>
+        </ul>
+      </div></details>
+    </li>
+    <li>
+      <span class="tdate">9 juillet, soir</span>
+      <p class="ttitre">Le déblocage : la feature panneaux sort en une session</p>
+      <p class="tjoue">Charles merge sa feature mur + chrono + urgence recalibrée. Dans la foulée, en exécution pilotée par sous-agents (10 tâches, review par tâche), toute la feature panneaux (M5) est livrée : 13 commits, accuracy 0,9513, deux scénarios sur deux au vert, zéro régression conduite.</p>
+    </li>
+    <li>
+      <span class="tdate">10 juillet</span>
+      <p class="ttitre">La fausse piste : « la voiture est hyper lente »</p>
+      <p class="tjoue">Constat de démo. Le réflexe aurait été d'incriminer la classification des panneaux, qui tourne à chaque frame. Le vrai coupable, trouvé par la mesure : le freinage d'urgence se déclenchait en faux positif jusqu'à 21,4 % des frames dans les virages serrés, sans aucun mur.</p>
+    </li>
+    <li>
+      <span class="tdate">10 juillet</span>
+      <p class="ttitre">L'escouade de mesure</p>
+      <p class="tjoue">Cinq diagnostics spécialisés en parallèle (physicien, contrôle, urgence, juriste, perception), consigne écrite : mesurer, pas théoriser. Le soir même, quatre optimisations implémentées et chiffrées : -54 à -60 % sur les temps réglementaires, gen_014 passe de DNF à 3/3.</p>
+      <details><summary>Comprendre à fond : les horodatages git exacts (le récit arrondit)</summary><div class="corps">
+        <p>Le sprint est en réalité nocturne : baseline chronométrée à 01 h 07 (commit <code>02a3564</code>), rapports d'escouade finis entre 01 h 20 et 02 h 01, puis <b>4 commits à la même minute, 02 h 28</b> : <code>ad2c44c</code> (urgence), <code>793bcd3</code> (PID), <code>b63f642</code> (perf panneaux), <code>2f6e45c</code> (bench post-optim). L'amortissement kd=0,5 (<code>26a094c</code>) arrive 12 minutes après. Du baseline à l'optimisation re-mesurée et committée : <b>~90 minutes</b>. La consolidation (physique 100, fix occlusion à 08 h 58, dashboard) occupe la matinée du 10.</p>
+      </div></details>
+    </li>
+    <li>
+      <span class="tdate">10 juillet, nuit</span>
+      <p class="ttitre">Le plafond déplacé, et le bug qui n'était pas dans le ML</p>
+      <p class="tjoue">Deux découvertes : le plafond de 70,6 km/h est sciemment repoussé à 100 km/h (décision produit, pour que les panneaux 90 contraignent) ; et en revalidant, le « flip 30/90 » traité comme un défaut du classifieur se révèle être une occlusion géométrique de la caméra. Pas un problème de modèle.</p>
+    </li>
+    <li>
+      <span class="tdate">21 juillet 2026</span>
+      <p class="ttitre">Clôture volontaire, bascule vers la scène</p>
+      <p class="tjoue">Conception déclarée terminée, par décision et non par épuisement : M1 à M7 atteints, démo revalidée devant un collègue le jour même. Le backlog restant est fermé en assumé. Le deck de 13 slides est construit et mergé.</p>
+    </li>
+  </ol>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="decisions">
+  <div class="numtitre"><span class="n">04</span><h2>Les 12 décisions et pourquoi</h2><span class="obj">choix · pourquoi · alternative · ce que ça a payé</span></div>
+  <p class="voit">Chaque décision se raconte sur le patron : « nous avons choisi X plutôt que Y parce que Z, et ça a payé quand W ». Toutes sont datées et tracées dans le wiki avec leurs alternatives écartées.</p>
+
+  <div class="carte dec">
+    <h4>D1 · Pipeline perception vers contrôle, pas de RL end-to-end <span class="badge b-gris">février, reconfirmée 24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>U-Net (puis seuillage) pour voir, CNN + PID pour conduire</div>
+      <div class="case"><b>Pourquoi</b>le RL surapprend son circuit et le critère de notation est la généralisation ; un pipeline se valide étage par étage</div>
+      <div class="case"><b>Alternative écartée</b>RL end-to-end (PPO, DQN, SAC) avec env Gym custom</div>
+      <div class="case"><b>Ce que ça a payé</b>30/30 sur circuits jamais vus, et un oral lisible : on montre le masque, la trajectoire, les commandes</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Trois raisons qui ont toutes tenu : le critère explicite du sujet (« 3 tours sur circuit inconnu », et l'avertissement « souvent la solution ne généralise pas ») ; la validabilité étage par étage face à une boîte noire indéfendable à l'oral ; le temps d'entraînement d'un RL qu'on n'avait pas. Risque assumé : comportement moins adaptatif dans les cas non vus, mitigé par le PID backup. Formule à l'oral : ce n'est pas « le RL c'est mal », c'est « pas le bon outil pour CE critère ».</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D2 · U-Net from scratch, pas de transfer learning <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>U-Net léger 3-4 niveaux, moins d'un million de paramètres, entraîné de zéro</div>
+      <div class="case"><b>Pourquoi</b>les U-Net pré-entraînés (médical, satellite) ne transfèrent pas vers « piste 2D blanc/noir » ; domaine simple, convergence rapide</div>
+      <div class="case"><b>Alternative écartée</b>MobileNet-UNet, DeepLabV3 pré-entraînés : overkill, possiblement plus lents à l'inférence</div>
+      <div class="case"><b>Ce que ça a payé</b>convergence en 3 epochs, ~5 min sur Colab T4, IoU 1,0000 sur les 5 circuits de validation</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Cibles initiales : IoU supérieur à 0,90, inférence sous 20 ms. Le dataset est auto-généré en masse par le simulateur (D6). L'IoU parfait a ensuite déclenché l'analyse qui a mené au remplacement par le seuillage (voir Concepts).</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D3 · CNN conduite from scratch, behavioral cloning <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>petit CNN de régression (steering, throttle) entraîné par imitation</div>
+      <div class="case"><b>Pourquoi</b>aucun grand modèle pré-entraîné n'existe pour « masque binaire + lidar » ; on a un conducteur compétent à cloner</div>
+      <div class="case"><b>Alternative écartée</b>fine-tuning RL après bootstrap BC : trop long pour juillet</div>
+      <div class="case"><b>Ce que ça a payé</b>MAE volant 1,80°, MAE throttle 0,056, 30/30 en généralisation</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Risque identifié dès la décision : le distribution shift (le CNN au volant rencontre des états jamais vus à l'entraînement), mitigé par le retour PID à tout moment. Le clonage s'est finalement fait sur le PID (tours propres reproductibles) plutôt que sur des sessions clavier humaines. Sorties bornées par construction : tanh pour le volant, sigmoid pour le gaz, aucune valeur aberrante possible.</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D4 · Le CNN reçoit le masque, jamais l'image brute <span class="badge b-blue">LA décision du projet · 24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>entrée du CNN conduite = masque 64×64 binaire + 5 lidar</div>
+      <div class="case"><b>Pourquoi</b>le CNN n'apprend que la forme de la route, jamais son style visuel : changez thème ou couleurs, il s'en moque</div>
+      <div class="case"><b>Alternative écartée</b>image RGB brute vers CNN end-to-end : couple perception et contrôle, perd la modularité</div>
+      <div class="case"><b>Ce que ça a payé</b>deux fois : la généralisation défendable devant le jury, et la découverte que le U-Net avait appris un seuillage</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>C'est ce découplage qui rend visible ce que chaque étage apprend : l'écart nul entre masque prédit et vérité terrain a prouvé que le U-Net était un seuillage de luminance, donc remplaçable sans perte. Compromis prévu si le CNN plafonnait : rajouter l'image brute en second input (jamais nécessaire).</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D5 · Panneaux : transfer learning MobileNetV2 gelé <span class="badge b-gris">février, reconfirmée 24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>backbone ImageNet gelé, seule la tête de classification est entraînée (5 classes : STOP, 30, 50, 90, aucun)</div>
+      <div class="case"><b>Pourquoi</b>les panneaux sont des images « naturelles » (les features ImageNet transfèrent) et le dataset est petit : sans transfert, surapprentissage</div>
+      <div class="case"><b>Alternative écartée</b>ResNet18 (11M params, plus lourd) et CNN custom from scratch (besoin de plus de données)</div>
+      <div class="case"><b>Ce que ça a payé</b>entraînement ~4 min CPU, 95,13 % en validation, cible (supérieur à 95 %) atteinte</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>MobileNetV2 : 3,4M paramètres, conçu pour l'embarqué, plus rapide à l'inférence. La tête finale : Dropout, Linear(1280, 256), ReLU, Dropout, Linear(256, 5), soit ~329k paramètres entraînables. Les features sont précalculées une fois, d'où l'entraînement éclair. D5 est restée respectée à travers les itérations : le backbone n'a jamais été dégelé, seule la tête a changé (linéaire vers MLP).</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D6 · Dataset U-Net auto-généré par le simulateur <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>le simulateur sort simultanément l'image caméra et le masque vérité terrain (pixels blancs = route)</div>
+      <div class="case"><b>Pourquoi</b>le simulateur connaît la vérité : zéro annotation manuelle, volume illimité, sur autant de circuits qu'on veut</div>
+      <div class="case"><b>Alternative écartée</b>annotation manuelle (trop lent) ou modèle de segmentation pré-entraîné (aucun pertinent pour ce domaine)</div>
+      <div class="case"><b>Ce que ça a payé</b>18k paires en quelques minutes de conduite PID headless, split par circuit direct</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Biais connu et documenté : le dataset ne couvre que les vues générées par le PID. La vérité terrain est la triple condition r&gt;200, g&gt;200, b&gt;200 : exactement le prédicat que le seuillage de production réimplémente au pixel près, ce qui explique l'IoU de 1,0 comme une identité et non un hasard.</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D7 · Dataset panneaux synthétique, GTSRB en plan B <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>5 sprites PNG augmentés (rotation, échelle, luminosité, bruit, flou) sur fonds caméra réels</div>
+      <div class="case"><b>Pourquoi</b>les panneaux du simulateur SONT des sprites 2D : le domaine de test est le domaine de production, pas de gap sim-to-real</div>
+      <div class="case"><b>Alternative écartée</b>partir directement de GTSRB (50k images réelles, 43 classes) : gardé en fallback si accuracy sous 0,90</div>
+      <div class="case"><b>Ce que ça a payé</b>0,9513 du premier coup de pipeline ; le fallback GTSRB n'a jamais été déclenché</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Dataset final : 9 000 images (7 500 train à 1 500 par classe, 1 500 val à 300 par classe), seed 42 pour le train, 43 pour la validation. 20 % des positifs volontairement tronqués en augmentation. Classe « aucun » : moitié patchs de mur brique, moitié fonds vides (mining négatif explicite contre la confusion mur/panneau). Limite honnête à connaître : ce classifieur ne lirait pas un panneau photographié dans la rue, et ce n'était pas le sujet.</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D8 · Enregistrement par interception du flux ZMQ <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>un logger dans le pilote qui capture tout ce qui transite : capteurs reçus, commandes envoyées</div>
+      <div class="case"><b>Pourquoi</b>source de vérité unique : les données d'entraînement sont exactement ce qu'un pilote voit en inférence, zéro drift</div>
+      <div class="case"><b>Alternative écartée</b>export côté simulateur par Charles : dépendance forte à sa branche</div>
+      <div class="case"><b>Ce que ça a payé</b>pendant les 2,5 mois de creux, le pipeline de collecte n'a jamais dépendu d'un tiers : rien à re-synchroniser à la reprise</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Format : un fichier <code>.npz</code> par frame avec caméra, lidar, vitesse, steering, throttle, brake, timestamp. Point pratique : l'enregistrement du dataset conduite se fait avec <code>--no-signs</code>, sinon les overrides du governor pollueraient les labels du behavioral cloning.</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D9 · Fonctionnel d'abord, ML ensuite <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>sprint 1 = un tour complet en PID pur, avant tout modèle appris</div>
+      <div class="case"><b>Pourquoi</b>un baromètre pour juger l'apport du CNN, un filet de sécurité éprouvé, et zéro risque de finir le semestre sans rien à montrer</div>
+      <div class="case"><b>Alternative écartée</b>attaquer directement le ML sans baseline</div>
+      <div class="case"><b>Ce que ça a payé</b>à la reprise du 9 juillet, PID et CNN étaient toujours à 30/30 : l'audit a pu chercher les vrais trous, pas « est-ce que ça marche encore »</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Conséquence d'API : <code>pid_policy(lidar, speed)</code> et <code>cnn_policy(...)</code> partagent la même signature (steering, throttle, brake), donc le basculement est trivial. C'est aussi D9 qui justifie les risques assumés non corrigés (Q8 DriveCNN) : priorité au fonctionnel démontré sur un risque non observé.</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D10 · La contrainte du prof : généralisation <span class="badge b-blue">critère n°1 · 24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>split train/validation par CIRCUIT, jamais par frame ; augmentations ; aucun circuit de test vu à l'entraînement</div>
+      <div class="case"><b>Pourquoi</b>citation exacte du sujet : « souvent la solution ne généralise pas et ne permet pas d'exécuter la conduite sur différents circuits »</div>
+      <div class="case"><b>Alternative écartée</b>découvrir la contrainte en soutenance (le piège classique)</div>
+      <div class="case"><b>Ce que ça a payé</b>30/30 sur circuits jamais vus : exactement le critère sur lequel on savait être jugés</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>La contrainte est entrée dans le protocole dès avril, pas vérifiée après coup. Elle renforce D1 et D4 et les rend non négociables. Aveu documenté (audit Q10) : les augmentations position/angle de départ du CNN conduite, promises « obligatoires », n'ont jamais été codées (seul le flip miroir existe) ; le 30/30 a tenu quand même, le risque est documenté, pas caché.</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D11 · 30 circuits procéduraux plutôt qu'un monde infini <span class="badge b-gris">24/04</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>générateur offline de 30 PNG reproductibles par seed, avec spawn JSON adjacent</div>
+      <div class="case"><b>Pourquoi</b>le monde infini demandait une refonte physique complète (3 à 5 jours) contre un après-midi, pour un gain de diversité marginal</div>
+      <div class="case"><b>Alternative écartée</b>streaming procédural « infini » : changement de paradigme physique, raccords continus</div>
+      <div class="case"><b>Ce que ça a payé</b>le split exact que D10 exigeait : 25 circuits d'entraînement, 5 de validation</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>La v1 produisait des « patates rondes trop uniformes » ; la v2 ajoute des features explicites (épingles, chicanes, lignes droites, goulots) avec contrôle de courbure et jusqu'à 25 tentatives par circuit avec score (un vrai solveur de rejet, pas un coup de chance). La difficulté se mesure au rayon de courbure au 5e percentile (pour ignorer le bruit de discrétisation). Largeur de piste : 35 à 100 px. Cas extrêmes : gen_013 le plus serré (rayon 23,1 px), gen_017 le plus étroit (47,5 px).</p>
+    </div></details>
+  </div>
+
+  <div class="carte dec">
+    <h4>D12 · Feature panneaux livrée en une session pilotée <span class="badge b-gris">9 juillet</span></h4>
+    <div class="quatre">
+      <div class="case"><b>Choix</b>livrer M5 en exécution par sous-agents : 10 tâches, review par tâche, review finale</div>
+      <div class="case"><b>Pourquoi</b>l'audit du matin avait cartographié l'existant ; la chaîne complète était spécifiable en tâches indépendantes</div>
+      <div class="case"><b>Alternative écartée</b>développement séquentiel classique sur plusieurs jours</div>
+      <div class="case"><b>Ce que ça a payé</b>13 commits le soir même : 0,9513 en validation, test_signs 2/2, non-régression conduite 30/30 avec et sans panneaux</div>
+    </div>
+    <details><summary>Comprendre à fond</summary><div class="corps">
+      <p>Écarts actés vs plan initial, tous documentés : features 224 px + tête MLP au lieu de 96 px + linéaire (à 96 px la carte MobileNetV2 avant GAP fait 3×3, les chiffres sont indiscernables : 0,83) ; prétraitement canonique partagé entraînement/inférence (bug de skew attrapé en review) ; détecteur mono-blob au lieu de composantes connexes (l'espacement 200 px des sidecars garantit au plus un panneau significatif par vue) ; cooldown PAR TYPE et non global (un STOP reste détectable pendant le cooldown d'une limite, vérifié par mutation testing).</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="concepts">
+  <div class="numtitre"><span class="n">05</span><h2>Les concepts à savoir expliquer</h2><span class="obj">30 secondes comme à un prof, puis le fond</span></div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Modèle bicycle</h4>
+    <div class="c30"><b>En 30 s :</b> La voiture est réduite à un vélo : une roue qui dirige, une roue qui pousse. Quatre équations donnent position, cap et vitesse à chaque pas de temps. C'est simple, mais ça reproduit l'essentiel : à l'arrêt, on ne peut pas tourner, et un virage se prépare avant d'y entrer.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Les 4 équations du sujet, implémentées dans <code>simulator/physics.py</code>. Constantes réelles LF = LR = 8,5 (« augmenté = virages plus stables ») alors que la docstring d'en-tête affiche encore 1,5 : un aveu sympathique à faire soi-même. La friction (2 %) s'applique PAR FRAME et non scalée par dt, d'où le plafond v* = (1-f)/f × MAX_ACCELERATION × dt = 98 px/s = 70,56 km/h à 60 fps avec l'ancien 120. <code>MAX_SPEED_PX=300</code> n'a jamais été le vrai plafond (plafond mort). <code>SPEED_SCALE=0,72</code> (px/s vers km/h) porte toujours le commentaire « à calibrer », dupliqué à l'identique partout. Conséquence physique connue depuis avril : vitesse nulle = braquage impossible, donc un freinage d'urgence mal placé est un arrêt fatal si le PID n'a pas tourné avant.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">PID et ses gains</h4>
+    <div class="c30"><b>En 30 s :</b> Un PID corrige un écart mesuré avec trois réflexes : le P réagit à l'erreur présente, le I à l'erreur accumulée, le D à sa tendance. Ici, il centre la voiture sur la route vue par le lidar et module le gaz. C'est notre baromètre et notre filet de sécurité, pas un pis-aller.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>L'optimisation a montré que <b>2 paramètres suffisaient</b> : THROTTLE_MAX 0,85 vers 1,0 et LIDAR_FRONT_SAFE 250 vers 70 (le vrai frein caché) : 16,45 / 16,95 / 21,28 s, 0 % hors-piste sur 7 circuits, à 1-4 % de l'oracle. Négatifs mesurés, pas supposés : TIGHT_BOOST est porteur (son retrait = DNF), la dérivée sur l'erreur est dangereuse (86 % hors-piste), les gains latéraux sont insensibles. Amortissement de sortie kd = 0,5 : +~1 %, optionnel. Le PID d'avant oscillait en épingle (steering sautant de +44 à -37) : c'est cette conduite « à l'ancienne » que le CNN a clonée.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Lidar par raycasting</h4>
+    <div class="c30"><b>En 30 s :</b> Cinq rayons partent de la voiture et avancent pixel par pixel jusqu'à toucher autre chose que de la route ; la distance parcourue est la mesure. Un télémètre minimaliste : pas d'image, juste cinq distances.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Angles -60 / -30 / 0 / +30 / +60°, portée 300 px. Trois consommateurs : le PID (centrage), la règle d'urgence (les 3 rayons frontaux) et le CNN conduite (entrée avec le masque). Le mur dynamique est vu du lidar sans modifier les pixels du circuit : la classe Wall expose sa géométrie (<code>contains</code> / <code>mask_for_region</code>) passée explicitement aux capteurs, <code>track.pixels</code> reste immuable.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Behavioral cloning et distribution shift</h4>
+    <div class="c30"><b>En 30 s :</b> On enregistre un conducteur compétent (notre PID) et on apprend au réseau à prédire ses commandes à partir de ses capteurs : de l'imitation supervisée, pas de l'essai-erreur. Le risque connu s'appelle distribution shift : dès que l'élève dévie un peu, il rencontre des situations que le maître ne lui a jamais montrées.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Dataset : 18k paires (masque 64×64 + lidar vers steering, throttle) collectées par interception ZMQ (D8), régression MSE. Résultat : MAE volant 1,80°, MAE throttle 0,056, best val loss 0,03331. Mitigation du shift : retour PID à tout moment (D9). Trou documenté (Q10) : zéro donnée de « recovery » (le PID part toujours du même point, augmentations position/angle jamais codées) ; le 30/30 a tenu quand même. À savoir aussi : le CNN clone le PID d'AVANT optimisation (throttle 0,85, lidar 250) : il conduit proprement mais plus prudemment que le PID actuel, son ré-entraînement est le chantier M2 annoncé.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">U-Net, et pourquoi on l'a remplacé par un seuillage</h4>
+    <div class="c30"><b>En 30 s :</b> Un U-Net est un réseau en forme de U : il compresse l'image pour comprendre, puis la décompresse pour dessiner un masque pixel par pixel, route ou pas route. Le nôtre a atteint un IoU de 1,0 : il avait appris exactement un seuillage de luminance. On a donc mis le seuillage à la place : strictement équivalent, zéro coût. Ce n'est pas un échec, c'est la preuve qu'on a vérifié ce que le réseau apprenait.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Le seuillage de production (<code>r&gt;200 &amp; g&gt;200 &amp; b&gt;200</code>, <code>pilot/perception.py:35</code>) est au pixel près la fonction qui GÉNÈRE la vérité terrain d'entraînement (<code>simulator/sensors.py:125</code>, même triple condition). L'IoU 1,0 est donc une identité exacte, ni un hasard ni une fuite (le split est par circuit). Le code U-Net reste présent et appelable (<code>load_unet</code>, <code>compute_mask_unet</code>, seuil sigmoid 0,5) et le <code>.pth</code> est dans le repo : « prêt si le visuel se complexifie » est vérifiable, pas une promesse. Cohérence capteurs : le mur est rendu en (150, 45, 35) dans la caméra, sous le seuil de 200, donc la segmentation le traite comme non-roulable.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Transfer learning MobileNetV2, et pourquoi geler le backbone</h4>
+    <div class="c30"><b>En 30 s :</b> On prend un réseau déjà entraîné sur des millions d'images (ImageNet) et on ne réentraîne que la petite tête de classification au-dessus. On gèle le reste parce que nos données sont peu nombreuses : réentraîner des millions de paramètres sur 7 500 images, c'est du surapprentissage garanti. C'est une technique standard et appropriée, pas un raccourci.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p><code>net.features</code> gelé, tête entraînée : Dropout, Linear(1280, 256), ReLU, Dropout, Linear(256, 5), ~329k paramètres entraînables sur un backbone de 3,4M. Features précalculées, ~4 min CPU. Le chemin vers 0,9513 en trois itérations mesurées : 96 px + linéaire = 0,83 (carte avant GAP 3×3, chiffres indiscernables) ; 224 px = 0,90 puis 0,9447 (plafond de la tête linéaire) ; tête MLP = 0,9513. 160 px retesté pendant l'optimisation et rejeté encore plus fort (77,5 %). Le diagnostic disait : le problème est la résolution, pas le manque de données, d'où le refus du fallback GTSRB.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Hystérésis, cooldown, governor (la chaîne panneaux)</h4>
+    <div class="c30"><b>En 30 s :</b> L'hystérésis exige trois images d'accord avant de croire un panneau : une détection isolée ne suffit jamais. Le cooldown interdit de re-déclencher le même type de panneau pendant 4 secondes. Le governor traduit la décision en conduite : gaz réduit sous la limite, arrêt complet de 0,8 seconde au STOP.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Détection couleur en amont : <code>r&gt;=190 &amp; g&lt;90 &amp; b&lt;90</code> (la brique du mur est à 150 : marge de 40 points, pas un seuil tangent, auto-testé inline dans <code>pilot/signs.py</code>). Hystérésis 3 frames à confiance 0,6 ou plus (0,8 avant le fix occlusion : le filtre de troncature fait désormais le travail en amont) ; anti-flip : 5 frames consécutives pour REMPLACER une limite déjà posée (la moyenne de softmax, testée, était pire). Cooldown 4 s PAR TYPE (un STOP reste détectable pendant le cooldown d'une limite). Zone de validité d'une limite : 600 px. Governor : équilibre gaz réduit (0,15) contre friction, frein actif (0,3) seulement au-delà de limite + 15 km/h : la voiture FLOTTE sous la limite, elle n'est pas clampée (ne jamais vendre « 50,0 pile » comme un contrôle strict).</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Freinage d'urgence : seuil dynamique v²/2B + planéité</h4>
+    <div class="c30"><b>En 30 s :</b> La distance d'arrêt croît avec le carré de la vitesse, donc le seuil de déclenchement suit une loi physique, v²/2B plus une marge, au lieu d'un chiffre fixe. Et pour distinguer un mur d'un virage, on regarde la forme : un mur est plat devant les trois rayons, une bordure de virage est asymétrique.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Formule : <code>max(20 px, v²/(2×200) + 38 px)</code> + écart max 28 px entre les 3 rayons frontaux (<code>pilot/emergency.py</code>). 38 et 28 sont les PLUS PETITES valeurs encore compatibles avec zéro faux positif sur 40 571 frames actives (41 789 collectées), pas des marges confortables. L'ancienne règle (2/3 rayons sous 70 px fixe) déclenchait 8 675 fois (21,4 %) : un seuil structurellement incompatible avec une piste large de 30 à 100 px, quel que soit le chiffre choisi. Variante « 3/3 rayons » rejetée malgré 0,97 % : elle réagit PLUS TARD à un vrai mur, le compromis sécurité l'emporte sur le taux brut. Hypothèse « chute brutale du rayon central » rejetée par contre-exemple mesuré : un virage normal produit des chutes de 136 px/frame, un mur ne peut physiquement pas dépasser 100. Sécurité positive validée séparément : balayage de vitesse, zéro contact de 20 à 134 px/s (97 km/h), marge 1,6× à 2,75× le plafond physique. Risque connu depuis le 24/04 (note d'équipe : « emergency = arrêt fatal si le PID n'a pas tourné avant »), sciemment différé jusqu'à l'outil de mesure.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Banc à dt fixe vs démo à FPS variable</h4>
+    <div class="c30"><b>En 30 s :</b> Le banc simule à pas de temps fixe, 1/60 s : chaque run est déterministe, reproductible, indépendant de la machine. La démo tourne en temps réel à FPS variable, et comme la friction s'applique par frame, la physique dépend du framerate. Le banc mesure donc le potentiel de la politique de contrôle ; la démo tourne dans le même régime, 54 à 58 FPS mesurés.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Preuve chiffrée de la dépendance : vitesse d'équilibre à pleine accélération = 196 / 98 / 49 / 24,5 px/s à 30 / 60 / 120 / 240 fps. Le dt fixe du banc est un CHOIX de déterminisme, pas un oubli ; la correction (<code>friction^dt</code>) est le premier chantier M2 chiffré. Le banc (<code>scripts/bench_laps.py</code>) est branché sur le LapTimer de Charles : de VRAIS tours au franchissement de ligne, headless ~20× temps réel, résultats JSON datés committés dans <code>bench/</code>. Quatre configs : regles / libre / cnn / cnn-regles ; <b>cnn-regles n'apparaît dans aucun JSON</b> (le CNN n'a jamais été mesuré panneaux + urgence actifs : trou assumé, voir Q&amp;R D3). Hygiène : <code>best_laps.json</code> est neutralisé pendant les mesures pour ne pas polluer la progression du jeu.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">L'oracle théorique</h4>
+    <div class="c30"><b>En 30 s :</b> L'oracle, c'est le temps du tour parfait : ce que la physique permet au mieux sur ce circuit, calculé analytiquement avec un contrôleur idéal. Il transforme « on est rapides » en « on est à 1 à 4 % du maximum physiquement possible ».</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Dérivation physique + contrôleur pure-pursuit (rapport A, le physicien) : 16,35 / 16,62 / 20,57 s sur gen_000 / gen_003 / gen_014. Le PID optimisé, réglé par sweep empirique SANS regarder l'oracle (rapport B, en parallèle) : 16,45 / 16,95 / 21,28 s, soit +0,6 / +2,0 / +3,5 %. Deux méthodes indépendantes qui convergent à quelques pour cent : si l'oracle avait été bricolé après coup, cette convergence croisée n'existerait pas. Le gisement restant est identifié : trajectoire de corde, -6,2 / -9,3 / -9,1 % (les « 6-9 % » du deck), chantier écarté volontairement.</p>
+    </div></details>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Split par circuit et fuite de données</h4>
+    <div class="c30"><b>En 30 s :</b> Si on entraîne et on valide sur des images du même circuit, la validation ne prouve rien : le réseau reconnaît le décor. On coupe donc par circuit entier : gen_000 à 024 pour apprendre, gen_025 à 029 pour valider. Aucun chiffre de la soutenance n'est mesuré sur du déjà-vu.</div>
+    <details><summary>Le détail technique</summary><div class="corps">
+      <p>Appliqué aux trois modèles : U-Net et CNN conduite validés sur les 5 circuits gen_025 à 029 jamais vus ; pour les panneaux, les fonds caméra respectent la même frontière (train = crops de gen_000 à 024, val = crops de gen_025 à 029, seeds 42 / 43). La seule chose partagée entre train et val : les 5 sprites de panneaux eux-mêmes, ce qui est voulu (ce sont les mêmes objets à reconnaître) ; la variabilité vient des fonds, angles, échelles, troncatures. La vraie faute serait le split frame à frame, et on ne l'a commise nulle part.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="slides">
+  <div class="numtitre"><span class="n">06</span><h2>Tes slides, S8 à S13</h2><span class="obj">ce qu'ils voient, ton script, la profondeur, le piège</span></div>
+  <p class="voit">Ton bloc : S8 à S11 (~4:00), démo S12 en équipe (~1:50), conclusion S13 (0:40). Point de contrôle en prenant le relais de Nohlan : fin S7 = cible 7:30. Si 7:50 ou plus : coupes C2 (phrase « 10 à 17 % » en S10) et C3 (phrase « 90 minutes » en S11). Si 7:15 ou moins : réserves R4 et R5 autorisées.</p>
+
+  <div class="carte">
+    <h4 style="margin-top:0">S8 · Lire les panneaux <span class="badge b-blue">1:00 · cumul 8:30</span> <span class="badge b-gris">barème : panneaux 3 pts</span></h4>
+    <p class="voit"><b>Ce que le jury voit :</b> le pipeline en 4 étages (détection pixels rouges + filtre de blob, MobileNetV2 gelé + tête MLP, hystérésis 3 frames, governor 30 · 50 · 90 · STOP 0,8 s), le dashboard lisant un panneau 90, la courbe d'accuracy sur 100 époques, et la ligne de progression 0,83 vers 0,90 vers 0,9513.</p>
+    <div class="grille g2">
+      <div>
+        <div class="script"><b>Ton script (l'essentiel) :</b> l'acte commence le 9 juillet, deux mois et demi de silence, « plus rien en tête » ; d'abord l'audit (cinq revues en lecture seule, cinq trous documentés), puis la livraison de toute la lecture de panneaux le soir même. La chaîne en 4 étages : détecter, classifier, confirmer sur trois images, obéir. Et la méthode derrière le chiffre : à 0,83, le diagnostic montrait que le problème était la résolution, pas le manque de données. 224 px, puis une vraie tête MLP : 95 % en validation sur des fonds caméra réels.<br><b>Transition :</b> « Sauf qu'un soir de démo, ce classifieur à 95 pour cent nous a sorti une absurdité. »</div>
+      </div>
+      <div>
+        <img class="illu" src="assets/graphs/accuracy-panneaux.png" alt="Courbe accuracy train et validation du classifieur panneaux">
+        <p class="illu-cap">Le graphe projeté : best 0,9513 à l'époque 46, puis la validation retombe (surapprentissage visible).</p>
+      </div>
+    </div>
+    <details><summary>La profondeur derrière</summary><div class="corps">
+      <ul>
+        <li>Trois itérations, pas une : 96 px linéaire (0,83, chiffres indiscernables : carte 3×3 avant GAP), 224 px (0,9447, plafond de la tête linéaire), tête MLP (0,9513). Aller contre la lettre de la spec (fallback GTSRB) parce que le diagnostic désignait la résolution.</li>
+        <li>Le modèle livré est le MEILLEUR checkpoint (époque 46/100, train 96,8 %) : à l'époque 100, la validation retombe à 91,9 % pour un train à 98,3 %. « On s'est arrêtés au bon moment, pas au dernier moment. »</li>
+        <li>Matrice de confusion (300 par classe) : 30 = 276 (92,0 %), 50 = 282 (94,0 %), 90 = 269 (89,7 %, la classe la plus faible, confondue surtout avec 50), aucun et stop = 300/300.</li>
+        <li>Dataset : 9 000 images synthétiques sur fonds caméra réels, 20 % de positifs volontairement tronqués, classe « aucun » = moitié murs brique (mining négatif).</li>
+        <li>Coût CPU : 93,5 ms par classification (MobileNetV2 224 px) contre 0,36 ms pour la détection couleur ; pendant une rafale, le débit instantané tombe à 9-11 fps (le « ~25 » affiché est une moyenne depuis le démarrage). Optimisé : threads 6 + channels_last = -36 % (le défaut torch, 12 threads, est le PIRE réglage sur ce CPU hybride).</li>
+      </ul>
+    </div></details>
+    <div class="piege"><b>Question piège probable :</b> « Vous affichez 95,13 %, mais vous écrivez vous-même 0,90 à 0,95 selon la seed. Alors, 90 ou 95 ? »<br>
+    <b>Réponse :</b> on présente le checkpoint committé à 0,9513, reproductible bit à bit (epoch 46/100, dans <code>signs_cls_history.json</code>). La variance 0,90-0,95 vient de l'initialisation de la tête et de l'ordre des batches, documentée en annexe A3 plutôt que tue. Deux garde-fous : on livre le meilleur checkpoint, pas les derniers poids ; et un seuil d'échec dur à 0,90 bascule sur GTSRB, jamais déclenché. Réponse honnête : plancher 0,90, valeur livrée 0,9513.</div>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">S9 · Le bug qui n'en était pas un <span class="badge b-blue">1:10 · cumul 9:40</span> <span class="badge b-gris">LA slide signature</span></h4>
+    <p class="voit"><b>Ce que le jury voit :</b> le symptôme (« un panneau 30 lu 90, confiance 1.00 »), l'animation du panneau qui sort du champ caméra 128 px, la leçon (crop aligné monde, le 3 sort du champ à 55 px d'offset) et le fix mesuré (46 px + filtre de troncature + padding symétrique, confiance 0,94+).</p>
+    <div class="script"><b>Ton script (l'essentiel) :</b> un 30 lu 90 à confiance 100 %, en pleine démo. Le réflexe : accuser le modèle. Hypothèses ML alignées (marge trop fine ? hystérésis à durcir ?), toutes plausibles, toutes fausses. Au lieu de choisir, on instrumente : une sonde qui enregistre, image par image, ce que le classifieur reçoit vraiment. La caméra n'est pas accrochée au nez de la voiture : c'est un cadre aligné sur le monde. À 55 px de décalage, le panneau sort du champ, le 3 disparaît en premier, le modèle recevait un zéro amputé. Et un 0 tout seul, c'est la fin de 50 comme de 90 : le modèle répondait juste. Le correctif est géométrique, pas ML. Verbatims : <b>« C'est la sonde frame par frame qui a tranché, pas le raisonnement. »</b> puis <b>« Le bug ML n'était pas dans le ML. »</b></div>
+    <details><summary>La profondeur derrière</summary><div class="corps">
+      <ul>
+        <li>Le fix (commit <code>2b06d70</code>, 10/07 08 h 58, 5 fichiers) en quatre étages, chacun validé par la même sonde AVANT d'être codé : placement recalculé à 46 px (dérivé géométriquement : demi-crop 64 moins demi-panneau 18, pas un réglage empirique ; avant : offsets échelonnés 55/70/85) ; filtre de troncature (bbox qui touche un bord ET fait moins de 32 px : rejeté avant classification) ; padding blanc symétrique du crop (confiance 0,65-0,87 vers 0,94+) ; recalibrage cohérent (seuil 0,8 vers 0,6, stride 2 vers 1 : à 100 km/h la fenêtre de passage fait ~6 frames, en sauter la moitié ratait le latch).</li>
+        <li>Tension intéressante à connaître : l'entraînement anticipait DÉJÀ des panneaux tronqués (20 % d'augmentation), et le bug a quand même surgi ; le vrai fix a été d'EXCLURE les troncatures de l'inférence plutôt que de compter sur le modèle pour les gérer.</li>
+        <li>Le message du commit : « le flip 30 et 90 était une occlusion géométrique, pas un défaut ML », citable tel quel.</li>
+      </ul>
+    </div></details>
+    <div class="piege"><b>Question piège probable :</b> « Votre caméra est un crop aligné monde, pas un capteur embarqué solidaire du cap. Un vrai jumeau n'aurait-il pas une caméra embarquée ? »<br>
+    <b>Réponse :</b> exact, et c'est précisément ce qui a causé notre bug le plus instructif. Une caméra solidaire du cap corrigerait ça côté simulateur ; on a préféré le régler côté produit (offset 46 px = visibilité garantie au passage) parce que c'était la correction mesurée la plus sûre à une semaine de la soutenance. Un raccourci assumé, pas un impensé. (Porteurs : Charles pour la caméra, toi pour le fix.)</div>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">S10 · Mesurer <span class="badge b-blue">0:50 · cumul 10:30</span></h4>
+    <p class="voit"><b>Ce que le jury voit :</b> « On ne règle pas ce qu'on ne mesure pas » ; le banc (vrais tours au franchissement de ligne, headless, dt fixe, JSON committés) ; le graphe oracle (PID libre à 1-4 % du tour parfait) ; les barres d'urgence parasite 6,1 / 8,2 / 15,0 % et la légende « gen_014 n'arrivait même pas à finir 3 tours ».</p>
+    <div class="grille g2">
+      <div>
+        <div class="script"><b>Ton script (l'essentiel) :</b> au moment de préparer la démo, le constat c'était <b>« la voiture est hyper lente »</b>. Suspect évident : la classification des panneaux, qui tourne à chaque image. Cette fois, on a d'abord construit de quoi mesurer : un banc, de vrais tours comptés au franchissement de ligne, déterministe, résultats archivés en JSON. Il corrige au passage un trou de l'audit : l'ancienne évaluation « trois tours » ne mesurait que 10 à 17 % d'un tour. Et le banc a parlé : le vrai coupable, c'était le freinage d'urgence, déclenché sans aucun mur, jusqu'à 21 % des images dans les virages serrés. <b>« C'est le banc qui a tranché »</b>, pas l'intuition.</div>
+      </div>
+      <div>
+        <img class="illu" src="assets/graphs/oracle.png" alt="Comparaison oracle, PID libre et PID regles">
+        <p class="illu-cap">Le graphe projeté : oracle vs PID libre vs règles, la borne du physiquement possible.</p>
+      </div>
+    </div>
+    <details><summary>La profondeur derrière</summary><div class="corps">
+      <ul>
+        <li>Le trou Q7 précisément : durée fixe 15 s + distance odomètre (hypot frame à frame), 200 px de seuil = 10 à 17 % d'un tour réel (périmètres 1 265 à 1 810 px), aucun compteur de tour dans le code. Le banc branche le LapTimer de Charles : armement à 90 px du centre de ligne (résiste aux allers-retours), demi-longueur de ligne 70 px, chrono dès 5 px/s.</li>
+        <li>Les 21,4 % exacts : 8 675 déclenchements sur 40 571 frames actives (41 789 collectées), sans mur. Cause structurelle : seuil fixe 70 px contre une piste large de 30 à 100 px, un rayon à ±30° touche mécaniquement la bordure extérieure en virage.</li>
+        <li>Baseline committée (<code>bench/2026-07-10_baseline.json</code>) : règles 161,6 / 162,0 / DNF (1 tour en 300 s), libre 96,6 / 94,9 / 137,6 s.</li>
+      </ul>
+    </div></details>
+    <div class="piege"><b>Question DANGEREUSE rattachée (MD-2) :</b> « Votre friction s'applique par frame : votre physique dépend du framerate. Le banc tourne à dt fixe, la démo à FPS variable. Vos chiffres décrivent quoi ? »<br>
+    <b>Réponse (ne jamais esquiver) :</b> c'est le point technique le plus juste qu'on puisse nous opposer, et il est documenté chez nous. Oui, la friction est par frame (98 px/s à 60 fps, 49 à 120). Le banc est à dt fixe POUR être déterministe : un choix, pas un oubli ; il mesure le potentiel de la politique indépendamment du CPU. La démo tourne à 54-58 FPS stables mesurés, même régime que le banc. La physique framerate-indépendante (friction^dt) est le premier chantier M2 chiffré. Piège mortel : prétendre que le banc décrit la démo, ou nier la dépendance (elle est dans le code, vérifiable en direct).</div>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">S11 · Résultats <span class="badge b-blue">1:00 · cumul 11:30</span> <span class="badge b-gris">barème : urgence 2 pts + dashboard 1,5 pt</span></h4>
+    <p class="voit"><b>Ce que le jury voit :</b> « Avant / après, mêmes règles, mêmes circuits » ; le graphe des temps 3 tours (-54 à -60 %, gen_014 DNF vers 3/3) ; le graphe urgence parasite (15 % vers 0,8 %) ; la légende « en configuration libre, le PID roule à 1-4 % de l'oracle ».</p>
+    <div class="grille g2">
+      <div><img class="illu" src="assets/graphs/temps-avant-apres.png" alt="Temps 3 tours avant apres optimisation"><p class="illu-cap">Temps 3 tours en conditions réglementaires.</p></div>
+      <div><img class="illu" src="assets/graphs/urgence-avant-apres.png" alt="Urgence parasite avant apres"><p class="illu-cap">Frames en freinage d'urgence parasite.</p></div>
+    </div>
+    <div class="script"><b>Ton script (l'essentiel) :</b> la nuit même, cinq diagnostics spécialisés en parallèle (physique, contrôle, urgence, règlement, perception), consigne écrite : mesurer, pas théoriser. Le git log raconte l'intensité : baseline chronométrée à une heure du matin, et à deux heures vingt-huit, quatre commits tombent à la même minute. Du diagnostic à l'après chiffré : environ 90 minutes. Résultat, à règles constantes : moins 54 à moins 60 % sur les temps, gen_014 boucle ses trois tours, le freinage parasite passe de 15 % à 0,8. La voiture pratique le <b>« freinage par le risque »</b>. Et pour situer la performance dans l'absolu : l'oracle, le tour parfait théorique ; en libre, on roule à 1 à 4 % de ce temps parfait. Réserves si avance : R4 (deux méthodes indépendantes convergent sur l'oracle) et R5 (les arrêts au STOP n'ont pas bougé : tout le gain vient du gaspillage éliminé).</div>
+    <details><summary>La profondeur derrière</summary><div class="corps">
+      <ul>
+        <li>Les 4 optimisations : règle d'urgence C (seuil dynamique + planéité), PID B (THROTTLE_MAX 1,0 + LIDAR_FRONT_SAFE 70), perception E (threads 6 + channels_last + stride), règles D (STOP 0,8 s + zone de limite 600 px). Aucune ne désactive une règle du CDC ; interdits explicites du rapport juriste : lire les sidecars côté pilote, désactiver l'urgence, désynchroniser les copies de test.</li>
+        <li>Chiffres après : gen_000 64,5 s (-60 %), gen_003 74,0 s (-54 %), gen_014 83,7 s et 3/3 ; urgence 6,1 / 8,2 / 15,0 vers 0,0 / 0,0 / 0,8 %. Best laps libres 16,4 / 16,9 / 21,3 s contre oracle 16,35 / 16,62 / 20,57.</li>
+        <li>R5 en chiffres : pct_stopped quasi identique avant/après (7,6 vers 7,8 % ; 0,0 ; 2,8 vers 3,0 %) : la preuve qu'on n'a pas « triché » sur les arrêts réglementaires.</li>
+        <li>Détail piquant : <code>MAX_SPEED_PX=300</code>, censé plafonner la vitesse, n'a jamais été le vrai plafond ; la friction en imposait un bien plus bas (70,6 km/h) sans qu'aucune ligne de code ne le dise.</li>
+      </ul>
+    </div></details>
+    <div class="piege"><b>Question piège probable :</b> « Votre oracle, qui l'a calculé, et l'avez-vous ajusté après coup pour que vos résultats aient l'air bons ? »<br>
+    <b>Réponse :</b> il a été calculé indépendamment du résultat, par deux voies séparées qui convergent : dérivation analytique (physique + pure-pursuit) 16,35 / 16,62 / 20,57 s ; PID réglé par sweep empirique SANS regarder l'oracle : 16,45 / 16,95 / 21,28 s, soit +0,6 / +2,0 / +3,5 %. Si l'oracle avait été bricolé pour flatter le PID, cette convergence croisée n'existerait pas. Second piège possible (« vos 5 sous-agents, c'est qui ? ») : ce ne sont pas des personnes, ce sont cinq sous-agents Claude en lecture seule ; l'assumer comme méthode : on a conçu le protocole, fait tourner en lecture seule, croisé les résultats indépendants, puis implémenté et committé nous-mêmes.</div>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">S12 · Démo live <span class="badge b-blue">1:50 · cumul 13:20 · plafond absolu 2:30</span> <span class="badge b-gris">équipe</span></h4>
+    <p class="voit"><b>Ce que le jury voit :</b> la checklist des 5 étapes (50,0 pile sous la limite ; STOP depuis ~95 km/h ; mur surgi, arrêt net zéro contact ; épingle à 70 km/h sans urgence ; dashboard), et « Circuit gen_014, celui qui ne finissait pas ses trois tours ». Puis la bascule sur le vrai simulateur.</p>
+    <div class="script"><b>Tes répliques (Charles au clavier, Nohlan au chrono) :</b> étape 1 : « La voiture est en zone limitée : régulation à 50,0, pile sous la limite. » ; étape 2 : « Arrivée à 95 kilomètres heure, arrêt complet marqué 0,8 seconde, et ça repart. » ; étape 3 (Charles pose le mur, Espace) : « Arrêt net, zéro contact. Et à basse vitesse, ce mur aurait expiré avant l'impact : pas de risque réel, pas de freinage. » ; étape 4 : « 70 kilomètres heure, braquage complet, aucun déclenchement. » ; étape 5 : « Et tout du long, le dashboard : caméra, masque, lidar, courbe de vitesse. C'est tout ce que le pilote sait du monde. »</div>
+    <details><summary>La profondeur derrière</summary><div class="corps">
+      <ul>
+        <li>Le filet vidéo de secours a été volontairement retiré (PR #5) : le redémarrage des deux process prend ~10 secondes et a été éprouvé. La démo tourne sans filet parce qu'on a MESURÉ que le filet n'était pas nécessaire, pas par insouciance.</li>
+        <li>Le mur : durée de vie 6,0 s (passée de 3,0 à 6,0 le 09/07, commit <code>299b6b8</code>) ; sous ~48 km/h il expire avant l'impact, d'où « freinage par le risque ». La légende de la slide 4 du deck a été corrigée à 6 s le 22/07 : deck, code et guide sont alignés.</li>
+        <li>« 50,0 pile » : c'est un équilibre gaz réduit (0,15) contre friction, pas un clamp ; le frein actif (0,3) n'intervient qu'au-delà de limite + 15 km/h.</li>
+        <li>Validations live déjà faites : STOP exécuté depuis 95,8 km/h, arrêt au mur v_min 2,6 km/h zéro contact, 54-58 FPS dashboard compris, démo revalidée devant un collègue le 21/07.</li>
+      </ul>
+    </div></details>
+    <div class="piege"><b>Question piège probable :</b> « Comment garantissez-vous de tenir exactement 50,0 ? » et « Et si on pose le mur à basse vitesse ? »<br>
+    <b>Réponse :</b> 50,0 n'est pas un blocage logiciel : un équilibre entre gaz réduit et frottement, le frein n'intervient qu'au-delà de limite + 15 ; la voiture flotte sous la limite (ne jamais vendre une précision de clamp qu'on n'a pas). Le mur à basse vitesse : il expire au bout de six secondes, sous 48 km/h il disparaît avant l'impact : pas de risque réel, donc pas de freinage, c'est le freinage par le risque.</div>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">S13 · Conclusion <span class="badge b-blue">0:40 · cumul 14:00 · jamais coupée</span></h4>
+    <p class="voit"><b>Ce que le jury voit :</b> la phrase finale en titre, le compteur 70,6 km/h, le texte « plafond physique, déplacé sciemment de 70,6 à 100 », l'ouverture chantier M2 (corde 6-9 %, physique indépendante du framerate, ré-entraînement du CNN), le graphe best lap libre selon le plafond.</p>
+    <div class="grille g2">
+      <div>
+        <div class="script"><b>Ton script (mot pour mot pour les verbatims) :</b> [pause, regarder le jury] <b>« Nous savons pourquoi nous ne pouvons pas aller plus vite. »</b> [pause] Ce plafond n'était ni un bug, ni un manque de temps. Il était physique, démontré par l'oracle : 70,6 kilomètres heure, l'équilibre exact entre l'accélération et le frottement. Et une fois qu'on l'a su, on a fait un choix de produit, parce que sans plafond relevé, un panneau 90 ne contraint rien : <b>« quand le mur gênait le produit, c'est le mur qu'on a déplacé »</b>. De 70,6 à 100, en connaissance de cause. La suite est à l'écran, déjà chiffrée. Merci : place à vos questions. Réserve R6 si avance : depuis, en libre, la voiture croise à 97,6 km/h de moyenne, best lap de 16 secondes et demie à 11 secondes 57.</div>
+      </div>
+      <div>
+        <img class="illu" src="assets/graphs/physique-100.png" alt="Best lap libre selon le plafond physique">
+        <p class="illu-cap">Le graphe projeté : best lap libre, plafond 70,6 vs 100 km/h.</p>
+      </div>
+    </div>
+    <details><summary>La profondeur derrière</summary><div class="corps">
+      <ul>
+        <li>L'équation, vérifiable à la calculatrice : v* = (1-FRICTION)/FRICTION × MAX_ACCELERATION × dt = 49 × 120 × 1/60 = 98,0 px/s = 70,56 km/h. Avec 170 : 138,9 px/s = 100,0 km/h exactement : le 170 a été choisi pour retomber pile sur 100, et on est transparents là-dessus.</li>
+        <li>Le commit <code>edd3e27</code> porte « PROPOSITION Charles » : le déplacement du plafond est crédité nommément à un coéquipier.</li>
+        <li>Tout revalidé à 100 : test_signs 2/2, arrêt au mur (v_min 2,6 km/h, zéro contact), CNN 30/30 avec panneaux (il roule plus vite sans retrain), STOP depuis 95,8 km/h, 58 FPS dashboard compris. Résultats à 100 : règles 64,9 / 76,5 / 55,9 s, best libre 11,6 / 11,9 / 14,9 s.</li>
+        <li>L'écart restant en réglementaire est le coût LÉGITIME des règles : s'arrêter à un STOP coûte de l'énergie cinétique.</li>
+      </ul>
+    </div></details>
+    <div class="piege"><b>Question TRÈS probable (MP-3) :</b> « Monter l'accélération pour passer de 70,6 à 100 parce que sinon vos panneaux 90 ne servaient à rien, ce n'est pas vous arranger avec le réel ? »<br>
+    <b>Réponse en 3 temps :</b> 1) Assumer d'emblée : décision produit explicite, DITE sur la slide, jamais cachée. 2) Distinguer : maquiller un chiffre (jamais fait) et déplacer une constante de conception documentée (fait), avec TOUT revalidé à 100. 3) Le pourquoi produit : à 70,6, un « 90 » n'est jamais contraignant, la hiérarchie des limites n'est pas démontrable ; transparence totale sur le 170 choisi pour tomber sur 100 pile. Tricher aurait été d'afficher 100 sans toucher la physique.</div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="qr">
+  <div class="numtitre"><span class="n">07</span><h2>Le Q&amp;R complet : 22 questions</h2><span class="obj">3 probables, 2 dangereuses, 5 interdits, puis tout</span></div>
+  <p class="voit">Règle transverse : le deck contient des appâts d'honnêteté volontaires (IoU slide 5, occlusion slide 9, plafond déplacé slide 13). Un jury sceptique mord dessus : ce sont des forces SI on les assume, des pièges si on se défend.</p>
+
+  <h3>Les 3 questions les plus probables (plan en 3 temps)</h3>
+  <div class="carte" style="border-left:4px solid var(--accent)">
+    <h4 style="margin-top:0">MP-1 · « IoU 1,0, remplacé par un seuillage : où est le ML ? » <span class="badge b-blue">= B1 · Nohlan</span></h4>
+    <p style="font-size:.92rem"><b>1. Cadrer sans se défendre :</b> oui, IoU 1,0, et c'est une IDENTITÉ exacte : le seuillage de prod est la fonction qui génère la vérité terrain au pixel près. Ni fuite, ni hasard.<br>
+    <b>2. Retourner en maturité :</b> on l'a MESURÉ avant de simplifier ; converger vers le plus simple prouve la bonne invariance apprise ; le .pth reste prêt si le visuel change.<br>
+    <b>3. Verrouiller la généralisation :</b> split par circuit (gen_000-024 / gen_025-029), pas de fuite frame à frame ; le vrai ML avancé est le CNN de conduite, pas le U-Net.</p>
+  </div>
+  <div class="carte" style="border-left:4px solid var(--accent)">
+    <h4 style="margin-top:0">MP-2 · « Comment prouvez-vous que ça généralise, sans fuite ? » <span class="badge b-blue">= C1 · Nohlan + Lorenzo</span></h4>
+    <p style="font-size:.92rem"><b>1. La contrainte comme un choix pris tôt (D10, avril), pas subi :</b> split par circuit à tous les étages, augmentations, aucun circuit de test vu à l'entraînement.<br>
+    <b>2. La preuve chiffrée :</b> 30/30 sur les 5 circuits jamais vus, 0 % hors-piste (deux circuits à quelques dixièmes, sous le seuil), classifieur 95,13 % sur fonds de circuits de validation.<br>
+    <b>3. Désamorcer la fuite panneaux :</b> les fonds val viennent de gen_025-029, seed 43 distincte, jamais utilisés à l'entraînement ; seuls les 5 sprites sont partagés, à dessein.</p>
+  </div>
+  <div class="carte" style="border-left:4px solid var(--accent)">
+    <h4 style="margin-top:0">MP-3 · « 70,6 puis 100 km/h pour vos panneaux : vous arranger ? » <span class="badge b-blue">= D1 · Lorenzo + Charles</span></h4>
+    <p style="font-size:.92rem"><b>1. Assumer d'emblée :</b> décision produit explicite, dite sur la slide, jamais cachée.<br>
+    <b>2. Distinguer :</b> maquiller un chiffre (jamais) et déplacer un paramètre documenté (fait) ; tout revalidé à 100 (test_signs 2/2, mur sans contact, CNN 30/30, STOP à 95,8 km/h).<br>
+    <b>3. Le pourquoi produit :</b> à 70,6, un « 90 » n'est jamais contraignant, la hiérarchie des limites n'est pas démontrable ; transparence sur le 170 choisi pour 100 pile.<br>
+    <span class="voit">4e très anticipée, annexe A1 prête : « pourquoi pas de RL » : dérouler D1, 30/30, compromis PID backup.</span></p>
+  </div>
+
+  <h3>Les 2 questions les plus dangereuses (le piège explicité)</h3>
+  <div class="carte" style="border-left:4px solid var(--bad)">
+    <h4 style="margin-top:0">MD-1 · « Qui a codé quoi ? Nohlan, montrez-nous dans le git log. » <span class="badge b-bad">= E1</span></h4>
+    <p style="font-size:.92rem"><b>Le piège :</b> sur-revendiquer une contribution individuelle que le git ne montre pas. Nohlan présente le U-Net et le CNN mais n'a AUCUN commit (2 auteurs : Lorenzo ~45, Charles ~7). Si quelqu'un affirme « Nohlan a codé le U-Net » et que le jury projette git log, la crédibilité de toute l'équipe s'effondre en direct.<br>
+    <b>Le désamorçage :</b> anticiper, parler de rôles (conception, pair-programming) sans inventer de commits, et s'assurer que Nohlan maîtrise techniquement ses slides 5 à 7.</p>
+  </div>
+  <div class="carte" style="border-left:4px solid var(--bad)">
+    <h4 style="margin-top:0">MD-2 · « Physique framerate-dépendante, banc à dt fixe : vos chiffres = la démo ? » <span class="badge b-bad">= A3</span></h4>
+    <p style="font-size:.92rem"><b>Le piège :</b> prétendre que le banc décrit la démo, OU nier la dépendance au framerate, qui est dans le code (<code>car.speed -= car.speed * FRICTION</code>, physics.py:60), vérifiable en direct. Un prof d'archi peut alors démonter toute la narrative « on ne règle pas ce qu'on ne mesure pas », où se logent 3,5 pts.<br>
+    <b>Le désamorçage :</b> assumer le dt fixe comme choix de déterminisme, donner les FPS réels de la démo (54-58, même régime que le banc), citer friction^dt comme chantier M2 déjà identifié. Ne jamais esquiver.</p>
+    <p class="voit">Dangers de second rang : C4 (« vos 5 agents, des IA ? » : assumer comme méthode, ne pas laisser croire à des humains), C5 (« zéro FP overfit au test ? » : border la garantie), E2 (SPAWN_DISTANCE 130 non revalidé).</p>
+  </div>
+
+  <h3>Les 5 « ne dites JAMAIS »</h3>
+  <div class="carte" style="border-left:4px solid var(--warn)">
+    <ol style="margin:6px 0;padding-left:1.3em;font-size:.93rem">
+      <li><b>« C'était un faux positif de l'audit »</b> (DriveCNN 557k). C'est un VRAI écart doc/archi et un vrai risque. Dire : « un risque réel, documenté et assumé, qui ne s'est jamais matérialisé ».</li>
+      <li><b>« Le U-Net n'a servi à rien / on l'a raté. »</b> L'IoU a PROUVÉ que le seuillage suffisait. Converger vers le plus simple est une réussite ; le .pth reste prêt. Maturité, jamais aveu.</li>
+      <li><b>Attribuer nominativement du code que le git ne montre pas</b> (« Nohlan a codé le U-Net »). Rôles et pair-programming, sans revendiquer de commits inexistants.</li>
+      <li><b>« Le freinage d'urgence est sûr / infaillible / zéro faux positif »</b> en absolu. Toujours border : « zéro FP mesuré sur 40 571 frames de deux jeux, arrêt sans contact validé jusqu'à ~97 km/h ». Une mesure, jamais une garantie.</li>
+      <li><b>« La voiture tient 50,0 pile / ne dépasse jamais la limite »</b> comme un contrôle strict. C'est un équilibre gaz réduit (0,15) contre friction ; le frein actif ne s'enclenche qu'à limite + 15. La voiture FLOTTE sous la limite.</li>
+    </ol>
+  </div>
+
+  <h3>A · Architecture et simulation</h3>
+  <details class="q"><summary>A1 · Qu'est-ce qui en fait un « jumeau numérique » et pas un jeu vidéo 2D ? <span class="badge b-gris">Charles</span></summary><div class="corps">
+    <blockquote>« Vous appelez ça un jumeau numérique, mais techniquement c'est un simulateur 2D vu de dessus avec une physique bicycle simplifiée. Qu'est-ce qui en fait un jumeau numérique ? »</blockquote>
+    <p>Le terme désigne une propriété précise et vérifiable, pas une ambition de photoréalisme : deux processus strictement séparés (ZeroMQ REQ/REP) où le pilote n'a accès à AUCUN état interne du simulateur, uniquement ce qui transite sur le réseau (caméra 128 px, lidar 5 rayons, vitesse). C'est ce cloisonnement qui rend l'exercice honnête : l'IA ne peut pas tricher en lisant la vérité terrain, comme un vrai véhicule ne connaît pas la carte. On assume la physique bicycle 2D (les 4 équations du sujet) et l'échelle km/h reposant sur une constante encore marquée « à calibrer » (<code>SPEED_SCALE=0.72</code>) : le jumeau est celui de la BOUCLE perception-décision-action, pas du châssis.</p>
+  </div></details>
+  <details class="q"><summary>A2 · Le pilote est bloquant sur ZMQ : vraiment deux mondes indépendants ? <span class="badge b-gris">Charles</span></summary><div class="corps">
+    <blockquote>« Votre schéma montre deux process indépendants, mais le simulateur bloque en attendant la réponse du pilote. Si votre CNN met 100 ms, tout ralentit. C'est découplé, vraiment ? »</blockquote>
+    <p>C'est synchrone par choix : REQ/REP garantit une réponse-commande par requête-capteurs, donc zéro dérive d'horloge, mais oui, le coût d'inférence du pilote s'ajoute au pas de temps du simulateur. On l'a payé cash le 24/04 : brancher le CNN a fait exploser le timeout serveur de 100 ms (calibré pour un PID), passé à 5 s pour absorber le premier forward-pass PyTorch à froid (commit <code>ac44244</code>, 32 min après l'ajout du CNN <code>9f352a5</code>). Le découplage est architectural (deux binaires, le simu reste jouable au clavier sans pilote), pas temps réel : une extrapolation d'état découplée serait un chantier M2, sans bénéfice pour une démo à 60 Hz stables.</p>
+  </div></details>
+  <details class="q"><summary>A3 · Physique dépendante du framerate vs banc à dt fixe : que mesurez-vous ? <span class="badge b-bad">MD-2</span> <span class="badge b-gris">Charles + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Votre friction s'applique par frame, pas au dt : votre physique dépend du framerate. Le banc tourne à dt fixe 1/60, la démo à FPS variable. Vos chiffres décrivent quoi : la démo, ou une simulation idéale ? »</blockquote>
+    <p>C'est le point technique le plus juste qu'on puisse nous opposer, et il est déjà documenté chez nous. Oui : la friction (2 %) est appliquée par frame et non scalée par dt, donc la vitesse d'équilibre dépend du FPS (98 px/s à 60 fps, 49 à 120). Le banc tourne à dt fixe 1/60 pour être DÉTERMINISTE et reproductible : un choix, pas un oubli ; il mesure le potentiel de la politique de contrôle indépendamment du CPU. La démo tourne à 54-58 FPS stables mesurés (dashboard compris), donc dans le même régime que le banc ; la physique framerate-indépendante (friction^dt) est explicitement le premier chantier M2 chiffré : on la connaît, on ne la cache pas. Renvoi : annexe A5.</p>
+  </div></details>
+  <details class="q"><summary>A4 · La caméra est un crop aligné monde, pas un capteur embarqué : raccourci ? <span class="badge b-gris">Charles + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Votre caméra est un crop de l'écran aligné sur le monde, pas un capteur solidaire du cap de la voiture. Un vrai jumeau n'aurait-il pas une caméra embarquée ? »</blockquote>
+    <p>Exact, et c'est précisément ce qui a causé notre bug de démo le plus instructif : la caméra est un crop 128 px capté 60 px devant la voiture mais aligné sur les axes du monde, pas sur le cap. En diagonale, un panneau à 55 px d'offset latéral sortait du champ et perdait son premier chiffre : un « 30 » amputé devenait un « 0 » que le modèle lisait 90 à confiance 1,00, en toute logique. Une caméra solidaire du cap corrigerait ça côté simulateur ; on a préféré le régler côté produit (offset 46 px = demi-crop 64 moins demi-panneau 18, visibilité garantie au passage) parce que c'était la correction mesurée la plus sûre à une semaine de la soutenance. Un raccourci assumé, pas un impensé.</p>
+  </div></details>
+
+  <h3>B · Machine learning</h3>
+  <details class="q"><summary>B1 · Un IoU de 1,0 ne prouve rien : problème trivial ou fuite de données ? <span class="badge b-blue">MP-1</span> <span class="badge b-gris">Nohlan</span></summary><div class="corps">
+    <blockquote>« Un IoU parfait, en ML, n'impressionne personne : soit votre problème est trivial, soit vous avez une fuite entre train et validation. C'est lequel ? »</blockquote>
+    <p>Le premier, et on l'a prouvé plutôt que supposé : le seuillage de production (<code>r&gt;200 &amp; g&gt;200 &amp; b&gt;200</code>) est au pixel près la fonction qui GÉNÈRE la vérité terrain d'entraînement (même triple condition dans sensors.py). L'IoU de 1,0 n'est donc ni un hasard ni une fuite : c'est une identité exacte, le U-Net a convergé vers le prédicat que le domaine encode réellement (une piste blanche sur fond sombre). La vraie leçon n'est pas « notre modèle est parfait » mais « on a MESURÉ que le ML était superflu ici, et on a eu l'honnêteté de le remplacer par le seuillage équivalent » ; le .pth entraîné reste dans le repo si le visuel se complexifie. Sur la fuite : le split est par circuit (train gen_000-024, val gen_025-029), pas frame à frame. Renvoi : annexe A5.</p>
+  </div></details>
+  <details class="q"><summary>B2 · Pourquoi pas de RL end-to-end ? <span class="badge b-gris">Nohlan</span></summary><div class="corps">
+    <blockquote>« Pourquoi ne pas avoir fait du reinforcement learning end-to-end ? C'est l'approche naturelle pour de la conduite autonome, et vous êtes en filière IA. »</blockquote>
+    <p>Décision D1, actée en février avant la première ligne de code, pour trois raisons qui ont toutes tenu. D'abord le critère de notation est explicitement la généralisation sur circuit inconnu (« souvent la solution ne généralise pas », dixit le sujet), or un RL pur surapprend le circuit d'entraînement et demande un temps qu'on n'avait pas. Ensuite le pipeline perception vers contrôle se valide étage par étage (on montre le masque, la trajectoire, les commandes), là où un RL est une boîte noire indéfendable à l'oral. Enfin ça a payé : 30/30 sur des circuits jamais vus, avec un compromis assumé (moins adaptatif dans les cas extrêmes, mitigé par le PID backup). Ce n'est pas « le RL c'est mal », c'est « pas le bon outil pour CE critère ». Renvoi : annexe A1.</p>
+  </div></details>
+  <details class="q"><summary>B3 · Votre CNN de conduite fait quelle taille ? (la doc dit ~300k) <span class="badge b-gris">Nohlan</span></summary><div class="corps">
+    <blockquote>« Votre CNN de conduite, il pèse combien de paramètres ? Votre documentation annonce environ 300 000. »</blockquote>
+    <p>La docstring dit ~300k, le vrai chiffre est <b>557 490</b>, et on le sait parce que l'audit du 09/07 l'a recalculé. Le point intéressant n'est pas l'erreur de doc mais OÙ sont les paramètres : 524 416, soit 94 %, dans une seule couche Flatten vers Linear(4096, 128) non régularisée, alors que les convolutions ne pèsent que 4 %. C'est un vrai risque de surapprentissage sur le papier, qu'on a documenté (Q8) au lieu de le cacher, avec le fix identifié (AdaptiveAvgPool2d à la place du Flatten). On ne l'a pas corrigé parce qu'il ne s'est jamais matérialisé (30/30 constant, aucune régression) et qu'on a priorisé le fonctionnel démontré sur un risque non observé, cohérent avec D9 : un risque assumé, pas un bug caché.</p>
+  </div></details>
+  <details class="q"><summary>B4 · Le CNN ne freine jamais (brake=0 en dur) : et l'urgence ? <span class="badge b-gris">Nohlan + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Votre CNN ne sort que volant et gaz, le frein est à zéro en dur. Comment votre voiture autonome s'arrête-t-elle en urgence ? »</blockquote>
+    <p>Le CNN produit [steering, throttle] et <code>cnn_policy</code> renvoie brake=0.0 en dur : le freinage n'est pas dans le modèle appris, il est dans une couche de règles séparée (emergency.py), par choix d'architecture. C'est cohérent avec le behavioral cloning (le PID cloné ne freinait pas brutalement, il n'y avait rien à imiter) et c'est un bon choix de sûreté : on ne veut pas qu'un modèle statistique non régularisé soit responsable de l'arrêt d'urgence. La sécurité est donc déterministe : seuil dynamique v²/(2×200) + 38 px, zéro faux positif sur 40 571 frames, arrêt sans contact validé jusqu'à ~97 km/h. Un frein appris serait un chantier, pas un progrès de sûreté.</p>
+  </div></details>
+  <details class="q"><summary>B5 · Le CNN imite un PID que vous avez retuné depuis : périmé ? <span class="badge b-gris">Nohlan</span></summary><div class="corps">
+    <blockquote>« Votre CNN clone un PID par imitation. Mais vous avez retuné ce PID en profondeur pendant l'optimisation. Le CNN conduit donc comme la version d'avant. Il sert à quoi ? »</blockquote>
+    <p>C'est exact et on l'assume : le CNN a cloné le PID d'avant optimisation (throttle max 0,85, lidar_front_safe 250) alors que le PID actuel roule à throttle 1,0 et lidar_front_safe 70 avec amortissement de sortie. Donc le CNN conduit proprement mais « à l'ancienne », plus prudemment que le PID optimisé. Concrètement, le CNN reste la démonstration d'IA avancée (behavioral cloning fonctionnel, 30/30 en généralisation) et le PID optimisé est ce qui court au chrono ; les deux coexistent par D9. Le ré-entraînement du CNN sur le PID optimisé est un chantier M2 explicitement chiffré : on ne l'a pas fait parce que le CNN ne concourt pas au temps de tour, pas par oubli.</p>
+  </div></details>
+  <details class="q"><summary>B6 · 95,13 % ou 90 % ? Vous dites que ça dépend de la seed. <span class="badge b-gris">Lorenzo</span></summary><div class="corps">
+    <blockquote>« Vous affichez 95,13 %, mais vous écrivez vous-même que selon la seed vous êtes entre 0,90 et 0,95. Alors votre modèle fait 90 ou 95 ? Lequel présentez-vous ? »</blockquote>
+    <p>On présente le checkpoint committé à 0,9513, reproductible bit à bit (best_val_acc = 0,9513333, epoch 46/100, dans <code>signs_cls_history.json</code>). La variance 0,90-0,95 vient de l'initialisation de la tête et de l'ordre des batches : variance d'entraînement normale sur un petit jeu, qu'on a préféré documenter (annexe A3) plutôt que taire. Deux garde-fous : le modèle livré est le MEILLEUR checkpoint, pas les derniers poids (à l'epoch 100 la val retombe à 91,9 % pour un train à 98,3 % : surapprentissage net, on s'est arrêtés au bon moment) ; et un seuil d'échec dur à 0,90 bascule sur GTSRB, jamais déclenché. Réponse honnête : plancher 0,90, valeur livrée et reproductible 0,9513.</p>
+  </div></details>
+
+  <h3>C · Méthodologie et mesure</h3>
+  <details class="q"><summary>C1 · Split « par circuit » : comment garantir zéro fuite ? <span class="badge b-blue">MP-2</span> <span class="badge b-gris">Nohlan + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Vous dites split par circuit. Mais votre dataset panneaux réutilise des crops caméra des circuits d'entraînement. Comment être sûr qu'il n'y a aucune fuite ? »</blockquote>
+    <p>Le split est par circuit à tous les étages, et c'est vérifiable. Pour les panneaux, les fonds sont de vrais crops caméra mais tirés en respectant la même frontière : train = data/train (gen_000-024), val = data/val (gen_025-029), seed 42 pour le train et 43 pour la validation ; un circuit de validation n'a jamais servi de fond à l'entraînement. Idem pour le CNN conduite et le U-Net, validés sur les 5 circuits gen_025-029 jamais vus. La seule chose partagée est les 5 sprites de panneaux eux-mêmes, ce qui est voulu (ce sont les mêmes objets à reconnaître) : la variabilité vient des fonds, angles, échelles et troncatures. Pas de fuite frame à frame, qui serait la vraie faute. Renvoi : annexe A5.</p>
+  </div></details>
+  <details class="q"><summary>C2 · Dataset panneaux 100 % synthétique : que prouve 95 % ? <span class="badge b-gris">Lorenzo</span></summary><div class="corps">
+    <blockquote>« Votre dataset panneaux est entièrement synthétique, cinq PNG augmentés. Qu'est-ce que 95 % sur des données que vous fabriquez prouve de la lecture réelle d'un panneau ? »</blockquote>
+    <p>Ça prouve exactement ce qu'on lui demande : la cible n'est PAS le monde réel, c'est de lire les panneaux DE CE simulateur, qui sont eux-mêmes des sprites 2D ; il n'y a pas de gap sim-to-real à franchir, le domaine de test EST le domaine de production. Le 95 % est mesuré sur des fonds caméra réels du simulateur, sur des circuits de validation jamais vus, avec 20 % de panneaux volontairement tronqués en augmentation. On avait prévu un fallback GTSRB (50k images réelles) sous 0,90, jamais déclenché. La limite honnête : ce classifieur ne saurait pas lire un panneau photographié dans la rue, et ce n'était pas le sujet ; si le prof veut du réel, GTSRB est le plan B documenté (D7). Renvoi : annexes A2 et A3.</p>
+  </div></details>
+  <details class="q"><summary>C3 · Votre « oracle » : qui l'a calculé, ajusté après coup ? <span class="badge b-gris">Lorenzo</span></summary><div class="corps">
+    <blockquote>« Vous dites rouler à 1-4 % du tour parfait. Mais qui a calculé cet oracle, et comment savons-nous que vous ne l'avez pas ajusté pour que vos résultats aient l'air bons ? »</blockquote>
+    <p>Justement parce qu'il a été calculé INDÉPENDAMMENT du résultat, par deux voies séparées qui convergent. L'oracle vient d'une dérivation analytique (physique plus contrôleur pure-pursuit) : 16,35 / 16,62 / 20,57 s sur les 3 circuits. Le PID optimisé, réglé empiriquement par sweep de paramètres SANS regarder l'oracle, sort 16,45 / 16,95 / 21,28 s, soit +0,6 / +2,0 / +3,5 %. Deux méthodes complètement différentes qui atterrissent à quelques pourcents l'une de l'autre : si l'oracle avait été bricolé après coup pour flatter le PID, cette convergence croisée n'existerait pas. C'est cette double dérivation, pas le chiffre seul, qui rend la borne crédible. Renvoi : annexe A5.</p>
+  </div></details>
+  <details class="q"><summary>C4 · Vos « cinq sous-agents spécialisés », c'est qui ? <span class="badge b-gris">Lorenzo</span></summary><div class="corps">
+    <blockquote>« Vous parlez d'une escouade de cinq sous-agents, un physicien, un ingénieur contrôle, un juriste... Ce sont qui, ces cinq personnes ? »</blockquote>
+    <p>Ce ne sont pas des personnes : ce sont cinq sous-agents Claude en lecture seule, lancés en parallèle, chacun avec un périmètre de mesure étroit (physique, contrôle, urgence, règles, perception), et on l'assume comme une méthode, pas comme un tour de passe-passe. La valeur ajoutée humaine est à trois endroits : on a conçu le protocole de mesure (le banc bench_laps.py, les métriques), on les a fait tourner en LECTURE SEULE pour diagnostiquer sans rien casser, et surtout on a croisé leurs résultats indépendants (l'oracle analytique de l'un contre le sweep empirique de l'autre, convergence à quelques %) avant d'implémenter et committer nous-mêmes les correctifs. Pour un projet d'IA, orchestrer des agents pour auditer 5 607 lignes en 90 minutes est une compétence, à condition de posséder et vérifier chaque résultat, ce qui est notre ligne. Renvoi : annexe A6.</p>
+  </div></details>
+  <details class="q"><summary>C5 · Zéro faux positif sur le jeu où vous avez réglé le seuil : overfit ? <span class="badge b-gris">Lorenzo</span></summary><div class="corps">
+    <blockquote>« Zéro faux positif sur 40 571 frames, c'est votre argument sécurité. Mais vous avez calibré le seuil sur ce même jeu. Ce n'est pas de l'overfitting à votre propre test ? »</blockquote>
+    <p>La critique est juste sur le principe, deux réponses. D'abord la règle n'est pas un seuil ajusté à la main jusqu'à tomber sur zéro : c'est une loi physique (distance d'arrêt v²/2B plus marge) plus un filtre géométrique (un mur est plat, une bordure de virage est asymétrique, écart max 28 px entre les 3 rayons frontaux) ; 38 px et 28 px sont les PLUS PETITES valeurs encore compatibles avec zéro FP, pas des valeurs larges choisies pour être tranquilles. Ensuite le zéro est confirmé sur DEUX jeux distincts (dataset synthétique négatif ET rejeu en conditions de production), et la sécurité positive (arrêt AVANT le mur) est validée séparément par balayage de vitesse : zéro contact de 20 à 97 km/h. Ce que ça ne prouve pas : zéro FP sur un circuit jamais généré, ça on ne peut pas l'affirmer.</p>
+  </div></details>
+
+  <h3>D · Résultats et limites</h3>
+  <details class="q"><summary>D1 · Vous avez changé la physique pour vos panneaux : maquillage ? <span class="badge b-blue">MP-3</span> <span class="badge b-gris">Lorenzo + Charles</span></summary><div class="corps">
+    <blockquote>« Vous avez monté MAX_ACCELERATION de 120 à 170 pour passer de 70,6 à 100 km/h, parce que sinon vos panneaux 90 ne servaient à rien. Déplacer le mur qui vous gêne, ce n'est pas un peu maquiller ? »</blockquote>
+    <p>On l'assume totalement, et on le dit sur la dernière slide plutôt que de le cacher : c'est une décision PRODUIT explicite, pas une falsification de résultat. À 70,6 km/h un panneau « 90 » n'est jamais contraignant, donc la hiérarchie des limites (30/50/90) n'est pas démontrable ; on a relevé le plafond pour que les trois limites aient un effet visible. La distinction clé : on n'a maquillé AUCUN chiffre, on a changé une constante de conception documentée ET tout revalidé à 100 km/h (test_signs 2/2, arrêt au mur sans contact, CNN 30/30, STOP depuis 95,8 km/h). On est même transparents sur le fait que 170 a été choisi pour retomber pile sur 100 (v* = 138,9 px/s) ; tricher aurait été d'afficher 100 sans toucher la physique.</p>
+  </div></details>
+  <details class="q"><summary>D2 · Le dashboard, c'est du debug : pourquoi 1,5 pt ? <span class="badge b-gris">Lorenzo</span></summary><div class="corps">
+    <blockquote>« Votre dashboard avec ses courbes et son masque, c'est un outil de développement. Pourquoi ça devrait rapporter 1,5 point dans un projet de conduite autonome ? »</blockquote>
+    <p>Parce que le barème le prévoit explicitement comme livrable de visualisation (annexe A4) et parce que ce n'est pas que du debug : c'est la preuve visuelle en temps réel que le pilote perçoit et décide ce qu'on affirme (caméra, masque segmenté, lidar, courbe de vitesse avec ligne de limite, panneau détecté). Pour un jury, c'est ce qui distingue « la voiture roule » de « voici exactement ce que la voiture voit et pourquoi elle freine » : de l'explicabilité. On ne le survend pas : validé à 54-58 FPS dashboard compris, et l'esthétique pure (sprites, sons, traces) est comptée séparément à +1 pt, on ne mélange pas les deux.</p>
+  </div></details>
+  <details class="q"><summary>D3 · Le CNN fait DNF sur gen_014 et n'est jamais mesuré en conditions réglementaires : trou ? <span class="badge b-gris">Nohlan</span></summary><div class="corps">
+    <blockquote>« Votre CNN ne finit pas gen_014, et je ne vois nulle part de mesure du CNN avec panneaux et urgence actifs. C'est un angle mort, non ? »</blockquote>
+    <p>Les deux constats sont exacts et tracés dans nos données. Le CNN fait DNF sur gen_014 : il roule mais ne croise jamais géométriquement la ligne d'arrivée (saut de steering ~50°/frame à deux points récurrents), root-causé par l'agent B, reproduit à l'identique dans <code>bench/physics100.json</code>, non corrigé. Et la config cnn-regles du banc n'apparaît dans aucun des 4 JSON : le CNN n'a été mesuré qu'en isolation, jamais avec panneaux plus urgence. La raison assumée : le CNN ne concourt pas au chrono (c'est le PID optimisé), donc on a priorisé sa mesure en généralisation (30/30) ; le trou est réel, documenté, et fait partie du chantier M2. On préfère le nommer que le laisser découvrir. Renvoi : annexe A5.</p>
+  </div></details>
+  <details class="q"><summary>D4 · « 30/30, 0 % hors-piste » : et gen_026 et gen_013 alors ? <span class="badge b-gris">Nohlan</span></summary><div class="corps">
+    <blockquote>« Vous affichez 30/30, 0 % hors-piste. Mais gen_026 sort à 0,4 %, et gen_013 était déjà à 0,4 % avant toute optimisation. C'est vraiment 30/30 à 0 % ? »</blockquote>
+    <p>C'est 30/30 au sens du critère (aucun circuit ne dépasse le seuil de 5 % de hors-piste), et « 0 % » est un arrondi qu'on assume : gen_026 est à 0,4 %, sous le seuil. gen_013 est plus intéressant : c'est le circuit le plus serré des 30 (rayon de courbure 23,1 px au 5e percentile) et il présentait déjà 0,4 % de hors-piste dans le baseline non modifié ; on ne l'a pas planqué, notre réglage final ne l'aggrave pas (0,5 %) et un réglage plus agressif fait même mieux (0,2 %). Formulation honnête : « 30/30 sous le seuil de 5 %, dont deux circuits à quelques dixièmes de pour-cent, y compris le cas le plus dur du lot qu'on n'a pas écarté ». Le 0 % de la slide est une simplification d'affichage.</p>
+  </div></details>
+
+  <h3>E · Pièges et angles morts</h3>
+  <details class="q"><summary>E1 · Qui a fait quoi ? Nohlan, quelle partie du code est de vous ? <span class="badge b-bad">MD-1</span> <span class="badge b-gris">Nohlan + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Nohlan, vous présentez le U-Net et le CNN de conduite. Concrètement, quelle partie du code est de vous ? On peut regarder le git log ensemble ? »</blockquote>
+    <p><b>Posture honnête à tenir.</b> La répartition documentée est Nohlan sur U-Net / CNN conduite / dataset conduite, Lorenzo sur panneaux / optimisation, Charles sur le simulateur. À l'ouverture du git, deux réalités à NE PAS masquer : l'historique ne montre que deux identités auteur (Lorenzo ~45 commits, Charles ~7), aucun commit signé Nohlan ; le travail ML a transité par la machine et l'identité de Lorenzo (pair-programming, commits groupés). La règle d'or : ne JAMAIS revendiquer nominativement des commits qui n'existent pas. Nohlan doit défendre le fond technique du U-Net et du CNN (il porte les slides 5 à 7) et présenter sa contribution comme conception / design / pair-programming, honnêtement. Si le jury projette git log, mieux vaut l'avoir annoncé que se faire prendre.</p>
+  </div></details>
+  <details class="q"><summary>E2 · Sécurité mur validée à 200 px, livrée à 130 px : revalidée ? <span class="badge b-gris">Charles + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Vos rapports valident la sécurité du mur, zéro collision, avec une apparition à 200 px. Le code livré met le mur à 130 px. Avez-vous revalidé à la distance que vous livrez ? »</blockquote>
+    <p>Non, et c'est la réponse honnête : la validation « zéro collision » a été faite avec SPAWN_DISTANCE = 200 px, alors que la valeur livrée est 130 px (changée le 10/07 à 9 h 58, après les rapports écrits dans la nuit). On ne l'a pas rejouée à 130. Deux raisons de ne pas paniquer : 130 px reste dans la plage où l'arrêt a été validé, et la marge de sécurité était de 1,6× à 2,75× le plafond physique, on ne la consomme pas en passant de 200 à 130 ; et il y a un filet indépendant du réglage (au contact, le simulateur téléporte la voiture et annule sa vitesse), donc même un échec de freinage ne produit pas de traversée de mur. Rejouer le balayage à 130 est un test d'une heure qu'on aurait dû faire : un manque, pas un risque avéré. Et la démo vient de le montrer en conditions réelles.</p>
+  </div></details>
+  <details class="q"><summary>E3 · « IA avancée » à 2 pts : U-Net remplacé par un seuil, MobileNet gelé. Où est l'IA ? <span class="badge b-gris">Nohlan + Lorenzo</span></summary><div class="corps">
+    <blockquote>« Vous réclamez 2 points d'IA avancée. Mais votre U-Net est remplacé par un seuillage et votre classifieur gèle MobileNet en n'entraînant qu'une petite tête. Où est l'IA avancée ? »</blockquote>
+    <p>L'IA avancée revendiquée, c'est le CNN de conduite par behavioral cloning : un réseau qui apprend une politique de contrôle (masque 64×64 plus lidar vers volant plus gaz, MAE 1,80°) et généralise à 30 circuits jamais vus. Le U-Net remplacé par un seuillage n'est pas un aveu de faiblesse mais une démarche mesurée (l'IoU a PROUVÉ que le ML était superflu ici avant de simplifier), et le transfer learning gelé sur les panneaux est une technique standard et appropriée pour un petit dataset, pas un raccourci. Le vrai argument n'est pas le nombre de paramètres entraînés mais la chaîne : perception apprise, contrôle appris, généralisation démontrée sur données jamais vues, avec un PID baseline pour prouver que le CNN apporte quelque chose. Si le jury juge que ça ne vaut pas 2 pts, c'est un débat de barème légitime, mais ce n'est pas de l'IA facile. Renvoi : annexe A4.</p>
+  </div></details>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="chiffres">
+  <div class="numtitre"><span class="n">08</span><h2>Table des chiffres</h2><span class="obj">tout ce qui se cite de tête, sourcé</span></div>
+
+  <h4>Résultats clés</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>Métrique</th><th>Valeur exacte</th><th>Source</th><th>À l'oral</th></tr></thead>
+    <tbody>
+      <tr><td>Généralisation CNN conduite</td><td class="mono">30/30, 0 % hors-piste (gen_026 : 0,4 %)</td><td>test_cnn.py, retest 10/07</td><td>le chiffre du critère n°1</td></tr>
+      <tr><td>Classifieur panneaux (val)</td><td class="mono">0,9513 (exact : 0,9513333, epoch 46/100)</td><td>models/signs_cls_history.json</td><td>« 95,13 %, checkpoint committé, reproductible »</td></tr>
+      <tr><td>U-Net (val, 5 circuits jamais vus)</td><td class="mono">IoU 1,0000, diff GT/pred = 0,000</td><td>ml.md, journal 24/04</td><td>« un score parfait est un signal d'alarme »</td></tr>
+      <tr><td>Temps 3 tours, règles, avant / après</td><td class="mono">161,6 vers 64,5 · 162,0 vers 74,0 · DNF vers 83,7 s</td><td>bench/ baseline + post-optim</td><td>« -60, -54 %, et le DNF boucle 3/3 »</td></tr>
+      <tr><td>Urgence parasite avant / après</td><td class="mono">6,1 / 8,2 / 15,0 % vers 0,0 / 0,0 / 0,8 %</td><td>bench/ JSON</td><td>« freinage par le risque »</td></tr>
+      <tr><td>Écart à l'oracle (PID libre)</td><td class="mono">+0,6 / +2,0 / +3,5 %</td><td>rapports A et B croisés</td><td>« à 1-4 % du tour parfait »</td></tr>
+      <tr><td>Plafond physique</td><td class="mono">70,56 km/h (98 px/s) vers 100,0 (138,9 px/s)</td><td>rapport A + commit edd3e27</td><td>« le mur qu'on a déplacé »</td></tr>
+      <tr><td>Best lap libre (gen_000)</td><td class="mono">32,0 vers 11,57 s (-64 %) · v moy 97,6 km/h</td><td>bench/2026-07-10_physics100.json</td><td>réserve R6 en conclusion</td></tr>
+      <tr><td>Physique 100, règles</td><td class="mono">64,9 / 76,5 / 55,9 s · 0 % offtrack</td><td>bench/2026-07-10_physics100.json</td><td>si on demande l'état final</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Panneaux</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>Métrique</th><th>Valeur exacte</th><th>Source</th><th>À l'oral</th></tr></thead>
+    <tbody>
+      <tr><td>Itérations d'entraînement</td><td class="mono">96 px : 0,83 · 224 px : 0,9447 · tête MLP : 0,9513 · 160 px rejeté : 0,775</td><td>signs_arch.py + annexe A3</td><td>« le problème était la résolution, pas les données »</td></tr>
+      <tr><td>Surapprentissage en fin de run</td><td class="mono">epoch 100 : val 91,9 %, train 98,3 %</td><td>signs_cls_history.json</td><td>« arrêtés au bon moment, pas au dernier »</td></tr>
+      <tr><td>Matrice de confusion (300/classe)</td><td class="mono">30 : 276 (92,0 %) · 50 : 282 (94,0 %) · 90 : 269 (89,7 %) · aucun, stop : 300/300</td><td>signs_cls_history.json</td><td>« pire confusion : 90 pris pour 50 »</td></tr>
+      <tr><td>Dataset</td><td class="mono">9 000 img = 7 500 train + 1 500 val · seeds 42 / 43 · 20 % tronqués</td><td>gen_signs_dataset.py</td><td>« fonds caméra réels, split par circuit »</td></tr>
+      <tr><td>Tête entraînée</td><td class="mono">~329k params sur backbone MobileNetV2 3,4M gelé · ~4 min CPU</td><td>signs_arch.py</td><td>« quasiment rien à entraîner »</td></tr>
+      <tr><td>Détection couleur</td><td class="mono">r&gt;=190, g&lt;90, b&lt;90 · brique mur (150, 45, 35)</td><td>pilot/signs.py</td><td>« 40 points de marge, pas un seuil tangent »</td></tr>
+      <tr><td>Machine à états</td><td class="mono">hystérésis 3 frames · conf 0,6 · anti-flip 5 frames · cooldown 4 s par type · zone 600 px</td><td>pilot/signs.py</td><td>« une détection isolée ne suffit jamais »</td></tr>
+      <tr><td>Coût classification</td><td class="mono">93,5 ms/img CPU · 9-11 fps en rafale · threads 6 + channels_last : -36 % · combo -68 %</td><td>rapport E</td><td>si « pourquoi ça saccade »</td></tr>
+      <tr><td>Fix occlusion</td><td class="mono">offset 46 px (= 64 - 18, avant 55/70/85) · filtre w&lt;32 · padding : conf 0,65-0,87 vers 0,94+ · seuil 0,8 vers 0,6 · stride 2 vers 1</td><td>commit 2b06d70, 10/07 08:58</td><td>« le correctif est géométrique, pas ML »</td></tr>
+      <tr><td>Scénarios boucle fermée</td><td class="mono">test_signs 2/2 PASS (à 70 puis à 100 km/h) · STOP 0,8 s (2,0 s avant)</td><td>scripts/test_signs.py</td><td>« deux scénarios sur deux au vert »</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Conduite et ML</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>Métrique</th><th>Valeur exacte</th><th>Source</th><th>À l'oral</th></tr></thead>
+    <tbody>
+      <tr><td>DriveCNN, taille réelle</td><td class="mono">557 490 params (doc : ~300k) · 524 416 (94 %) dans Linear(4096, 128) · conv 4 %</td><td>audit Q8, cnn_drive_arch.py</td><td>« un risque réel, documenté, jamais matérialisé »</td></tr>
+      <tr><td>Précision du clonage</td><td class="mono">MAE volant 1,80° · MAE throttle 0,056 · best val loss 0,03331</td><td>ml.md, journal 24/04</td><td>« il imite le PID à moins de 2 degrés près »</td></tr>
+      <tr><td>Dataset conduite</td><td class="mono">18k paires (15k train + 3k val), 30 circuits, split par circuit</td><td>ml.md, journal 24/04</td><td>« collecté par interception ZMQ »</td></tr>
+      <tr><td>PID optimisé</td><td class="mono">THROTTLE_MAX 0,85 vers 1,0 · LIDAR_FRONT_SAFE 250 vers 70 · kd 0,5</td><td>rapport B, commits 02:28</td><td>« deux paramètres suffisaient »</td></tr>
+      <tr><td>Négatifs mesurés du PID</td><td class="mono">retrait TIGHT_BOOST = DNF · dérivée sur erreur = 86 % offtrack</td><td>rapport B</td><td>« mesurés, pas supposés »</td></tr>
+      <tr><td>CNN sur gen_014</td><td class="mono">DNF 0/3 : ligne jamais croisée, saut steering ~50°/frame, reproduit à 100 km/h</td><td>rapport B + bench physics100</td><td>« root-causé, daté, pas corrigé : chantier M2 »</td></tr>
+      <tr><td>Circuits</td><td class="mono">30 (25 train + 5 val) · largeur 35-100 px · gen_013 rayon 23,1 px · gen_017 largeur 47,5 px</td><td>gen_circuits.py + rapport B</td><td>« le cas le plus dur n'a pas été écarté »</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Urgence et mur</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>Métrique</th><th>Valeur exacte</th><th>Source</th><th>À l'oral</th></tr></thead>
+    <tbody>
+      <tr><td>Règle finale</td><td class="mono">max(20 px, v²/(2×200) + 38 px) + écart max 28 px (3 rayons frontaux)</td><td>pilot/emergency.py</td><td>« une loi physique plus un filtre de forme »</td></tr>
+      <tr><td>Faux positifs</td><td class="mono">21,4 % (8 675/40 571) vers 0/40 571, confirmé sur 2 jeux</td><td>rapport C</td><td>« zéro FP mesuré », toujours borner</td></tr>
+      <tr><td>Frames de validation</td><td class="mono">41 789 collectées, 40 571 actives (v &gt; 5 km/h)</td><td>rapport C</td><td>le dénominateur exact</td></tr>
+      <tr><td>Arrêt avant impact</td><td class="mono">zéro contact de 20 à 134 px/s (97 km/h) · marge 1,6× à 2,75×</td><td>rapport C (à SPAWN 200 px)</td><td>« validé jusqu'à ~97 km/h »</td></tr>
+      <tr><td>Mur</td><td class="mono">spawn 130 px (validé à 200) · vie 6,0 s (3,0 avant) · expire sous ~48 km/h</td><td>wall.py + commits 143227e, 299b6b8, baeff4e</td><td>« freinage par le risque » + E2 si revalidation</td></tr>
+      <tr><td>Arrêt au mur revalidé à 100</td><td class="mono">v_min 2,6 km/h, zéro contact · STOP depuis 95,8 km/h en live</td><td>optimisation.md, chap. 2</td><td>« tout revalidé à 100 »</td></tr>
+      <tr><td>Ancien seuil</td><td class="mono">70 px fixe, 2/3 rayons (Charles, 09/07) · avant : 10 px quasi désactivé</td><td>ml.md Q9 + optimisation.md</td><td>« incompatible avec une piste de 30 à 100 px »</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Physique et architecture</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>Métrique</th><th>Valeur exacte</th><th>Source</th><th>À l'oral</th></tr></thead>
+    <tbody>
+      <tr><td>Équation du plafond</td><td class="mono">v* = (1-f)/f × A × dt = 49 × 120/60 = 98 px/s</td><td>rapport A</td><td>vérifiable à la calculatrice</td></tr>
+      <tr><td>Friction</td><td class="mono">2 % par frame, non scalée dt · équilibre 196/98/49/24,5 px/s à 30/60/120/240 fps</td><td>physics.py:60 + rapport A</td><td>MD-2 : assumer, jamais nier</td></tr>
+      <tr><td>Constantes</td><td class="mono">LF = LR = 8,5 (docstring : 1,5) · SPEED_SCALE 0,72 « à calibrer » · MAX_SPEED_PX 300 (plafond mort)</td><td>physics.py</td><td>aveux sympathiques à faire soi-même</td></tr>
+      <tr><td>Capteurs</td><td class="mono">caméra 128×128 px à 60 px devant · lidar 5 rayons -60/-30/0/+30/+60°, portée 300 px</td><td>sensors.py</td><td>« elle voit jusqu'où ? »</td></tr>
+      <tr><td>Boucle réseau</td><td class="mono">REQ/REP 60 Hz, JSON, caméra JPEG base64 · timeout 100 ms vers 5 s en 32 min</td><td>commits 9f352a5, ac44244</td><td>« les hypothèses d'infra craquent »</td></tr>
+      <tr><td>LapTimer</td><td class="mono">armement 90 px · demi-ligne 70 px · chrono dès 5 px/s</td><td>timing.py</td><td>« un système d'armement, pas un capteur naïf »</td></tr>
+      <tr><td>FPS démo</td><td class="mono">54-58 FPS stables, dashboard compris</td><td>optimisation.md</td><td>« même régime que le banc »</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Mesure et chronologie</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>Métrique</th><th>Valeur exacte</th><th>Source</th><th>À l'oral</th></tr></thead>
+    <tbody>
+      <tr><td>Trou Q7</td><td class="mono">l'ancienne éval mesurait 10-17 % d'un tour (200 px vs périmètres 1 265-1 810 px)</td><td>audit 09/07</td><td>« notre banc corrige notre propre trou »</td></tr>
+      <tr><td>Sprint d'optimisation</td><td class="mono">baseline 01:07 · rapports 01:20 à 02:01 · 4 commits à 02:28 · ~90 min au total</td><td>git log 10/07</td><td>« quatre commits à la même minute »</td></tr>
+      <tr><td>Volumes projet</td><td class="mono">52 commits · 5 607 lignes Python · 2 auteurs git (45 + 7)</td><td>git log</td><td>E1 : préparé, jamais improvisé</td></tr>
+      <tr><td>Journée fondatrice</td><td class="mono">24/04 : 13 commits en 4 h 20, M2 + M3 + M4 validés</td><td>git log 24/04</td><td>« pipeline ML complet en 1 journée »</td></tr>
+      <tr><td>Livraison panneaux</td><td class="mono">09/07 : 13 commits, 10 tâches avec review, 0,9513, 2/2, 30/30 ×2</td><td>ml.md D12</td><td>« livrée le soir même »</td></tr>
+      <tr><td>Arrêts STOP avant/après optim</td><td class="mono">pct_stopped 7,6 vers 7,8 % · 0,0 · 2,8 vers 3,0 %</td><td>bench/ JSON</td><td>R5 : « les règles n'ont pas été contournées »</td></tr>
+      <tr><td>Trajectoire de corde</td><td class="mono">-6,2 / -9,3 / -9,1 % (les « 6-9 % » du deck)</td><td>rapport A</td><td>« identifié, chiffré, écarté »</td></tr>
+      <tr><td>Oracle par circuit</td><td class="mono">gen_000 : 16,35 s · gen_003 : 16,62 s · gen_014 : 20,57 s</td><td>rapport A</td><td>la borne du physiquement possible</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="lexique">
+  <div class="numtitre"><span class="n">09</span><h2>Lexique anti-sèche</h2><span class="obj">chaque terme en une phrase simple</span></div>
+  <div class="lex">
+    <div class="terme"><b>IoU</b> : la surface où la prédiction et la vérité se recouvrent, divisée par la surface qu'elles couvrent à elles deux ; 1,0 = recouvrement parfait.</div>
+    <div class="terme"><b>MAE</b> : l'erreur moyenne en valeur absolue ; notre volant se trompe de 1,80 degré en moyenne.</div>
+    <div class="terme"><b>Softmax</b> : la fonction qui transforme les scores bruts du réseau en probabilités qui somment à 1 ; le « confiance 1.00 » vient de là.</div>
+    <div class="terme"><b>Époque (epoch)</b> : un passage complet du réseau sur tout le jeu d'entraînement ; on en a fait 100 et gardé la 46e.</div>
+    <div class="terme"><b>Surapprentissage (overfitting)</b> : le modèle apprend par cœur ses exemples au lieu de la règle générale ; visible quand le train monte et que la validation redescend.</div>
+    <div class="terme"><b>Distribution shift</b> : en conduisant lui-même, le modèle rencontre des situations que son professeur ne lui a jamais montrées, et l'écart s'amplifie.</div>
+    <div class="terme"><b>REQ/REP</b> : le mode ZeroMQ « une requête, une réponse » : le simulateur envoie les capteurs et attend les commandes avant de continuer.</div>
+    <div class="terme"><b>Raycasting</b> : on avance le long d'un rayon, pixel par pixel, jusqu'à toucher un obstacle ; la distance parcourue est la mesure.</div>
+    <div class="terme"><b>Behavioral cloning</b> : apprendre à conduire en imitant les commandes d'un conducteur compétent enregistré, par simple apprentissage supervisé.</div>
+    <div class="terme"><b>Transfer learning</b> : réutiliser un réseau déjà entraîné sur un autre problème et n'adapter que la fin pour le sien.</div>
+    <div class="terme"><b>Backbone gelé</b> : la partie pré-entraînée dont on n'actualise plus les poids ; seule la tête au-dessus apprend.</div>
+    <div class="terme"><b>GAP</b> : global average pooling, on moyenne chaque carte de features en un seul chiffre au lieu de tout aplatir ; c'est le fix identifié pour la couche à 524k paramètres.</div>
+    <div class="terme"><b>Hystérésis</b> : exiger plusieurs confirmations successives avant de changer d'état, pour ne pas réagir à une détection isolée.</div>
+    <div class="terme"><b>Cooldown</b> : un délai pendant lequel on refuse de re-déclencher le même événement ; ici 4 secondes par type de panneau.</div>
+    <div class="terme"><b>Governor</b> : la couche qui traduit la règle en conduite : gaz réduit sous une limite, arrêt marqué au STOP.</div>
+    <div class="terme"><b>dt</b> : la durée d'un pas de simulation ; fixe à 1/60 s sur le banc, variable en démo temps réel.</div>
+    <div class="terme"><b>Oracle</b> : le tour parfait théorique, calculé analytiquement ; la borne de ce que la physique permet sur un circuit.</div>
+    <div class="terme"><b>DNF</b> : did not finish, le run ne termine pas ses tours dans le temps imparti.</div>
+    <div class="terme"><b>Offtrack</b> : le pourcentage d'images où la voiture est hors de la piste ; le seuil d'échec est 5 %.</div>
+    <div class="terme"><b>Checkpoint</b> : une sauvegarde des poids du modèle en cours d'entraînement ; on livre le meilleur, pas le dernier.</div>
+    <div class="terme"><b>Seed</b> : la graine du générateur aléatoire ; la fixer rend les données et les entraînements reproductibles.</div>
+    <div class="terme"><b>Dropout</b> : éteindre au hasard une partie des neurones pendant l'entraînement pour empêcher l'apprentissage par cœur.</div>
+    <div class="terme"><b>Tanh et sigmoid</b> : les fonctions qui bornent les sorties du réseau : le volant entre -1 et 1, le gaz entre 0 et 1, aucune valeur aberrante possible.</div>
+    <div class="terme"><b>Masque binaire</b> : une image en noir et blanc où chaque pixel dit « route » ou « pas route » ; c'est tout ce que le CNN de conduite voit.</div>
+    <div class="terme"><b>Headless</b> : exécuter la simulation sans affichage, pour mesurer vite et sans dépendre de l'écran.</div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="bloc" id="jourj">
+  <div class="numtitre"><span class="n">10</span><h2>Jour J</h2><span class="obj">checklist, démo, panne, alertes</span></div>
+
+  <div class="grille g2">
+    <div class="carte">
+      <h4 style="margin-top:0">Checklist avant de passer</h4>
+      <ul class="check">
+        <li>Ouvrir le deck (<code>docs/soutenance/index.html</code>) dans le navigateur : flèches gauche/droite pour naviguer, <b>S</b> pour les notes présentateur, <b>F</b> pour le plein écran, flèche bas pour descendre dans les annexes depuis la slide Annexes.</li>
+        <li>Lancer les deux process AVANT la soutenance : le simulateur puis le pilote avec le dashboard, sur <b>gen_014</b>, et laisser en pause. Charles tient le clavier (Espace = poser le mur). Depuis la racine du repo, dans deux terminaux et dans cet ordre :
+          <pre style="background:#eef2f7;border:1px solid #e3e8ef;border-radius:8px;padding:0.6em 0.9em;font-size:0.85em;overflow-x:auto"><code>.venv/Scripts/python.exe -m simulator.main --server --circuit gen_014
+.venv/Scripts/python.exe -m pilot.main --dashboard</code></pre>
+          En cas de panne pendant la démo : fermer les deux fenêtres et relancer ces deux commandes dans le même ordre (~10 secondes, procédure éprouvée).</li>
+        <li>Vérifier le son (le moteur s'entend en démo) et les FPS (attendu : 54-58 dashboard compris).</li>
+        <li>Chrono : l'orateur qui vient de finir tient le chrono du suivant ; pendant la démo, c'est Nohlan. Tes points de contrôle : fin S7 = 7:30, fin S11 = 11:30.</li>
+        <li>Si retard à 11:30 (12:00 ou plus) : démo courte, étapes 1, 3 et 5 seulement (limite, mur, dashboard), ~1:15. Si avance (11:15 ou moins) : démo complète + réserve R6.</li>
+        <li>On coupe des phrases de contexte, jamais les verbatims, jamais les chiffres du barème, jamais les transitions. S13 (40 s) est sanctuarisée.</li>
+      </ul>
+    </div>
+    <div class="carte">
+      <h4 style="margin-top:0">Le déroulé démo (1:50, plafond 2:30)</h4>
+      <ul class="check">
+        <li><b>Cadrage (Nohlan, 10 s)</b> : « Tout est en direct. Le circuit s'appelle gen_014 : précisément celui qui ne finissait pas ses trois tours. »</li>
+        <li><b>1 · Zone 50 (25 s, toi)</b> : régulation à 50,0 pile sous la limite ; laisser rouler quelques secondes en silence.</li>
+        <li><b>2 · STOP (20 s)</b> : arrivée ~95 km/h, arrêt complet 0,8 s, et ça repart.</li>
+        <li><b>3 · Mur (25 s)</b> : Charles pose le mur (Espace) ; toi : arrêt net, zéro contact, et la ligne « à basse vitesse, ce mur aurait expiré avant l'impact ».</li>
+        <li><b>4 · Épingle (20 s)</b> : 70 km/h, braquage complet, aucun déclenchement d'urgence.</li>
+        <li><b>5 · Dashboard (15 s, toi)</b> : caméra, masque, lidar, courbe de vitesse : « c'est tout ce que le pilote sait du monde ».</li>
+        <li><b>Clôture (Nohlan, 5 s)</b> puis retour au deck, slide 13.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="carte">
+    <h4 style="margin-top:0">Si ça plante</h4>
+    <p style="font-size:.93rem;margin:6px 0">Charles relance les deux process : une dizaine de secondes, procédure éprouvée (le filet vidéo a été retiré en connaissance de cause, PR #5). Pendant ce temps, Nohlan meuble avec le circuit : gen_014, son histoire de DNF, sa correction. <b>On ne s'excuse pas, on ne commente pas la panne.</b></p>
+  </div>
+
+  <h3>Les 3 alertes d'équipe</h3>
+  <div class="alerte">
+    <h4>Alerte 1 · « Qui a codé quoi ? » : le git ne montre que 2 auteurs</h4>
+    <p style="font-size:.92rem;margin:4px 0">Fait : 52 commits, Lorenzo ~45, Charles ~7, aucun commit signé Nohlan. Le travail ML a transité par la machine et l'identité de Lorenzo.</p>
+    <div class="tenir"><b>Conduite à tenir :</b> caler la réponse À TROIS avant la répétition. Parler de rôles réels (conception, pair-programming, revue, données, slides, démo), ne JAMAIS revendiquer nominativement des commits inexistants. Nohlan défend le fond technique de ses slides 5 à 7. Si git log est projeté : l'avoir annoncé soi-même vaut toujours mieux que se faire prendre.</div>
+  </div>
+  <div class="alerte">
+    <h4>Alerte 2 · La physique dépend du framerate</h4>
+    <p style="font-size:.92rem;margin:4px 0">Fait : la friction (2 %) s'applique par frame, non scalée par dt (<code>physics.py:60</code>, vérifiable en direct). Vitesse d'équilibre : 98 px/s à 60 fps, 49 à 120. Le banc tourne à dt fixe 1/60, la démo à FPS variable.</p>
+    <div class="tenir"><b>Conduite à tenir :</b> ne jamais nier, ne jamais prétendre que le banc décrit la démo. Dire : dt fixe = choix de déterminisme, la démo tourne à 54-58 FPS soit le même régime, et friction^dt est le premier chantier M2 chiffré. C'est MD-2 : 3,5 points de narrative reposent sur cette réponse.</div>
+  </div>
+  <div class="alerte">
+    <h4>Alerte 3 · SPAWN_DISTANCE : validé à 200 px, livré à 130 px</h4>
+    <p style="font-size:.92rem;margin:4px 0">Fait : les rapports de la nuit valident « zéro collision » avec un mur apparaissant à 200 px ; la valeur livrée est 130 px (<code>wall.py:29</code>, changée le 10/07 à 9 h 58, APRÈS les rapports). Le balayage n'a jamais été rejoué à 130. Détail cousin : la slide 4 du deck affiche « durée de vie 3 s » alors que le code est à 6,0 s.</p>
+    <div class="tenir"><b>Conduite à tenir :</b> si la question tombe, répondre « non » d'abord, puis les trois amortisseurs : 130 px reste dans la plage validée et la marge (1,6× à 2,75× le plafond physique) n'est pas consommée ; le simulateur garde un garde-fou indépendant (téléportation + vitesse annulée au contact) ; la démo vient de le montrer en conditions réelles. Conclure : « un test d'une heure qu'on aurait dû rejouer, un manque, pas un risque avéré ».</div>
+  </div>
+</section>
+
+<p style="margin-top:50px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px">
+Document de préparation personnel · sources : wiki autonomous-twin (ml, optimisation), TRAME.md, deck index.html, rapports jury/wiki/repo du 22/07 · rien de ce document n'est à projeter.</p>
+
+</div>
+
+<script>
+(function(){
+  var btn = document.getElementById('btn-deplier');
+  var open = false;
+  btn.addEventListener('click', function(){
+    open = !open;
+    document.querySelectorAll('details').forEach(function(d){ d.open = open; });
+    btn.textContent = open ? 'Tout replier' : 'Tout déplier';
+  });
+  window.addEventListener('beforeprint', function(){
+    document.querySelectorAll('details').forEach(function(d){ d.open = true; });
+  });
+})();
+</script>
+</body>
+</html>
