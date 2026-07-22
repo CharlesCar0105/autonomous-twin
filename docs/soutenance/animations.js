@@ -158,16 +158,7 @@ let animEnCours = null;
 
 function jouer(slide) {
   if (animEnCours) { animEnCours.revert(); animEnCours = null; }
-  LiveDrive.stop(); // coupe le pilote live dès qu'on quitte sa slide
   const nom = slide && slide.dataset.anim;
-  if (nom === 'demo-live') {
-    LiveDrive.start(
-      slide.querySelector('#live-canvas'),
-      'gen_014',
-      { hud: slide.querySelector('#live-hud') },
-    );
-    return;
-  }
   if (nom && ANIMS[nom]) animEnCours = ANIMS[nom](slide);
 }
 

@@ -18,6 +18,12 @@
       <p class="kicker">ESGI M1 — Architecture Logicielle &amp; IA Big Data · Juillet 2026</p>
       <h1 id="titre-principal">AUTONOMOUS&nbsp;TWIN</h1>
       <p class="soustitre">Jumeau numérique automobile — conduite autonome sur circuits inconnus</p>
+      <figure class="hero-shot">
+        <div class="hud-screen">
+          <span class="tag">Capture réelle · simulateur</span>
+          <img src="assets/game/course.png" alt="Le simulateur en course : la voiture rouge sur un circuit généré, chrono et panneaux limite visibles">
+        </div>
+      </figure>
       <p class="equipe">Charles · Nohlan · Lorenzo</p>
       <aside class="notes">
         Ouverture (Charles) : « Bonjour, nous allons vous présenter Autonomous Twin,
@@ -110,10 +116,10 @@
           <p class="cap">Le mur apparaît devant la voiture · durée de vie 3 s</p>
         </div>
         <div class="grille-monde">
-          <div class="tuile"><span class="ico">🚗</span><strong>Physique bicycle</strong><br>4 équations du sujet, plafond calibré 100&nbsp;km/h</div>
-          <div class="tuile"><span class="ico">🧱</span><strong>Mur dynamique</strong><br>apparaît devant la voiture, visible du lidar et de la caméra</div>
-          <div class="tuile"><span class="ico">⏱️</span><strong>LapTimer</strong><br>3 tours détectés par franchissement de ligne</div>
-          <div class="tuile"><span class="ico">🚸</span><strong>Panneaux</strong><br>placés par fichier sidecar, composés dans la caméra</div>
+          <div class="tuile"><strong>Physique bicycle</strong><br>4 équations du sujet, plafond calibré 100&nbsp;km/h</div>
+          <div class="tuile"><strong>Mur dynamique</strong><br>apparaît devant la voiture, visible du lidar et de la caméra</div>
+          <div class="tuile"><strong>LapTimer</strong><br>3 tours détectés par franchissement de ligne</div>
+          <div class="tuile"><strong>Panneaux</strong><br>placés par fichier sidecar, composés dans la caméra</div>
           <p class="ligne-bonus">+ sprite voiture, sons moteur, traces de pneus qui s'estompent, compteur à cadran</p>
         </div>
       </div>
@@ -136,7 +142,7 @@
             </svg>
             <p>vue caméra</p>
           </div>
-          <div class="fleche">→</div>
+          <div class="fleche" aria-hidden="true">→</div>
           <div class="vue">
             <svg viewBox="0 0 120 120" class="svg-mask">
               <rect width="120" height="120" fill="#000"/>
@@ -223,11 +229,11 @@
       <h2>Lire les panneaux — et obéir</h2>
       <div class="pipeline">
         <div class="etape">Détection<br><span class="petit">pixels rouges + filtre de blob</span></div>
-        <div class="pipe-fleche">→</div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
         <div class="etape">Classification<br><span class="petit">MobileNetV2 gelé + tête MLP</span></div>
-        <div class="pipe-fleche">→</div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
         <div class="etape">Hystérésis<br><span class="petit">3 frames confirmées</span></div>
-        <div class="pipe-fleche">→</div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
         <div class="etape">Governor<br><span class="petit">30 · 50 · 90 · STOP 0,8&nbsp;s</span></div>
       </div>
       <div class="panneaux-grid">
@@ -243,9 +249,9 @@
           </div>
           <div class="accuracy-ligne">
             <span class="acc-etape">96&nbsp;px linéaire : 0,83</span>
-            <span class="acc-sep">→</span>
+            <span class="acc-sep" aria-hidden="true">→</span>
             <span class="acc-etape">224&nbsp;px : 0,90</span>
-            <span class="acc-sep">→</span>
+            <span class="acc-sep" aria-hidden="true">→</span>
             <span class="acc-final"><span id="compteur-acc">0,00</span> en validation</span>
           </div>
         </div>
@@ -339,24 +345,24 @@
       </aside>
     </section>
 
-    <!-- 12. Démo live -->
-    <section data-anim="demo-live" data-sector="12" data-phase="Démo live">
-      <h2>Le pilote conduit dans cette slide</h2>
-      <div class="live-scene">
-        <canvas id="live-canvas" width="1024" height="576"></canvas>
-        <img class="print-fallback" src="assets/game/course.png" alt="Course sur gen_014">
-      </div>
-      <p id="live-hud" class="live-hud">initialisation…</p>
-      <p class="live-note">Ce qui roule ici n'est pas une vidéo : c'est le contrôleur du banc,
-      porté en JavaScript — mêmes équations bicycle, même lidar 5 rayons, mêmes gains.
-      La démo complète (CNN, panneaux, mur) suit sur le simulateur.</p>
+    <!-- 12. Démo (sur le simulateur — le module live-drive.js reste dans le
+         repo, débranché du deck sur décision du 22/07) -->
+    <section data-sector="12" data-phase="Démo">
+      <h2>Démonstration en direct</h2>
+      <ol class="checklist-demo">
+        <li>Un tour réglementaire — <strong>50,0&nbsp;km/h</strong> pile sous la limite 50</li>
+        <li>Arrêt STOP exécuté depuis ~95&nbsp;km/h</li>
+        <li>Mur surgi à vitesse de croisière → arrêt net, zéro contact</li>
+        <li>Épingle à 70&nbsp;km/h, braquage complet, sans freinage d'urgence</li>
+        <li>Dashboard pilote en temps réel</li>
+      </ol>
+      <p class="cap">Circuit gen_014 — celui qui ne finissait pas ses trois tours avant l'optimisation</p>
       <aside class="notes">
-        Lorenzo lance la slide et laisse la voiture tourner en parlant. Punch :
-        « ce n'est pas une vidéo, le contrôleur tourne dans la slide ». Puis
-        bascule sur le VRAI simulateur : Charles au clavier pour le mur (Espace),
-        Lorenzo commente le dashboard, Nohlan tient les étapes : tour
-        réglementaire 50 km/h, STOP depuis ~95, mur à vitesse de croisière,
-        épingle à 70 sans urgence. Si plantage : relance ~10 s. Budget 2 min 30.
+        Bascule sur le simulateur (lancé AVANT la soutenance, en pause).
+        Charles au clavier pour le mur (Espace), Lorenzo commente le dashboard,
+        Nohlan annonce les étapes et tient le chrono — script détaillé dans
+        TRAME.md (S12). Si plantage : relance ~10 s, Nohlan meuble avec
+        l'histoire de gen_014. Budget 2 min 30 max.
       </aside>
     </section>
 
@@ -490,7 +496,6 @@
 <script src="vendor/reveal.js"></script>
 <script src="vendor/notes.js"></script>
 <script src="vendor/anime.umd.min.js"></script>
-<script src="live-drive.js"></script>
 <script src="animations.js"></script>
 </body>
 </html>

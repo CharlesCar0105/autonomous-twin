@@ -18,9 +18,12 @@ BENCH = ROOT / "bench"
 OUT = ROOT / "docs" / "soutenance" / "assets" / "graphs"
 CIRCUITS = ["gen_000", "gen_003", "gen_014"]
 
-# Palette du deck (theme-twin.css)
-TXT, GRID = "#dbe4f0", "#2c3e57"
-GRIS, BLEU, VERT, ROUGE, ORANGE = "#94a3b8", "#3b82f6", "#22c55e", "#ef4444", "#f59e0b"
+# Palette claire du deck (thème pro clair, 22/07). Teintes identitaires
+# validées par le validateur dataviz (lightness/chroma/CVD/contraste, mode
+# light) ; le gris est un neutre sémantique « avant/baseline » assumé,
+# lisible grâce aux labels directs sur chaque barre.
+TXT, GRID = "#1e293b", "#cbd5e1"
+GRIS, BLEU, VERT, ROUGE, ORANGE = "#64748b", "#2563eb", "#16a34a", "#dc2626", "#d97706"
 
 # Oracle : tour parfait theorique (rapport A, .superpowers/optim/)
 ORACLE = {"gen_000": 16.35, "gen_003": 16.62, "gen_014": 20.57}
@@ -61,7 +64,8 @@ def g1_temps(base, post):
     b2 = ax.bar(x + 0.21, apres, 0.4, color=BLEU, label="Après (OPT-1..4)", edgecolor="#0b1220")
     for i, c in enumerate(CIRCUITS):
         lab = f"-{100 * (1 - apres[i] / avant[i]):.0f} %" if base[c]["finished"] else "DNF → 3/3"
-        ax.text(i, max(avant[i], apres[i]) + 10, lab, ha="center", fontweight="bold", color=VERT, fontsize=13)
+        # +28 : au-dessus du bar_label « NNN s » pour éviter la collision
+        ax.text(i, max(avant[i], apres[i]) + 28, lab, ha="center", fontweight="bold", color=VERT, fontsize=13)
     ax.bar_label(b1, fmt="%.0f s", padding=2, fontsize=10)
     ax.bar_label(b2, fmt="%.1f s", padding=2, fontsize=10)
     ax.set_xticks(x, CIRCUITS)
