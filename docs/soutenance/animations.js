@@ -122,10 +122,10 @@ const ANIMS = {
       // Le panneau glisse vers le bord gauche du champ : le « 3 » sort,
       // il ne reste qu'un « 0 » visible — d'où la lecture « 90 » à conf 1.00.
       .add(sign, { left: ['110px', '-58px'], duration: 1500, ease: 'inOutQuad' })
-      .call(() => setPred('90 · conf 1.00', false), '-=100')
+      .call(() => setPred('90 · confiance 1,00', false), '-=100')
       // Le fix : placement replafonné à 46 px, panneau entièrement visible.
       .add(sign, { left: '115px', duration: 900, ease: 'outCubic' }, '+=1700')
-      .call(() => setPred('30 · conf 0.98', true), '-=50');
+      .call(() => setPred('30 · confiance 0,98', true), '-=50');
   },
 
   mesurer(slide) {
@@ -180,7 +180,7 @@ function finaliserStatique() {
   poser('compteur-acc', '0,9513');
   poser('compteur-vitesse', '100,0');
   const pred = document.getElementById('pred-occlusion');
-  if (pred) pred.innerHTML = 'panneau lu : <strong>30 · conf 0.98</strong>';
+  if (pred) pred.innerHTML = 'panneau lu : <strong>30 · confiance 0,98</strong>';
 }
 
 Reveal.initialize({
