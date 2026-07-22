@@ -252,35 +252,46 @@ html, body { background: var(--paper); color-scheme: light; }
 .reveal .cap b { color: var(--ink); font-weight: 700; }
 
 /* ============================================================================
-   S1 — TITRE (composition claire : titre + plaque produit encadrée)
+   S1 — TITRE (page de garde typographique : filigrane du tracé, filet, date)
    ============================================================================ */
 .reveal .slides > section[data-anim="intro"] {
   text-align: center;
   display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden;
+}
+/* Filigrane : le tracé de gen_014 (dessin au trait) très pâle, décalé à
+   droite — motif de dossier technique. Retirer cette règle + l'<img> pour
+   une garde 100 % typographique. */
+.filigrane {
+  position: absolute; right: -12%; top: 50%; transform: translateY(-50%);
+  width: 62%; opacity: 0.055; pointer-events: none; user-select: none;
+  filter: grayscale(1);
 }
 .kicker {
   font-family: var(--f-body); font-size: 0.5em; text-transform: uppercase;
   letter-spacing: 0.2em; color: var(--accent-deep); font-weight: 700;
 }
 #titre-principal {
-  text-align: center; margin: 0.14em 0 0.12em;
-  font-weight: 800; font-size: 2.7em; letter-spacing: 0.01em; color: var(--ink);
+  text-align: center; margin: 0.18em 0 0.1em;
+  font-weight: 800; font-size: 2.9em; letter-spacing: 0.01em; color: var(--ink);
 }
 #titre-principal span { display: inline-block; }
 .soustitre {
-  text-align: center; font-size: 0.82em; color: var(--body);
+  text-align: center; font-size: 0.86em; color: var(--body);
   font-family: var(--f-body); font-weight: 400; letter-spacing: 0;
 }
-.hero-shot {
-  margin: 0.7em auto 0.5em; width: min(600px, 64%);
-}
-.hero-shot .hud-screen img {
-  height: 190px; object-fit: cover; object-position: 50% 54%;
+.filet-garde {
+  width: 3.2em; border: 0; border-top: 3px solid var(--accent);
+  border-radius: 2px; margin: 1.1em auto 1.0em;
 }
 .equipe {
-  text-align: center; font-size: 0.58em; color: var(--muted);
-  font-family: var(--f-body); letter-spacing: 0.16em; margin-top: 0.3em;
-  text-transform: uppercase; font-weight: 600;
+  text-align: center; font-size: 0.62em; color: var(--ink);
+  font-family: var(--f-body); letter-spacing: 0.14em; margin: 0;
+  text-transform: uppercase; font-weight: 650;
+}
+.date-garde {
+  text-align: center; font-size: 0.5em; color: var(--muted);
+  font-family: var(--f-body); margin-top: 0.5em;
 }
 
 /* ============================================================================
@@ -590,7 +601,7 @@ html, body { background: var(--paper); color-scheme: light; }
    déjà opacity:0 dans leur règle. anime.js revert() y retombe (rejeu OK).
    ============================================================================ */
 #titre-principal span,
-.soustitre, .equipe,
+.soustitre, .equipe, .filet-garde, .date-garde,
 .carte, .punchline,
 .boite,
 .tuile, .ligne-bonus,
@@ -606,6 +617,7 @@ html, body { background: var(--paper); color-scheme: light; }
    ============================================================================ */
 .statique #titre-principal span,
 .statique .soustitre, .statique .equipe,
+.statique .filet-garde, .statique .date-garde,
 .statique .carte, .statique .punchline, .statique .boite,
 .statique .tuile, .statique .ligne-bonus,
 .statique .svg-cam, .statique .svg-mask, .statique .fleche,
@@ -617,7 +629,8 @@ html, body { background: var(--paper); color-scheme: light; }
 }
 
 @media print, (prefers-reduced-motion: reduce) {
-  #titre-principal span, .soustitre, .equipe, .carte, .punchline, .boite,
+  #titre-principal span, .soustitre, .equipe, .filet-garde, .date-garde,
+  .carte, .punchline, .boite,
   .tuile, .ligne-bonus, .svg-cam, .svg-mask, .fleche, .honnete,
   .etape, .pipe-fleche, .galerie-circuits img, .result-graph {
     opacity: 1 !important;
