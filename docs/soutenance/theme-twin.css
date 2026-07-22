@@ -1,325 +1,287 @@
 /* ============================================================================
-   AUTONOMOUS TWIN — thème « TWIN TELEMETRY »
-   Direction : télémétrie racing / HUD broadcast F1. L'ADN visuel est le
-   dashboard pilote du projet (assets/game/dash-*.png) : carbone quasi-noir,
-   ambre « LIMITE », cyan « CAMERA », vert « MASQUE », rouge « URGENCE »,
-   data en monospace. Chaque slide = un panneau d'instruments.
+   AUTONOMOUS TWIN — thème « DOSSIER D'INGÉNIERIE »
+   Direction : sobriété premium, clair et professionnel — la tenue d'un rapport
+   technique bien composé, pas d'un cockpit de course. Fond blanc cassé cool,
+   encre ardoise profonde, UN accent bleu (#2563eb, identique aux graphes), le
+   vert et le rouge réservés à la sémantique (gains / alertes).
 
-   100 % autonome file:// — polices SYSTÈME uniquement (Bahnschrift = DIN
-   condensé livré avec Windows ; Consolas = monospace Windows), aucune
-   dépendance réseau. Dégrade proprement si une police manque.
+   Signature : la « plaque de preuve » — chaque capture ou graphe est cadré dans
+   une carte blanche à filet fin, filet d'accent bleu en tête, pastille de
+   libellé discrète. Elle encode la logique assertion → preuve de la soutenance.
 
-   Contraintes héritées respectées : gris texte ≥ AA (var --gris conservé),
-   états initiaux anti-flash + rendu statique (.statique / @media print)
-   voir les deux derniers blocs.
+   Sérif (Cambria) : réservé aux DEUX moments de citation (consigne du sujet,
+   phrase finale) — registre académique. Mono (Consolas) : réservé aux DONNÉES
+   (compteurs, code, chiffres de tableau). Polices SYSTÈME uniquement.
+
+   Contraintes héritées respectées :
+   · texte secondaire ≥ 7:1 sur le fond (voir --muted, calibré) ;
+   · aucune règle `position` sur les <section> de slide (reveal les pose
+     absolute — l'écraser casse l'empilement) ;
+   · états initiaux anti-flash + rendu statique (.statique / @media print) —
+     voir les deux derniers blocs.
    ============================================================================ */
 
 :root {
-  /* ---- Carbone (fond) : calé sur le dashboard pilote (~#0d0d0f), légèrement
-         bleuté pour la profondeur ---- */
-  --carbon:    #080b11;
-  --carbon-1:  #0b0f17;
-  --carbon-2:  #10151f;   /* panneau surélevé */
-  --carbon-3:  #161d2b;   /* carte / inset */
-  --carbon-4:  #1c2536;   /* survol / inset clair */
+  /* ---- Surfaces claires ---- */
+  --paper:      #f4f6f9;   /* fond de scène — blanc cassé cool */
+  --surface:    #ffffff;   /* plaques / cartes surélevées */
+  --surface-2:  #eef2f7;   /* pastilles / insets discrets */
 
-  /* ---- Filets / châssis HUD ---- */
-  --line:      #223047;
-  --line-hot:  #37506f;
-  --grid:      rgba(75, 110, 160, 0.06);
+  /* ---- Encre (calibrée pour le projecteur) ---- */
+  --ink:        #0e1726;   /* titres + chiffres clés (~15:1 sur paper) */
+  --body:       #29374b;   /* corps de texte (~9,8:1) */
+  --muted:      #3c4a5f;   /* texte secondaire / légendes (~7,6:1 — NE PAS éclaircir) */
+  --faint:      #5b6b80;   /* labels décoratifs non essentiels */
 
-  /* ---- Instruments (accents) ----
-     AMBRE = accent primaire (header « LIMITE », ligne limite, barres oracle).
-     Choix d'identité : ambre-forward, pas le bleu générique tech. */
-  --amber:     #ff9f1c;
-  --amber-2:   #ffb84d;
-  --amber-dim: #7a5a1e;
-  --cyan:      #2dd4ee;   /* secondaire froid : CAMERA, aiguille, data live */
-  --cyan-dim:  #1c6f80;
-  --green:     #22c55e;   /* OK / validation / masque (assorti aux graphes) */
-  --green-2:   #34d97a;
-  --red:       #ff3b30;   /* alerte / urgence / « avant » */
-  --red-2:     #ef4444;
-  --blue:      #2f6fed;   /* bleu DATA (continuité avec les PNG « après »/PID) */
+  /* ---- Accent unique : bleu (continuité stricte avec les graphes) ---- */
+  --accent:      #2563eb;  /* filets, top-rule des plaques, puces, progression */
+  --accent-deep: #1d4ed8;  /* texte bleu (kicker, em), filets appuyés (~6:1) */
+  --accent-soft: #e7eefc;  /* aplats bleutés très pâles */
 
-  /* ---- Texte ---- */
-  --ink:       #f4f7fb;   /* readout principal / titres */
-  --texte:     #d7e0ee;   /* corps */
-  --titre:     #f8fafc;
-  /* Gris texte calibré ≥ AA (≈7:1 sur carbone) — NE PAS éclaircir/foncer. */
-  --gris:      #94a3b8;
-  /* Gris « barre avant/DNF » : teinte terne conservée (sémantique « avant »). */
-  --gris-barre:#64748b;
+  /* ---- Sémantique data (mêmes teintes que les PNG) ---- */
+  --green:      #16a34a;   /* gain — barres / filets */
+  --green-deep: #15803d;   /* gain — texte (~5,2:1, lisible) */
+  --green-soft: #eaf6ee;
+  --red:        #dc2626;   /* alerte — barres / filets */
+  --red-deep:   #b91c1c;   /* alerte — texte (~5,9:1) */
+  --red-soft:   #fdecec;
+
+  /* ---- Filets / bordures ---- */
+  --line:        #e3e8ef;  /* hairlines */
+  --line-strong: #d0d8e2;  /* bordures de plaque */
+
+  /* ---- Ombres douces (premium, basses) ---- */
+  --shadow-sm:    0 1px 2px rgba(15,23,42,0.06), 0 1px 1px rgba(15,23,42,0.04);
+  --shadow-plate: 0 1px 3px rgba(15,23,42,0.07), 0 8px 20px rgba(15,23,42,0.06);
 
   /* alias hérités (compat sélecteurs existants) */
-  --fond:       var(--carbon);
-  --fond-carte: var(--carbon-3);
-  --accent:      var(--amber);
-  --accent-clair:var(--amber-2);
+  --fond:        var(--paper);
+  --fond-carte:  var(--surface);
+  --accent-clair:var(--accent-deep);
   --ok:          var(--green);
   --alerte:      var(--red);
 
   /* ---- Polices SYSTÈME ---- */
-  --f-display: "Bahnschrift", "DIN Alternate", "Oswald", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
-  --f-mono:    "Consolas", ui-monospace, "Cascadia Mono", "SF Mono", "Roboto Mono", monospace;
-  --f-body:    "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --f-display: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --f-body:    "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --f-serif:   "Cambria", "Georgia", "Times New Roman", serif;
+  --f-mono:    "Consolas", ui-monospace, "Cascadia Mono", "SF Mono", monospace;
 }
 
 /* ============================================================================
-   FOND — dalle carbone + grille technique fine + vignette
+   FOND — dalle claire unie (plus de grille technique ni de vignette)
    ============================================================================ */
-.reveal-viewport {
-  background:
-    radial-gradient(ellipse 90% 60% at 50% -10%, #14203a 0%, rgba(20,32,58,0) 55%),
-    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 44px 44px,
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 44px 44px,
-    var(--carbon);
-}
-.reveal-viewport::after {   /* vignette pour concentrer le regard */
-  content: ""; position: fixed; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
-}
+html, body { background: var(--paper); color-scheme: light; }
+.reveal-viewport { background: var(--paper); }
 
 .reveal {
   font-family: var(--f-body);
   font-size: 34px;
-  color: var(--texte);
+  color: var(--body);
   font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* ---- Titres : Bahnschrift condensé, allure instrument ---- */
+/* ---- Titres ---- */
 .reveal h1, .reveal h2, .reveal h3 {
   font-family: var(--f-display);
-  color: var(--titre);
-  font-weight: 600;
-  font-stretch: 90%;
-  letter-spacing: 0.01em;
-  line-height: 1.02;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.011em;
+  line-height: 1.06;
   margin: 0 0 0.5em;
   text-transform: none;
+  text-wrap: balance;
 }
-.reveal h1 { font-size: 2.9em; letter-spacing: 0.04em; }
+.reveal h1 { font-size: 2.7em; letter-spacing: -0.005em; }
 .reveal h2 {
-  font-size: 1.62em; text-transform: uppercase; letter-spacing: 0.02em;
-  padding-bottom: 0.28em; position: relative;
+  font-size: 1.5em; font-weight: 650; letter-spacing: -0.012em;
+  padding-bottom: 0.26em; position: relative;
 }
-/* Soulignement « timing » ambre sous chaque titre de slide */
+/* Filet d'accent net sous chaque titre de slide (pas de glow) */
 .reveal [data-anim] > h2::after,
 .reveal .slides > section > section > h2::after,
 .reveal .slides > section > section > h3::after {
   content: ""; position: absolute; left: 0; bottom: 0;
-  width: 2.2em; height: 3px;
-  background: linear-gradient(90deg, var(--amber), var(--amber) 62%, transparent);
-  box-shadow: 0 0 12px rgba(255,159,28,0.5);
+  width: 1.7em; height: 2px; border-radius: 2px;
+  background: var(--accent);
 }
-.reveal h3 { font-size: 1.18em; color: var(--amber-2); }
+.reveal h3 { font-size: 1.12em; font-weight: 650; color: var(--ink); position: relative; }
 
 .reveal section { text-align: left; }
 .reveal section > *:not(.bareme) { max-width: 100%; }
 
-.reveal p { line-height: 1.4; }
-.reveal strong { color: var(--amber-2); font-weight: 600; }
-.reveal em { color: var(--green-2); font-style: normal; font-weight: 600; }
-.reveal s { color: var(--gris); }
+.reveal p { line-height: 1.42; text-wrap: pretty; }
+.reveal strong { color: var(--ink); font-weight: 700; }
+.reveal em { color: var(--accent-deep); font-style: normal; font-weight: 600; }
+.reveal s { color: var(--faint); }
 .reveal code {
   font-family: var(--f-mono);
-  background: var(--carbon-2); color: var(--cyan);
+  background: var(--surface-2); color: var(--accent-deep);
   padding: 0.08em 0.4em; border-radius: 5px; font-size: 0.82em;
   border: 1px solid var(--line);
 }
 .reveal ul, .reveal ol { display: block; margin-left: 1em; }
-.reveal li { margin: 0.32em 0; line-height: 1.34; }
+.reveal li { margin: 0.32em 0; line-height: 1.36; }
 .reveal ul.compact li { font-size: 0.78em; }
 
-/* Puces « chevron » façon liste télémétrie */
+/* Puces : petit carré d'accent, discret (façon checklist d'ingénieur) */
 .reveal ul { list-style: none; margin-left: 0; }
 .reveal ul li { position: relative; padding-left: 1.15em; }
 .reveal ul li::before {
-  content: "›"; position: absolute; left: 0; top: -0.02em;
-  color: var(--amber); font-family: var(--f-mono); font-weight: 700;
+  content: ""; position: absolute; left: 0; top: 0.55em;
+  width: 6px; height: 6px; border-radius: 1.5px; background: var(--accent);
 }
 
+/* Citation (consigne du sujet) — un des deux moments sérif */
 .reveal blockquote {
-  background: linear-gradient(90deg, rgba(255,59,48,0.10), rgba(255,59,48,0) 70%), var(--carbon-2);
-  border: 1px solid var(--line); border-left: 4px solid var(--red);
-  padding: 0.55em 0.9em; font-size: 0.8em; font-style: italic;
-  color: var(--texte);
-  margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box; border-radius: 0 8px 8px 0;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  padding: 0.65em 1.1em; font-family: var(--f-serif); font-size: 0.86em;
+  font-style: italic; color: var(--body); line-height: 1.4;
+  margin: 0.5em 0 0.7em; width: 100%; box-sizing: border-box;
+  border-radius: 8px; box-shadow: var(--shadow-sm);
 }
 .reveal blockquote::before {
   content: "Consigne du sujet"; display: block;
-  font-family: var(--f-body); font-style: normal; font-size: 0.62em;
-  letter-spacing: 0.04em; color: var(--amber-2); font-weight: 600;
-  margin-bottom: 0.35em;
+  font-family: var(--f-body); font-style: normal; font-size: 0.6em;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent-deep); font-weight: 700; margin-bottom: 0.4em;
 }
 
-/* Numéro de slide Reveal (bas) — discret, mono */
+/* Chrome Reveal */
 .reveal .slide-number {
-  background: transparent; color: var(--gris);
-  font-family: var(--f-mono); font-size: 15px; letter-spacing: 0.08em;
+  background: transparent; color: var(--faint);
+  font-family: var(--f-body); font-size: 15px; letter-spacing: 0.04em;
 }
-.reveal .progress { color: var(--amber); height: 3px; }
-.reveal .controls { color: var(--line-hot); }
+.reveal .progress { color: var(--accent); height: 3px; }
+.reveal .progress span { background: var(--accent); }
+.reveal .controls { color: var(--line-strong); }
+.reveal .controls .navigate-left.enabled,
+.reveal .controls .navigate-right.enabled,
+.reveal .controls .navigate-up.enabled,
+.reveal .controls .navigate-down.enabled { color: var(--accent); opacity: 0.55; }
+.reveal a { color: var(--accent-deep); text-decoration: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--accent-soft); }
 
 /* ============================================================================
-   CHÂSSIS HUD — cadre viseur (4 coins), eyebrow secteur, réglette télémétrie
-   Appliqué aux 13 slides principales ([data-anim]) et aux annexes-feuilles.
+   CADRE DE SLIDE — simple respiration (plus de coins viseur ni de grille)
+   Appliqué aux 13 slides principales, à la slide 12 (sans data-anim) et aux
+   feuilles d'annexes. PAS de `position` ici (reveal pose absolute).
    ============================================================================ */
 .reveal .slides > section[data-anim],
+.reveal .slides > section[data-sector="12"],
 .reveal .slides > section > section {
-  /* PAS de position ici : reveal.css pose position:absolute sur les sections
-     (superposition des slides) — l'écraser en relative les empile dans le
-     flux et pousse tout hors écran. absolute est déjà un containing block
-     pour l'eyebrow/les coins du châssis. */
-  padding: 58px 30px 42px;      /* place pour l'eyebrow (haut) + réglette (bas) */
+  padding: 46px 40px 38px;
   box-sizing: border-box;
-  /* 4 coins « viseur » dessinés en gradients (2 barres par coin) */
-  background-image:
-    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0),
-    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0),
-    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0),
-    linear-gradient(var(--line-hot) 0 0), linear-gradient(var(--line-hot) 0 0);
-  background-repeat: no-repeat;
-  background-size:
-    26px 2px, 2px 26px,   /* haut-gauche */
-    26px 2px, 2px 26px,   /* haut-droit */
-    26px 2px, 2px 26px,   /* bas-gauche */
-    26px 2px, 2px 26px;   /* bas-droit */
-  background-position:
-    top 6px left 6px, top 6px left 6px,
-    top 6px right 6px, top 6px right 6px,
-    bottom 6px left 6px, bottom 6px left 6px,
-    bottom 6px right 6px, bottom 6px right 6px;
 }
 
-/* Eyebrow secteur et « ● REC » du châssis : SUPPRIMÉS (audit sobriété 22/07 —
-   pagination redondante avec Reveal + faux témoin d'enregistrement, Mayer
-   coherence principle). Les data-sector/data-phase du HTML restent inertes. */
-
-/* ---- Réglette télémétrie (bas) — ticks type compte-tours, décoratif ---- */
-.reveal .slides > section[data-anim] > .tele,
-.reveal .slides > section > section > .tele { display: none; } /* réservé futur */
-
 /* ============================================================================
-   BADGE BARÈME — « broadcast tag » (secteur de chrono)
+   BADGE BARÈME — chip discret, clair
    ============================================================================ */
 .bareme {
-  position: absolute; top: 16px; right: 34px;
-  font-family: var(--f-body); font-size: 14px; letter-spacing: 0.02em;
-  color: var(--amber-2);
-  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
-  border: 1px solid var(--amber-dim); border-left: 3px solid var(--amber);
-  border-radius: 4px; padding: 0.35em 0.8em; font-weight: 600;
-  z-index: 3;
+  position: absolute; top: 14px; right: 30px;
+  display: inline-flex; align-items: center; gap: 0.5em;
+  font-family: var(--f-body); font-size: 12.5px; letter-spacing: 0.01em;
+  color: var(--muted); background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px; padding: 0.34em 0.85em; font-weight: 600;
+  box-shadow: var(--shadow-sm); z-index: 3;
+}
+.bareme::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
 }
 
 /* ============================================================================
-   COMPOSANT IMAGE — « écran HUD » (cadre viseur autour des captures)
+   PLAQUE DE PREUVE — cadre d'illustration clair (remplace l'« écran HUD »)
    ============================================================================ */
 .hud-screen {
   position: relative; display: block;
-  border: 1px solid var(--line-hot); border-radius: 8px;
-  background: var(--carbon-1); overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.6), 0 8px 26px rgba(0,0,0,0.5);
+  border: 1px solid var(--line-strong); border-top: 2px solid var(--accent);
+  border-radius: 8px; background: var(--surface); overflow: hidden;
+  box-shadow: var(--shadow-plate);
 }
 .hud-screen img { display: block; width: 100%; height: auto; }
 .hud-screen > .tag {
   position: absolute; top: 8px; left: 8px; z-index: 2;
-  font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.14em;
-  color: var(--cyan); background: rgba(8,11,17,0.82);
-  border: 1px solid var(--cyan-dim); border-radius: 4px; padding: 0.15em 0.5em;
-  text-transform: uppercase;
+  font-family: var(--f-body); font-size: 12px; letter-spacing: 0.02em;
+  font-weight: 600; color: var(--muted);
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--line); border-radius: 4px; padding: 0.14em 0.5em;
+  text-transform: none;
 }
-.hud-screen > .tag.tag-amber { color: var(--amber-2); border-color: var(--amber-dim); }
-.hud-screen > .tag.tag-red   { color: var(--red); border-color: #7a2a26; }
-/* coins viseur cyan sur les écrans */
-.hud-screen::before, .hud-screen::after {
-  content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none; z-index: 2;
+.hud-screen > .tag.tag-amber { color: var(--muted); border-color: var(--line); }
+.hud-screen > .tag.tag-red {
+  color: var(--red-deep); border-color: #f2c4c4; background: rgba(255,255,255,0.92);
 }
-.hud-screen::before { top: 6px; right: 6px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
-.hud-screen::after  { bottom: 6px; left: 6px; border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
 
 /* Recadrage (montrer une région d'une capture) */
 .crop { overflow: hidden; position: relative; }
 .crop img { width: 100%; height: auto; display: block; }
 
-/* Instrument portrait (dashboards dash-*.png) */
-.instrument { border-radius: 10px; overflow: hidden; border: 1px solid var(--line-hot);
-  background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.55); }
+/* Instrument portrait (dashboards dash-*.png — vraies captures sombres) */
+.instrument {
+  border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--line-strong); background: #0e0e12;
+  box-shadow: var(--shadow-plate);
+}
 .instrument img { display: block; width: 100%; height: auto; }
 
-/* Petit badge télémétrie réutilisable */
-.tel-badge {
-  display: inline-flex; align-items: baseline; gap: 0.4em;
-  font-family: var(--f-mono); font-size: 0.5em; letter-spacing: 0.06em;
-  color: var(--cyan); background: var(--carbon-2);
-  border: 1px solid var(--line); border-radius: 5px; padding: 0.3em 0.6em;
+/* Graphes matplotlib : la plaque épouse le graphe (aucune carte vide autour).
+   Les .result-graph (S11) remplissent leur plaque sur deux colonnes (plus bas). */
+.mesurer-graph .hud-screen,
+.panneaux-graph .hud-screen,
+.conclusion-visuel .hud-screen,
+.annexe-graph .hud-screen {
+  width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto;
 }
-.tel-badge b { color: var(--ink); font-size: 1.3em; font-weight: 700; }
-.tel-badge.amber { color: var(--amber-2); border-color: var(--amber-dim); }
-.tel-badge.green { color: var(--green-2); }
+.mesurer-graph img     { width: auto; height: 166px; max-width: 100%; }
+.panneaux-graph img    { width: auto; height: 196px; max-width: 100%; }
+.conclusion-visuel img { width: auto; height: 208px; max-width: 100%; }
+.annexe-graph img      { width: auto; height: 268px; max-width: 100%; }
+.mesurer-graph .cap, .panneaux-graph .cap { text-align: center; }
 
-/* Garde-fous hauteur : les graphes matplotlib sont larges/transparents —
-   on les letterbox (object-fit contain) pour tenir dans le 16:9. */
-.mesurer-graph img { max-height: 166px; object-fit: contain; }
-.mesurer-side .instrument { max-width: 124px; margin: 0 auto; }
-.panneaux-graph img { max-height: 214px; object-fit: contain; }
-.result-graph img { max-height: 250px; object-fit: contain; }
-.conclusion-visuel img { max-height: 236px; object-fit: contain; }
-.annexe-graph img { max-height: 296px; object-fit: contain; }
+/* Légendes (unifiées : fonte du corps, ardoise ≥7:1) */
+.reveal .cap {
+  font-family: var(--f-body); font-size: 0.48em; color: var(--muted);
+  margin-top: 0.38em; line-height: 1.32; letter-spacing: 0;
+}
+.reveal .cap b { color: var(--ink); font-weight: 700; }
 
 /* ============================================================================
-   S1 — TITRE (hero télémétrie)
-   Spécificité alignée sur le châssis générique (.reveal .slides > section…)
-   pour que le fond « course » l'emporte sur les coins seuls.
+   S1 — TITRE (composition claire : titre + plaque produit encadrée)
    ============================================================================ */
 .reveal .slides > section[data-anim="intro"] {
   text-align: center;
-  background-image:
-    /* scrim très sombre sur la capture course */
-    linear-gradient(180deg, rgba(6,9,14,0.90) 0%, rgba(6,9,14,0.82) 45%, rgba(6,9,14,0.95) 100%),
-    /* coins viseur (repris du châssis) */
-    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
-    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
-    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
-    linear-gradient(var(--amber) 0 0), linear-gradient(var(--amber) 0 0),
-    url("assets/game/course.png");
-  background-repeat: no-repeat;
-  background-size:
-    cover,
-    30px 2px, 2px 30px, 30px 2px, 2px 30px,
-    30px 2px, 2px 30px, 30px 2px, 2px 30px,
-    cover;
-  background-position:
-    center,
-    top 6px left 6px, top 6px left 6px, top 6px right 6px, top 6px right 6px,
-    bottom 6px left 6px, bottom 6px left 6px, bottom 6px right 6px, bottom 6px right 6px,
-    center;
   display: flex; flex-direction: column; justify-content: center;
 }
 .kicker {
-  font-family: var(--f-mono); font-size: 0.5em; text-transform: uppercase;
-  letter-spacing: 0.28em; color: var(--amber-2);
+  font-family: var(--f-body); font-size: 0.5em; text-transform: uppercase;
+  letter-spacing: 0.2em; color: var(--accent-deep); font-weight: 700;
 }
-/* Damier « ligne d'arrivée » discret sous le kicker */
-/* Damiers du kicker : SUPPRIMÉS (cliché course sans information). */
 #titre-principal {
-  text-align: center; margin: 0.16em 0 0.14em;
-  font-weight: 700; font-stretch: 100%;
-  text-shadow: 0 3px 24px rgba(0,0,0,0.8);
+  text-align: center; margin: 0.14em 0 0.12em;
+  font-weight: 800; font-size: 2.7em; letter-spacing: 0.01em; color: var(--ink);
 }
 #titre-principal span { display: inline-block; }
 .soustitre {
-  text-align: center; font-size: 0.82em; color: var(--cyan);
-  font-family: var(--f-display); font-stretch: 90%; letter-spacing: 0.02em;
+  text-align: center; font-size: 0.82em; color: var(--body);
+  font-family: var(--f-body); font-weight: 400; letter-spacing: 0;
+}
+.hero-shot {
+  margin: 0.7em auto 0.5em; width: min(600px, 64%);
+}
+.hero-shot .hud-screen img {
+  height: 190px; object-fit: cover; object-position: 50% 54%;
 }
 .equipe {
-  text-align: center; font-size: 0.62em; color: var(--gris);
-  font-family: var(--f-mono); letter-spacing: 0.14em; margin-top: 1.7em;
-  text-transform: uppercase;
+  text-align: center; font-size: 0.58em; color: var(--muted);
+  font-family: var(--f-body); letter-spacing: 0.16em; margin-top: 0.3em;
+  text-transform: uppercase; font-weight: 600;
 }
-/* « PILOTES · » et bandeau hero-tel : SUPPRIMÉS (métaphore course plaquée +
-   fausse télémétrie ; 60 Hz et 30 circuits sont dits en S3 et S7). */
 
 /* ============================================================================
    S2 — CONCEPT (deux cartes + capture d'ancrage)
@@ -327,77 +289,77 @@
 .concept-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1em; align-items: stretch; margin: 0.3em 0 0.4em; }
 .deux-cartes { display: flex; flex-direction: row; gap: 0.7em; }
 .carte {
-  flex: 1;
-  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
-  border: 1px solid var(--line); border-left: 4px solid var(--amber);
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--line); border-top: 3px solid var(--accent);
   border-radius: 10px; padding: 0.6em 0.85em; width: auto;
-  position: relative;
+  position: relative; box-shadow: var(--shadow-sm);
 }
-.carte-pilote { border-left-color: var(--cyan); }
-.carte h3 { margin: 0 0 0.05em; color: var(--amber-2); }
-.carte-pilote h3 { color: var(--cyan); }
+.carte-pilote { border-top-color: var(--ink); }
+.carte h3 { margin: 0 0 0.05em; color: var(--ink); }
 .carte h3::after { display: none; }
-.carte .sous { font-family: var(--f-mono); font-size: 0.5em; color: var(--gris); margin-bottom: 0.45em; letter-spacing: 0.06em; text-transform: uppercase; }
+.carte .sous { font-family: var(--f-body); font-size: 0.5em; color: var(--muted); margin-bottom: 0.45em; letter-spacing: 0.02em; text-transform: uppercase; font-weight: 600; }
 .carte ul { margin-left: 0; }
 .carte li { font-size: 0.6em; }
 .punchline {
-  grid-column: 1 / -1; text-align: center; font-size: 0.76em; color: var(--cyan);
+  grid-column: 1 / -1; text-align: center; font-size: 0.74em; color: var(--body);
   border-top: 1px solid var(--line); padding-top: 0.5em; margin-top: 0.1em;
 }
 .concept-visuel { align-self: stretch; }
 .concept-visuel .hud-screen { height: 100%; max-height: 258px; }
 .concept-visuel .hud-screen img { height: 100%; object-fit: cover; object-position: 62% 50%; }
-.concept-visuel .cap { font-family: var(--f-mono); font-size: 0.44em; color: var(--gris); margin-top: 0.35em; letter-spacing: 0.06em; }
+.concept-visuel .cap { margin-top: 0.35em; font-size: 0.44em; }
 
 /* ============================================================================
-   S3 — ARCHITECTURE ZMQ (schéma enrichi HUD)
+   S3 — ARCHITECTURE ZMQ (schéma clair)
    ============================================================================ */
 .schema-zmq {
-  display: flex; align-items: center; gap: 0.6em; margin: 1.1em 0 0.9em;
-  background: var(--carbon-1); border: 1px solid var(--line); border-radius: 12px;
-  padding: 1.1em 1em;
+  display: flex; align-items: center; gap: 0.6em; margin: 1em 0 0.9em;
+  padding: 0.5em 0.2em;
 }
 .boite {
-  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
-  border: 1px solid var(--amber-dim); border-top: 3px solid var(--amber);
+  background: var(--surface);
+  border: 1px solid var(--line-strong); border-top: 3px solid var(--accent);
   border-radius: 10px; padding: 0.7em 1em; font-family: var(--f-display);
-  font-weight: 600; font-stretch: 90%; letter-spacing: 0.04em;
+  font-weight: 700; letter-spacing: 0.01em;
   font-size: 0.72em; text-align: center; flex-shrink: 0; color: var(--ink);
 }
-.boite-pilote { border-color: var(--cyan-dim); border-top-color: var(--cyan); }
-.boite .petit { display: block; font-family: var(--f-mono); font-weight: 400; font-size: 0.6em; color: var(--gris); margin-top: 0.2em; letter-spacing: 0.05em; }
+.boite-pilote { border-top-color: var(--ink); }
+.boite .petit { display: block; font-family: var(--f-mono); font-weight: 400; font-size: 0.6em; color: var(--muted); margin-top: 0.2em; letter-spacing: 0.02em; }
 .canal { flex-grow: 1; display: flex; flex-direction: column; gap: 1.5em; padding: 0 0.4em; }
-.flux { position: relative; height: 30px; border-bottom: 2px dashed var(--line-hot); }
+.flux { position: relative; height: 30px; border-bottom: 2px dashed var(--line-strong); }
 .flux-label {
   position: absolute; left: 50%; transform: translateX(-50%); top: 100%;
-  font-family: var(--f-mono); font-size: 0.4em; color: var(--gris);
-  white-space: nowrap; padding-top: 4px; letter-spacing: 0.05em;
+  font-family: var(--f-body); font-size: 0.4em; color: var(--muted);
+  white-space: nowrap; padding-top: 4px; letter-spacing: 0;
 }
 .msg {
   position: absolute; top: 8px; width: 13px; height: 13px; border-radius: 50%;
-  background: var(--amber); opacity: 0; box-shadow: 0 0 10px var(--amber);
+  background: var(--accent); opacity: 0;
 }
-.flux-commandes .msg { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
-/* Badges télémétrie de l'archi */
-.zmq-badges { display: flex; gap: 0.6em; justify-content: center; margin: 0.2em 0 0.6em; flex-wrap: wrap; }
+.flux-commandes .msg { background: var(--faint); }
 
 /* ============================================================================
    S4 — LE MONDE (mur-arret héros + tuiles)
    ============================================================================ */
 .monde-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1em; align-items: start; margin: 0.3em 0 0.4em; }
-.monde-visuel .cap { font-family: var(--f-mono); font-size: 0.44em; color: var(--gris); margin-top: 0.35em; letter-spacing: 0.05em; }
+.monde-visuel .cap { margin-top: 0.35em; font-size: 0.44em; }
 .grille-monde { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55em; }
 .tuile {
-  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
-  border: 1px solid var(--line); border-radius: 10px; padding: 0.5em 0.7em;
-  font-size: 0.58em; line-height: 1.28; position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; padding: 0.55em 0.75em;
+  font-size: 0.58em; line-height: 1.3; position: relative;
+  box-shadow: var(--shadow-sm);
 }
-.tuile strong { color: var(--ink); }
-.tuile .ico { font-size: 1.3em; margin-right: 0.25em; filter: saturate(0.7); }
+.tuile strong { color: var(--ink); display: inline-block; }
+.tuile strong::before {
+  content: ""; display: inline-block; width: 6px; height: 6px;
+  border-radius: 1.5px; background: var(--accent);
+  margin-right: 0.5em; vertical-align: middle;
+}
 .ligne-bonus {
-  grid-column: 1 / -1; font-family: var(--f-mono); font-size: 0.54em;
-  color: var(--gris); text-align: center; border-top: 1px solid var(--line);
-  padding-top: 0.5em; margin-top: 0.15em; letter-spacing: 0.03em;
+  grid-column: 1 / -1; font-family: var(--f-body); font-size: 0.54em;
+  color: var(--muted); text-align: center; border-top: 1px solid var(--line);
+  padding-top: 0.5em; margin-top: 0.15em; letter-spacing: 0;
 }
 
 /* ============================================================================
@@ -406,224 +368,205 @@
 .percevoir-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.2em; align-items: center; margin: 0.2em 0 0.4em; }
 .percevoir-scene { display: flex; align-items: center; justify-content: center; gap: 0.8em; }
 .vue { text-align: center; }
-.vue svg { width: 180px; height: 180px; border-radius: 10px; border: 1px solid var(--line-hot); }
-.vue p { font-family: var(--f-mono); font-size: 0.46em; color: var(--gris); margin-top: 0.3em; letter-spacing: 0.08em; text-transform: uppercase; }
-.fleche { font-size: 1.5em; color: var(--amber); }
+.vue svg { width: 176px; height: 176px; border-radius: 10px; border: 1px solid var(--line-strong); box-shadow: var(--shadow-sm); }
+.vue p { font-family: var(--f-body); font-size: 0.46em; color: var(--muted); margin-top: 0.3em; letter-spacing: 0.02em; text-transform: uppercase; font-weight: 600; }
+.fleche { font-size: 1.5em; color: var(--accent); }
 .percevoir-reel .crop { aspect-ratio: 42 / 21; }
 .percevoir-reel .crop img { object-fit: cover; object-position: top center; }
-.percevoir-reel .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.3em; letter-spacing: 0.05em; }
+.percevoir-reel .cap { margin-top: 0.3em; font-size: 0.42em; }
 .percevoir-grid + p { font-size: 0.8em; }
 .honnete {
-  font-size: 0.7em; background: linear-gradient(90deg, rgba(34,197,94,0.10), transparent 70%), var(--carbon-2);
-  border: 1px solid var(--line); border-left: 4px solid var(--green);
-  padding: 0.5em 0.85em; border-radius: 0 8px 8px 0;
+  font-size: 0.7em; background: var(--green-soft);
+  border: 1px solid #cbe7d4;
+  padding: 0.55em 0.9em; border-radius: 8px; color: var(--body);
 }
 .iou-line { font-size: 0.8em; }
-.iou-line strong { color: var(--green-2); }
+.iou-line strong { color: var(--green-deep); }
 
 /* ============================================================================
-   S6 — CONDUIRE (compteur 30/30 + visuel)
+   S6 — CONDUIRE (compteur 30/30 + liste)
    ============================================================================ */
 .conduire-layout { display: grid; grid-template-columns: 0.9fr 1.35fr; gap: 1.2em; align-items: center; }
 .jauge {
-  text-align: center; background: var(--carbon-1); border: 1px solid var(--line-hot);
-  border-radius: 14px; padding: 0.5em 0.4em 0.6em; position: relative;
+  text-align: center; background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: 14px; padding: 0.6em 0.4em 0.7em; position: relative;
+  box-shadow: var(--shadow-plate);
 }
 .jauge::before {
   content: "Généralisation"; display: block; font-family: var(--f-body);
-  font-size: 0.32em; letter-spacing: 0.04em; color: var(--green-2);
-  font-weight: 600; margin-bottom: 0.1em;
+  font-size: 0.32em; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--green-deep); font-weight: 700; margin-bottom: 0.15em;
 }
-.grand-chiffre { font-family: var(--f-display); font-stretch: 90%; font-size: 3.1em; font-weight: 700; color: var(--green-2); line-height: 0.95; text-shadow: 0 0 30px rgba(34,197,94,0.35); }
-.grand-chiffre .sur { color: var(--gris); font-size: 0.5em; }
-.legende-chiffre { font-family: var(--f-mono); font-size: 0.26em; font-weight: 400; color: var(--texte); line-height: 1.3; margin-top: 0.4em; letter-spacing: 0.04em; }
+.grand-chiffre { font-family: var(--f-display); font-size: 3em; font-weight: 800; color: var(--green-deep); line-height: 0.98; font-variant-numeric: tabular-nums; }
+.grand-chiffre .sur { color: var(--faint); font-size: 0.5em; font-weight: 700; }
+.legende-chiffre { font-family: var(--f-body); font-size: 0.3em; font-weight: 400; color: var(--muted); line-height: 1.3; margin-top: 0.5em; letter-spacing: 0.02em; }
 .conduire-layout ul { align-self: center; }
 .conduire-layout li { font-size: 0.68em; }
 
 /* ============================================================================
-   S7 — GÉNÉRALISER (galerie circuits + stats features)
+   S7 — GÉNÉRALISER (galerie circuits + stats)
    ============================================================================ */
 .galerie-circuits { display: flex; gap: 0.5em; justify-content: center; margin: 0.55em 0; }
 .galerie-circuits img {
-  width: 148px; height: 148px; object-fit: cover; border-radius: 8px;
-  border: 1px solid var(--line-hot); opacity: 0;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  width: 146px; height: 146px; object-fit: cover; border-radius: 8px;
+  border: 1px solid var(--line-strong); opacity: 0;
+  box-shadow: var(--shadow-sm); background: var(--surface);
 }
 .circuits-stats { display: flex; gap: 0.7em; justify-content: center; margin: 0.3em 0 0.4em; }
 .stat-pin {
-  font-family: var(--f-mono); font-size: 0.5em; color: var(--gris);
-  background: var(--carbon-2); border: 1px solid var(--line); border-radius: 6px;
-  padding: 0.35em 0.7em; letter-spacing: 0.04em;
+  font-family: var(--f-body); font-size: 0.5em; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.35em 0.7em; letter-spacing: 0; box-shadow: var(--shadow-sm);
 }
-.stat-pin b { color: var(--amber-2); font-size: 1.25em; }
+.stat-pin b { color: var(--accent-deep); font-size: 1.2em; font-weight: 700; }
 
 /* ============================================================================
-   S8 — PANNEAUX (pipeline + dashboard panneau + courbe accuracy)
+   S8 — PANNEAUX (pipeline + dashboard + courbe accuracy)
    ============================================================================ */
-.pipeline { display: flex; align-items: stretch; gap: 0.35em; margin: 0.7em 0; }
+.pipeline { display: flex; align-items: stretch; gap: 0.35em; margin: 0.5em 0; }
 .etape {
-  background: linear-gradient(180deg, var(--carbon-3), var(--carbon-2));
-  border: 1px solid var(--line); border-top: 3px solid var(--amber);
+  background: var(--surface);
+  border: 1px solid var(--line); border-top: 3px solid var(--accent);
   border-radius: 9px; padding: 0.5em 0.55em; font-family: var(--f-display);
-  font-stretch: 90%; font-size: 0.6em; font-weight: 600; text-align: center; flex: 1;
-  color: var(--ink); opacity: 0;
+  font-size: 0.6em; font-weight: 650; text-align: center; flex: 1;
+  color: var(--ink); opacity: 0; box-shadow: var(--shadow-sm);
 }
-.etape .petit { display: block; font-family: var(--f-mono); font-weight: 400; font-size: 0.7em; color: var(--gris); margin-top: 0.15em; letter-spacing: 0.02em; }
-.pipe-fleche { align-self: center; color: var(--amber); font-size: 0.9em; opacity: 0; }
-.pipeline { margin: 0.5em 0; }
+.etape .petit { display: block; font-family: var(--f-body); font-weight: 400; font-size: 0.7em; color: var(--muted); margin-top: 0.15em; letter-spacing: 0; }
+.pipe-fleche { align-self: center; color: var(--accent); font-size: 0.9em; opacity: 0; }
 .panneaux-grid { display: grid; grid-template-columns: 0.6fr 1.4fr; gap: 1em; align-items: center; margin-top: 0.4em; }
 .panneaux-dash .instrument { max-width: 150px; margin: 0 auto; }
-.panneaux-graph .hud-screen { background: var(--carbon-1); }
-.panneaux-graph .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.25em; letter-spacing: 0.04em; }
+.panneaux-graph .cap { margin-top: 0.25em; font-size: 0.42em; }
 .accuracy-ligne { display: flex; align-items: baseline; justify-content: center; gap: 0.55em; margin-top: 0.5em; font-family: var(--f-mono); }
-.acc-etape { font-size: 0.58em; color: var(--gris); }
-.acc-sep { color: var(--amber); }
-.acc-final { font-size: 0.95em; font-weight: 700; color: var(--green-2); }
+.acc-etape { font-size: 0.58em; color: var(--muted); }
+.acc-sep { color: var(--accent); }
+.acc-final { font-size: 0.95em; font-weight: 700; color: var(--green-deep); font-variant-numeric: tabular-nums; }
 
 /* ============================================================================
-   S9 — OCCLUSION (scène animée signature, habillée « caméra onboard »)
+   S9 — OCCLUSION (scène animée signature)
    ============================================================================ */
 .symptome { font-size: 0.74em; }
-.symptome strong:last-of-type { color: var(--red); }
+.symptome strong:last-of-type { color: var(--red-deep); }
 .scene-occlusion { display: flex; align-items: center; gap: 1.4em; justify-content: center; margin: 0.5em 0; }
 .cam-frame {
   position: relative; width: 340px; height: 190px; overflow: hidden;
-  border: 1px solid var(--cyan-dim); border-radius: 8px;
-  background: repeating-linear-gradient(0deg, #0c1420, #0c1420 3px, #0e1826 3px, #0e1826 6px);
-  flex-shrink: 0;
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+  border: 1px solid var(--line-strong); border-top: 2px solid var(--accent);
+  border-radius: 8px; background: var(--surface); flex-shrink: 0;
+  box-shadow: var(--shadow-plate);
 }
-/* Tag « ◉ REC · ONBOARD » du cadre caméra : SUPPRIMÉ (2e REC de la slide ;
-   le label « champ caméra 128 px » porte déjà l'info). Scanline conservée. */
-.cam-frame::after {   /* scanline */
-  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  background: linear-gradient(180deg, transparent 48%, rgba(45,212,238,0.10) 50%, transparent 52%);
-}
-.cam-label { position: absolute; bottom: 5px; left: 10px; font-family: var(--f-mono); font-size: 0.4em; color: var(--gris); z-index: 3; }
+.cam-label { position: absolute; bottom: 6px; left: 10px; font-family: var(--f-body); font-size: 0.4em; color: var(--muted); z-index: 3; font-weight: 600; }
 .sign-panneau {
-  position: absolute; top: 40px; left: 110px; width: 108px; height: 108px;
+  position: absolute; top: 40px; left: 110px; width: 106px; height: 106px;
   background: #fff; border: 9px solid var(--red); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--f-display); font-weight: 700; font-size: 1.5em; color: #111; z-index: 1;
+  font-family: var(--f-display); font-weight: 800; font-size: 1.5em; color: #111; z-index: 1;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.15);
 }
 .pred {
   font-family: var(--f-mono); font-size: 0.8em;
-  background: var(--carbon-2); border: 1px solid var(--line);
-  padding: 0.5em 0.9em; border-radius: 8px; min-width: 6.5em;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  padding: 0.5em 0.9em; border-radius: 8px; min-width: 6.5em; color: var(--body);
+  box-shadow: var(--shadow-sm);
 }
-.pred strong { font-size: 1.25em; color: var(--ink); }
-.pred.pred-ko { border-color: #7a2a26; }
-.pred.pred-ko strong { color: var(--red); }
-.pred.pred-ok { border-color: #1f6b3a; }
-.pred.pred-ok strong { color: var(--green-2); }
-.lecon, .fix { font-size: 0.64em; line-height: 1.36; }
-.fix { background: var(--carbon-2); border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 0.4em 0.8em; }
+.pred strong { font-size: 1.2em; color: var(--ink); }
+.pred.pred-ko { border-color: #f0c2c2; background: var(--red-soft); }
+.pred.pred-ko strong { color: var(--red-deep); }
+.pred.pred-ok { border-color: #bfe3cb; background: var(--green-soft); }
+.pred.pred-ok strong { color: var(--green-deep); }
+.lecon, .fix { font-size: 0.64em; line-height: 1.38; }
+.fix { background: var(--green-soft); border: 1px solid #cbe7d4; border-radius: 8px; padding: 0.45em 0.8em; }
 
 /* ============================================================================
-   S10 — MESURER (oracle + dashboard urgence + diagnostic barres)
+   S10 — MESURER (oracle + diagnostic barres urgence)
    ============================================================================ */
-.mesurer-grid { display: grid; grid-template-columns: 1.5fr 0.55fr; gap: 1em; align-items: center; margin: 0.15em 0; }
-.mesurer-graph .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.2em; letter-spacing: 0.04em; }
-.mesurer-side .cap { font-family: var(--f-mono); font-size: 0.4em; color: var(--gris); margin-top: 0.25em; text-align: center; letter-spacing: 0.05em; }
-.diag-titre { font-size: 0.68em; margin: 0.3em 0 0.2em; }
-.diag-titre strong { color: var(--red); }
+.mesurer-grid { display: grid; grid-template-columns: 1fr; gap: 0.7em; align-items: center; margin: 0.15em 0; }
+.mesurer-graph .cap { margin-top: 0.2em; font-size: 0.42em; }
+.diag-titre { font-size: 0.68em; margin: 0.15em 0 0.1em; }
+.diag-titre strong { color: var(--red-deep); }
 
-/* Barres diagnostic « urgence » — mini histogramme télémétrie horizontal */
+/* Barres diagnostic « urgence » — histogramme horizontal */
 .barres-urgence {
-  display: flex; flex-direction: column; gap: 0.35em; margin: 0.3em 0 0.15em;
-  background: var(--carbon-1); border: 1px solid var(--line); border-radius: 8px; padding: 0.55em 0.7em;
+  display: flex; flex-direction: column; gap: 0.2em; margin: 0.1em 0 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0.3em 0.7em; box-shadow: var(--shadow-sm);
 }
 .barres-urgence .groupe-barre {
   display: grid; grid-template-columns: 4.2em 1fr 2.6em; align-items: center; gap: 0.5em; height: auto;
 }
-.barres-urgence .nom { order: 0; font-family: var(--f-mono); font-size: 0.5em; color: var(--gris); text-align: left; }
+.barres-urgence .nom { order: 0; font-family: var(--f-mono); font-size: 0.5em; color: var(--muted); text-align: left; }
 .barres-urgence .barre {
   order: 1; height: 11px !important; width: 0; border-radius: 3px;
-  background: linear-gradient(90deg, #7a1d18, var(--red)); align-self: center;
+  background: var(--red); align-self: center;
 }
-.barres-urgence .val { order: 2; font-family: var(--f-mono); font-size: 0.5em; font-weight: 700; color: var(--red); margin: 0; text-align: right; }
+.barres-urgence .val { order: 2; font-family: var(--f-mono); font-size: 0.5em; font-weight: 700; color: var(--red-deep); margin: 0; text-align: right; }
 
 /* ============================================================================
-   S11 — RÉSULTATS (deux graphes matplotlib réels — remplacent les barres CSS)
+   S11 — RÉSULTATS (deux graphes matplotlib réels)
    ============================================================================ */
 .resultats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; align-items: stretch; margin: 0.4em 0 0.3em; }
 .result-graph {
-  opacity: 0; background: var(--carbon-1); border: 1px solid var(--line-hot);
+  opacity: 0; background: var(--surface); border: 1px solid var(--line-strong);
+  border-top: 2px solid var(--accent);
   border-radius: 10px; padding: 0.5em 0.6em 0.4em; position: relative;
+  box-shadow: var(--shadow-plate);
 }
 .result-graph img { display: block; width: 100%; height: auto; }
 .result-graph .cap {
-  font-family: var(--f-mono); font-size: 0.44em; color: var(--gris);
-  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.2em;
+  font-family: var(--f-body); font-size: 0.46em; color: var(--ink); font-weight: 600;
+  letter-spacing: 0; text-transform: none; margin: 0 0 0.25em;
 }
-.result-graph .cap b { color: var(--amber-2); }
+.result-graph .cap b { color: var(--green-deep); }
 
 /* ============================================================================
-   Barres génériques (compat — conservé pour d'éventuelles barres verticales)
+   Légende de barres / bandeau chiffré (data → mono discret)
    ============================================================================ */
-.barres-resultats { display: flex; gap: 2em; justify-content: center; align-items: flex-end; height: 230px; margin: 0.4em 0 0.2em; }
-.paire { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
-.duo { display: flex; gap: 6px; align-items: flex-end; height: 170px; }
-.barre { width: 54px; border-radius: 5px 5px 0 0; height: 0; }
-.b-urg { background: var(--red); }
-.b-avant { background: var(--gris-barre); }
-.b-apres { background: var(--blue); }
-.b-dnf { background: repeating-linear-gradient(45deg, var(--gris-barre), var(--gris-barre) 8px, #47566d 8px, #47566d 16px); }
-.gain { font-family: var(--f-display); font-stretch: 90%; font-size: 0.72em; font-weight: 700; color: var(--green-2); margin-top: 0.3em; }
-.nom { font-family: var(--f-mono); font-size: 0.52em; color: var(--gris); text-align: center; line-height: 1.25; }
+.legende-barres { font-family: var(--f-body); font-size: 0.52em; color: var(--muted); text-align: center; letter-spacing: 0; }
+.nom { font-family: var(--f-mono); font-size: 0.52em; color: var(--muted); text-align: center; line-height: 1.25; }
 .nom .detail { font-size: 0.85em; }
-.legende-barres { font-family: var(--f-mono); font-size: 0.52em; color: var(--gris); text-align: center; letter-spacing: 0.02em; }
 
 /* ============================================================================
-   S12 — DÉMO LIVE (habillage broadcast ; NE PAS toucher au fonctionnement)
+   S12 — DÉMO (checklist claire ; le module live est débranché du deck)
    ============================================================================ */
-.live-scene {
-  text-align: center; position: relative;
-  border: 1px solid var(--line-hot); border-radius: 12px;
-  background: var(--carbon-1); padding: 0.7em 0.7em 0.5em; margin: 0.2em auto 0.3em;
-  max-width: 84%;
+.checklist-demo {
+  counter-reset: step; list-style: none; margin: 0.6em 0 0.4em; margin-left: 0;
+  max-width: 88%;
 }
-.live-scene::before {   /* un seul marqueur : c'est réellement en direct */
-  content: "Pilote en direct"; display: block;
-  font-family: var(--f-body); font-size: 0.44em; letter-spacing: 0.04em;
-  color: var(--cyan); font-weight: 600; text-align: left; margin-bottom: 0.4em;
+.checklist-demo li {
+  counter-increment: step; position: relative;
+  padding: 0.5em 0.8em 0.5em 2.5em; margin: 0.32em 0;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; font-size: 0.72em; color: var(--body);
+  box-shadow: var(--shadow-sm);
 }
-/* .rec S12 : SUPPRIMÉ (témoin clignotant factice). */
-.live-scene .rec { display: none; }
-#live-canvas {
-  width: 100%; border: 1px solid var(--line-hot); border-radius: 8px;
-  background: #fff; display: block;
+.checklist-demo li::before {
+  content: counter(step); position: absolute; left: 0.6em; top: 50%;
+  transform: translateY(-50%); width: 1.55em; height: 1.55em;
+  border-radius: 50%; background: var(--accent-soft); color: var(--accent-deep);
+  font-family: var(--f-body); font-weight: 700; font-size: 0.82em;
+  display: flex; align-items: center; justify-content: center;
 }
-.live-hud {
-  font-family: var(--f-mono); font-size: 0.58em; text-align: center;
-  color: var(--cyan); margin: 0.35em 0 0; letter-spacing: 0.03em;
-}
-.live-note { font-size: 0.56em; color: var(--gris); text-align: center; margin-top: 0.4em; }
-.print-fallback { display: none; }
-.statique .live-scene canvas { display: none; }
-.statique .print-fallback { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--line-hot); }
+.checklist-demo li strong { color: var(--ink); }
 .petit { font-size: 0.8em; }
 
 /* ============================================================================
-   S13 — CONCLUSION (phrase + compteur vitesse + graphe physique-100)
+   S13 — CONCLUSION (phrase sérif + compteur vitesse + graphe physique-100)
    ============================================================================ */
 .conclusion-grid { display: grid; grid-template-columns: 1fr 0.95fr; gap: 1.2em; align-items: center; margin: 0.2em 0; }
-.phrase-finale { font-size: 1.15em; text-align: left; color: var(--cyan); font-style: italic; }
+.phrase-finale { font-family: var(--f-serif); font-size: 1.15em; text-align: left; color: var(--ink); font-style: italic; font-weight: 400; line-height: 1.2; }
 .phrase-finale::after { display: none; }
 .vitesse-finale {
-  font-family: var(--f-display); font-stretch: 90%; text-align: left;
-  font-size: 3.1em; font-weight: 700; color: var(--ink); margin: 0.1em 0;
-  text-shadow: 0 0 34px rgba(45,212,238,0.3);
+  font-family: var(--f-display); text-align: left;
+  font-size: 3em; font-weight: 800; color: var(--ink); margin: 0.1em 0;
+  font-variant-numeric: tabular-nums; line-height: 1;
 }
-.vitesse-finale::before { content: "PLAFOND "; font-family: var(--f-mono); font-size: 0.2em; letter-spacing: 0.2em; color: var(--gris); vertical-align: middle; margin-right: 0.4em; }
-.vitesse-finale .unite { font-family: var(--f-mono); font-size: 0.3em; color: var(--amber-2); margin-left: 0.3em; }
+.vitesse-finale::before { content: "PLAFOND "; font-family: var(--f-body); font-size: 0.2em; letter-spacing: 0.18em; color: var(--muted); vertical-align: middle; margin-right: 0.4em; font-weight: 700; }
+.vitesse-finale .unite { font-family: var(--f-body); font-size: 0.3em; color: var(--accent-deep); margin-left: 0.3em; font-weight: 700; }
 .conclusion-txt p { font-size: 0.66em; text-align: left; }
-.conclusion-visuel .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.25em; letter-spacing: 0.04em; }
-.ouverture { color: var(--gris); }
+.conclusion-visuel .cap { margin-top: 0.25em; font-size: 0.42em; }
+.ouverture { color: var(--muted); }
 .merci {
-  color: var(--green-2); font-family: var(--f-display); font-stretch: 90%;
-  font-weight: 600; font-size: 0.85em !important; letter-spacing: 0.04em;
-  text-transform: uppercase; margin-top: 0.6em; border-top: 1px solid var(--line); padding-top: 0.5em;
+  color: var(--accent-deep); font-family: var(--f-display);
+  font-weight: 700; font-size: 0.8em !important; letter-spacing: 0.01em;
+  margin-top: 0.6em; border-top: 1px solid var(--line); padding-top: 0.5em;
 }
 
 /* ============================================================================
@@ -631,12 +574,15 @@
    ============================================================================ */
 .sommaire-annexes li { font-size: 0.72em !important; }
 .annexe-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.2em; align-items: center; }
-.annexe-grid .cap { font-family: var(--f-mono); font-size: 0.42em; color: var(--gris); margin-top: 0.25em; letter-spacing: 0.04em; }
-.tableau-bareme { font-family: var(--f-mono); font-size: 0.5em; width: 100%; border-collapse: collapse; }
-.tableau-bareme th, .tableau-bareme td { border-bottom: 1px solid var(--line); padding: 0.32em 0.6em; text-align: left; }
-.tableau-bareme thead th { color: var(--amber-2); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 2px solid var(--amber-dim); }
-.tableau-bareme tbody tr:hover { background: var(--carbon-2); }
-.tableau-bareme td:nth-child(2) { color: var(--green-2); text-align: center; font-weight: 700; }
+.annexe-grid .cap { margin-top: 0.25em; font-size: 0.42em; }
+.tableau-bareme { font-family: var(--f-mono); font-size: 0.5em; width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tableau-bareme th, .tableau-bareme td { border-bottom: 1px solid var(--line); padding: 0.34em 0.6em; text-align: left; color: var(--body); }
+.tableau-bareme thead th { color: var(--accent-deep); text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--line-strong); }
+.tableau-bareme tbody tr:hover { background: var(--surface-2); }
+.tableau-bareme td:nth-child(2) { color: var(--green-deep); text-align: center; font-weight: 700; }
+.a5-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1em; align-items: center; }
+.a5-visuel .instrument { max-width: 150px; margin: 0 auto; }
+.a5-visuel .cap { text-align: center; }
 
 /* ============================================================================
    ÉTATS INITIAUX ANIMÉS (anti-flash) — cibles opacity:0 avant timeline anime.js
@@ -654,10 +600,9 @@
 }
 
 /* ============================================================================
-   RENDU STATIQUE — ?print-pdf (aperçu écran via .statique) + reduced-motion
-   On révèle toutes les cibles opacity:0. Les barres data-h + compteurs sont
-   posés en JS (finaliserStatique). Les .msg (déco pure de mouvement) restent
-   masqués volontairement.
+   RENDU STATIQUE — ?print-pdf (aperçu via .statique) + reduced-motion
+   On révèle toutes les cibles opacity:0. Barres data-h + compteurs posés en JS
+   (finaliserStatique). Les .msg (déco de mouvement pur) restent masqués.
    ============================================================================ */
 .statique #titre-principal span,
 .statique .soustitre, .statique .equipe,
@@ -679,46 +624,16 @@
   }
 }
 
-/* Impression : fond carbone forcé (sinon blanc), coins viseur allégés */
+/* Impression : fond clair (cohérent avec le thème) */
 @media print {
-  .reveal-viewport, .reveal, body, html { background: var(--carbon) !important; }
-  .reveal .slides > section[data-anim]::after { animation: none; }
-  .live-scene .rec { animation: none; }
+  .reveal-viewport, .reveal, body, html { background: #ffffff !important; }
 }
 
 /* ============================================================================
-   Caps anti-débordement — finition post-refonte (S10 : 760px, S12 : 1021px
-   mesurés à 1280×720 ; cible : toute slide ≤ 720px)
+   Caps anti-débordement — finition (cible : toute slide ≤ 720px à 1280×720)
    ============================================================================ */
-/* S10 : les caps images de la refonte (166px/124px) sont bons — on gagne les
-   ~40px restants sur les marges verticales du bas de slide. */
-section[data-anim="mesurer"] .diag-titre { margin: 0.15em 0 0.1em; }
-section[data-anim="mesurer"] .barres-urgence { margin: 0.1em 0 0; padding: 0.3em 0.7em; gap: 0.2em; }
+section[data-anim="mesurer"] .diag-titre { margin: 0.12em 0 0.08em; }
+section[data-anim="mesurer"] .barres-urgence { margin: 0.08em 0 0; padding: 0.3em 0.7em; gap: 0.2em; }
 section[data-anim="mesurer"] .legende-barres { margin: 0.05em 0 0; }
 section[data-anim="mesurer"] ul.compact li { margin: 0.12em 0; }
-section[data-anim="mesurer"] .mesurer-graph img { max-height: 148px; }
-section[data-anim="mesurer"] .mesurer-grid { gap: 0.7em; }
-/* S12 : le canvas plein cadre dépassait de 300px — hauteur fixe, ratio 16:9
-   préservé par width:auto. */
-section[data-anim="demo-live"] #live-canvas { height: 352px; width: auto; max-width: 96%; display: block; margin: 0 auto; }
-section[data-anim="demo-live"] .live-note { margin-top: 0.1em; }
-.statique section[data-anim="demo-live"] .print-fallback { height: 352px; width: auto; display: block; margin: 0 auto; }
-/* L'ID du centrage ci-dessus bat la règle .statique générique : on la
-   redouble avec l'ID pour que le canvas disparaisse bien à l'export. */
-.statique section[data-anim="demo-live"] #live-canvas { display: none; }
-
-/* ============================================================================
-   Sobriété (audit 22/07) — mono réservé aux données ; légendes en fonte du
-   corps ; S10 recentrée sur banc + oracle + diagnostic (dash-urgence → A5)
-   ============================================================================ */
-.reveal .cap, .reveal .legende-barres, .reveal .ligne-bonus,
-.reveal .flux-label, .reveal .carte .sous, .reveal .vue p,
-.reveal .legende-chiffre, .reveal .live-note,
-.mesurer-graph .cap, .mesurer-side .cap {
-  font-family: var(--f-body); letter-spacing: 0.01em; text-transform: none;
-}
-section[data-anim="mesurer"] .mesurer-grid { grid-template-columns: 1fr; }
-section[data-anim="mesurer"] .mesurer-graph img { max-height: 178px; }
-.a5-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1em; align-items: center; }
-.a5-visuel .instrument { max-width: 150px; margin: 0 auto; }
-.a5-visuel .cap { text-align: center; }
+section[data-anim="mesurer"] .mesurer-grid { gap: 0.6em; }
