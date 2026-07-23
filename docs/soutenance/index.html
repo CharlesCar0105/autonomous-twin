@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Autonomous Twin — Soutenance M1</title>
+  <title>Autonomous Twin · Soutenance M1</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="vendor/reset.css">
   <link rel="stylesheet" href="vendor/reveal.css">
@@ -17,9 +17,9 @@
          retirable en supprimant .filigrane) -->
     <section data-anim="intro" data-sector="01" data-phase="Ouverture">
       <img class="filigrane" src="assets/circuits/gen_014.png" alt="" aria-hidden="true">
-      <p class="kicker">ESGI M1 — Architecture Logicielle &amp; IA Big Data</p>
+      <p class="kicker">ESGI M1 · Architecture Logicielle &amp; IA Big Data</p>
       <h1 id="titre-principal">AUTONOMOUS&nbsp;TWIN</h1>
-      <p class="soustitre">Jumeau numérique automobile — conduite autonome sur circuits inconnus</p>
+      <p class="soustitre">Jumeau numérique automobile : conduite autonome sur circuits inconnus</p>
       <hr class="filet-garde" aria-hidden="true">
       <p class="equipe">Charles · Nohlan · Lorenzo</p>
       <p class="date-garde">Soutenance M1 · Juillet 2026</p>
@@ -89,7 +89,7 @@
         <div class="boite boite-pilote">PILOTE<br><span class="petit">client</span></div>
       </div>
       <ul class="compact">
-        <li>Deux programmes indépendants — le simulateur reste jouable au clavier sans pilote</li>
+        <li>Deux programmes indépendants : le simulateur reste jouable au clavier sans pilote</li>
         <li>60 échanges par seconde : les capteurs dans un sens, les commandes dans l'autre</li>
       </ul>
       <aside class="notes">
@@ -156,7 +156,7 @@
           <p class="cap">Le vrai couple caméra / masque du dashboard pilote</p>
         </div>
       </div>
-      <p class="iou-line">U-Net entraîné from scratch (&lt; 1 M params) — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
+      <p class="iou-line">U-Net entraîné from scratch (&lt; 1 M params) : <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
       <p class="honnete">Un score parfait, c'est d'abord un signal d'alarme. En vérifiant, on a vu
       qu'il avait appris un seuillage de luminance (0 pixel d'écart). On l'a donc remplacé
       par ce seuillage : résultat identique, coût d'environ 10 µs. Le modèle entraîné reste
@@ -174,10 +174,10 @@
 
       <!-- 6a. Le modèle : architecture -->
       <section>
-        <h2>Conduire — le CNN <span style="font-family:var(--f-mono);font-size:.5em;color:var(--green-deep)">~557k paramètres</span></h2>
+        <h2>Conduire : le CNN <span style="font-family:var(--f-mono);font-size:.5em;color:var(--green-deep)">~557k paramètres</span></h2>
 
         <div style="display:flex;flex-direction:column;gap:.6em;font-family:var(--f-mono);font-size:.62em;margin:.6em 0 .8em;text-align:left">
-          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Branche image — extraire la forme</div>
+          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Branche image : extraire la forme</div>
           <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
             <span style="border:1px solid var(--accent);color:var(--accent-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">masque 64×64</span>
             <span style="color:var(--faint)">→</span>
@@ -185,13 +185,13 @@
             <span style="color:var(--faint)">→</span>
             <span style="border:1px solid var(--green);color:var(--green-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">Linear → 128</span>
           </div>
-          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Branche lidar — 5 rayons [0,300]px → [0,1]</div>
+          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Branche lidar : 5 rayons [0,300]px → [0,1]</div>
           <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
             <span style="border:1px solid var(--accent);color:var(--accent-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">lidar (5)</span>
             <span style="color:var(--faint)">→</span>
             <span style="border:1px solid var(--green);color:var(--green-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">MLP → 16</span>
           </div>
-          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Fusion & décision — « le régresseur »</div>
+          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Fusion & décision : « le régresseur »</div>
           <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
             <span style="border:1px solid #b9791c;color:#b9791c;border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">concat 144</span>
             <span style="color:var(--faint)">→</span>
@@ -214,16 +214,16 @@
 
       <!-- 6b. L'imitation -->
       <section>
-        <h2>Conduire — apprendre par imitation</h2>
+        <h2>Conduire : apprendre par imitation</h2>
         <div class="conduire-layout">
           <div class="jauge">
             <div class="grand-chiffre"><span>30</span><span class="sur">/30</span></div>
             <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
           </div>
           <ul>
-            <li>Behavioral cloning d'un PID qui fait des tours propres — loss MSE</li>
-            <li>Entrée : masque 64×64 + lidar — <strong>jamais l'image brute</strong> → le CNN ne voit que la forme</li>
-            <li>Sortie : volant (<strong>MAE 1,80°</strong>) et gaz (<strong>MAE 0,056</strong>) — régression</li>
+            <li>Behavioral cloning d'un PID qui fait des tours propres (loss MSE)</li>
+            <li>Entrée : masque 64×64 + lidar, <strong>jamais l'image brute</strong> → le CNN ne voit que la forme</li>
+            <li>Sortie : volant (<strong>MAE 1,80°</strong>) et gaz (<strong>MAE 0,056</strong>), en régression</li>
             <li>Filet de sécurité : retour PID à tout moment</li>
           </ul>
         </div>
@@ -241,9 +241,9 @@
 
     <!-- 7. Généraliser -->
     <section data-anim="circuits" data-sector="07" data-phase="Généralisation">
-      <h2>Généraliser — la consigne n°1</h2>
+      <h2>Généraliser : la consigne n°1</h2>
       <blockquote>« Souvent la solution ne généralise pas et ne permet pas d'exécuter
-      la conduite sur différents circuits. » — l'avertissement du sujet</blockquote>
+      la conduite sur différents circuits. » (l'avertissement du sujet)</blockquote>
       <div class="galerie-circuits">
         <img src="assets/circuits/gen_000.png" alt="circuit gen_000">
         <img src="assets/circuits/gen_003.png" alt="circuit gen_003">
@@ -257,7 +257,7 @@
         <span class="stat-pin"><b>5</b> jamais-vus en éval</span>
       </div>
       <ul class="compact">
-        <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible (25 train, 5 validation)</li>
+        <li><strong>30 circuits générés</strong> procéduralement : épingles, chicanes, lignes droites, seed reproductible (25 train, 5 validation)</li>
         <li>Split train/validation <strong>par circuit</strong> : aucune évaluation sur du déjà-vu. Le CNN ne voyant que son environnement proche, l'important est de varier les géométries locales</li>
       </ul>
       <aside class="notes">
@@ -269,7 +269,7 @@
 
     <!-- 8. Panneaux -->
     <section data-anim="panneaux" data-sector="08" data-phase="Panneaux">
-      <h2>Lire les panneaux — et obéir</h2>
+      <h2>Lire les panneaux, et obéir</h2>
       <div class="pipeline">
         <div class="etape">Détection<br><span class="petit">repérage du rouge dans l'image</span></div>
         <div class="pipe-fleche" aria-hidden="true">→</div>
@@ -316,10 +316,10 @@
           <span class="cam-label">champ caméra 128&nbsp;px</span>
           <div class="sign-panneau" id="sign-occlusion"><span>3</span><span>0</span></div>
         </div>
-        <div class="pred" id="pred-occlusion">panneau lu : <strong>—</strong></div>
+        <div class="pred" id="pred-occlusion">panneau lu : <strong>…</strong></div>
       </div>
       <p class="lecon">La caméra cadre un carré fixe autour de la voiture : un panneau trop décalé
-      sur le côté sortait du champ. Un «&nbsp;<s>3</s>0&nbsp;» est réellement ambigu — le modèle répondait juste.</p>
+      sur le côté sortait du champ. Un «&nbsp;<s>3</s>0&nbsp;» est réellement ambigu : le modèle répondait juste.</p>
       <p class="fix">Correctif mesuré : panneaux replacés dans le champ + rejet des images tronquées
       → confiance 0,94 et plus. <em>Leçon : instrumenter avant d'accuser le modèle.</em></p>
       <aside class="notes">
@@ -372,13 +372,13 @@
     <section data-sector="11" data-phase="Démo">
       <h2>Démonstration en direct</h2>
       <ol class="checklist-demo">
-        <li>Un tour réglementaire — <strong>50,0&nbsp;km/h</strong> pile sous la limite 50</li>
+        <li>Un tour réglementaire : <strong>50,0&nbsp;km/h</strong> pile sous la limite 50</li>
         <li>Arrêt STOP exécuté depuis ~95&nbsp;km/h</li>
         <li>Mur surgi à vitesse de croisière → arrêt net, zéro contact</li>
         <li>Épingle à 70&nbsp;km/h, braquage complet, sans freinage d'urgence</li>
         <li>Dashboard pilote en temps réel</li>
       </ol>
-      <p class="cap">Circuit gen_014 — celui qui ne finissait pas ses trois tours avant l'optimisation</p>
+      <p class="cap">Circuit gen_014, celui qui ne finissait pas ses trois tours avant l'optimisation</p>
       <aside class="notes">
         Bascule sur le simulateur (lancé AVANT la soutenance, en pause).
         Charles au clavier pour le mur (Espace), Lorenzo commente le dashboard,
@@ -418,7 +418,7 @@
         <div class="pipe-fleche" aria-hidden="true">→</div>
         <div class="etape">Mur déplacé, par choix<br><span class="petit">plafond porté à 100 km/h</span></div>
       </div>
-      <p class="merci">Merci — place aux questions.</p>
+      <p class="merci">Merci. Place aux questions.</p>
       <aside class="notes">
         Lorenzo : conclusion en 45 s, en suivant la frise : d'abord les freins
         LOGICIELS (le fantôme, les brides), ensuite le mur PHYSIQUE (70,6, oracle),
@@ -431,7 +431,7 @@
     <section>
       <section>
         <h2>Annexes</h2>
-        <p>Matériel pour les questions — flèche ↓</p>
+        <p>Matériel pour les questions (flèche ↓)</p>
         <ul class="compact sommaire-annexes">
           <li>A1 · Pourquoi pas du RL end-to-end</li>
           <li>A2 · La classe « aucun » et les murs</li>
@@ -443,9 +443,9 @@
       <section>
         <h3>A1 · Pourquoi pas du RL end-to-end ?</h3>
         <ul>
-          <li>Temps d'entraînement long, surapprend le circuit d'entraînement — or le critère est la généralisation</li>
+          <li>Temps d'entraînement long, surapprend le circuit d'entraînement ; or le critère est la généralisation</li>
           <li>Pipeline perception → contrôle : chaque étage se valide indépendamment (masque, commandes)</li>
-          <li>Lisible en soutenance — un RL est une boîte noire</li>
+          <li>Lisible en soutenance : un RL est une boîte noire</li>
           <li>Décision D1, actée en février et jamais regrettée</li>
         </ul>
       </section>
@@ -453,7 +453,7 @@
         <h3>A2 · La classe « aucun » et les murs</h3>
         <ul>
           <li>Le dataset « aucun » contient des crops de mur brique <em>texturés</em>, la caméra pilote voit un aplat</li>
-          <li>Sans conséquence mesurée : le rouge brique (~150-180) reste sous le seuil du détecteur (190) — le classifieur n'est jamais sollicité</li>
+          <li>Sans conséquence mesurée : le rouge brique (~150-180) reste sous le seuil du détecteur (190) : le classifieur n'est jamais sollicité</li>
           <li>Vérifié en boucle fermée : zéro déclenchement sur mur pendant tous les scénarios</li>
         </ul>
       </section>
@@ -461,9 +461,9 @@
         <h3>A3 · Variance &amp; reproductibilité</h3>
         <div class="annexe-grid">
           <ul>
-            <li>Val accuracy du classifieur : 0,90-0,95 selon la seed (0,9513 committé) — seuil d'échec dur à 0,90 (bascule GTSRB, jamais déclenchée)</li>
+            <li>Val accuracy du classifieur : 0,90-0,95 selon la seed (0,9513 committé) ; seuil d'échec dur à 0,90 (bascule GTSRB, jamais déclenchée)</li>
             <li>Tout est régénérable : circuits (seed 1000), sidecars panneaux (seed par nom), dataset, entraînement ~4 min CPU</li>
-            <li>Modèles .pth versionnés — clone et ça tourne</li>
+            <li>Modèles .pth versionnés : clone et ça tourne</li>
           </ul>
           <div class="annexe-graph">
             <div class="hud-screen">
@@ -478,10 +478,10 @@
         <h3>A4 · Protocole de mesure</h3>
         <div class="a5-grid">
           <ul>
-            <li>Headless, dt fixe 1/60 — temps simulés déterministes, indépendants du CPU</li>
+            <li>Headless, dt fixe 1/60 : temps simulés déterministes, indépendants du CPU</li>
             <li>Par run : temps/tour, best lap, % arrêt, % urgence, % hors-piste, arrêts STOP</li>
             <li>Configs : règles (CDC) / libre (potentiel châssis) / CNN</li>
-            <li>JSON datés committés dans <code>bench/</code> — chaque optimisation a son avant/après traçable</li>
+            <li>JSON datés committés dans <code>bench/</code> : chaque optimisation a son avant/après traçable</li>
           </ul>
           <div class="a5-visuel">
             <div class="instrument">

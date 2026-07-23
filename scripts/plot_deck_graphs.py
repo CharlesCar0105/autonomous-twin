@@ -104,7 +104,7 @@ def g3_oracle(post_libre, post):
                 ha="center", fontsize=10, color=BLEU)
     ax.set_xticks(x, CIRCUITS)
     ax.set_ylabel("Temps au tour (s)")
-    ax.set_title("Le PID libre roule à 1-4 % de l'oracle — l'écart règles est le coût du code de la route", fontsize=12)
+    ax.set_title("Le PID libre roule à 1-4 % de l'oracle ; l'écart règles est le coût du code de la route", fontsize=12)
     ax.legend(frameon=False)
     sauver(fig, "oracle.png")
 
