@@ -650,3 +650,41 @@ section[data-anim="mesurer"] .barres-urgence { margin: 0.08em 0 0; padding: 0.3e
 section[data-anim="mesurer"] .legende-barres { margin: 0.05em 0 0; }
 section[data-anim="mesurer"] ul.compact li { margin: 0.12em 0; }
 section[data-anim="mesurer"] .mesurer-grid { gap: 0.6em; }
+
+/* ============================================================================
+   Appuis d'orateur (22/07) — badges numérotés, cartes des 4 corrections,
+   barre de split, équation U-Net, frise 3 actes
+   ============================================================================ */
+.num-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.25em; height: 1.25em; border-radius: 50%;
+  background: var(--accent); color: #fff; font-weight: 700; font-size: 0.82em;
+  margin-right: 0.45em; flex-shrink: 0; vertical-align: 0.05em;
+}
+.opt-cartes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5em; margin: 0.45em 0 0.25em; }
+.opt-carte {
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px;
+  border-top: 3px solid var(--accent); padding: 0.45em 0.6em;
+  font-size: 0.52em; line-height: 1.35; box-shadow: var(--shadow-sm);
+}
+.opt-carte b { color: var(--ink); }
+.split-barre {
+  display: flex; gap: 3px; margin: 0.4em auto 0.15em; width: 88%;
+  font-size: 0.5em; text-align: center;
+}
+.split-seg { padding: 0.5em 0.4em; border-radius: 8px; white-space: nowrap; overflow: hidden; }
+.split-train { background: var(--accent-soft); color: var(--accent-deep); border: 1px solid #c9d9f7; }
+.split-eval { background: var(--green-soft); color: var(--green-deep); border: 1px solid #bfe5cc; font-weight: 600; }
+.split-legende { font-size: 0.5em; color: var(--muted); text-align: center; margin: 0 0 0.2em; }
+.equation-pills { display: flex; align-items: center; justify-content: center; gap: 0.6em; margin: 0.45em 0 0.35em; }
+.eq-pill {
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px;
+  padding: 0.4em 0.9em; font-size: 0.56em; text-align: center; line-height: 1.3;
+  box-shadow: var(--shadow-sm);
+}
+.eq-pill b { color: var(--ink); }
+.eq-verdict { border-color: var(--green); border-width: 2px; }
+.eq-verdict b { color: var(--green-deep); }
+.eq-op { font-size: 1em; font-weight: 700; color: var(--accent-deep); }
+.pipeline-compact .etape { font-size: 0.5em; padding: 0.4em 0.5em; }
+.pipeline-compact { margin: 0.5em 0 0.3em; }

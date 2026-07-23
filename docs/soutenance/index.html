@@ -158,9 +158,15 @@
           <p class="cap">Le vrai couple caméra / masque du dashboard pilote</p>
         </div>
       </div>
-      <p class="iou-line">U-Net entraîné de zéro — <strong>recouvrement parfait avec la réalité (IoU 1,0000)</strong> sur 5 circuits jamais vus.</p>
-      <p class="honnete">Verdict : il avait appris… un simple seuil de luminosité. On l'a donc remplacé
-      par ce seuil — résultat strictement identique, zéro coût. Le modèle reste prêt si le visuel se complexifie.</p>
+      <div class="equation-pills">
+        <span class="eq-pill">U-Net entraîné de zéro<br><b>score parfait : 1,0000</b></span>
+        <span class="eq-op" aria-hidden="true">=</span>
+        <span class="eq-pill">un simple<br><b>seuil de luminosité</b></span>
+        <span class="eq-op" aria-hidden="true">→</span>
+        <span class="eq-pill eq-verdict">on garde<br><b>le seuil</b></span>
+      </div>
+      <p class="honnete">Résultat strictement identique, zéro coût de calcul — et le modèle reste prêt
+      si le visuel se complexifie. Assumer la simplicité quand elle est prouvée, c'est de l'ingénierie.</p>
       <aside class="notes">
         Nohlan : assumer pleinement — c'est un point de maturité, pas un aveu de
         faiblesse. Le domaine (piste blanche sur fond sombre) est objectivement
@@ -173,15 +179,22 @@
     <section data-anim="conduire" data-sector="06" data-phase="Conduite">
       <div class="bareme">Barème · Conduite autonome — 3 pts + IA avancée — 2 pts</div>
       <h2>Conduire par imitation</h2>
+      <div class="pipeline">
+        <div class="etape">Le professeur conduit<br><span class="petit">le pilote automatique (PID) fait des tours propres</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">On enregistre<br><span class="petit">18 000 exemples : masque + lidar → volant, gaz</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">Le réseau s'entraîne<br><span class="petit">deviner · mesurer l'erreur · ajuster</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">L'élève conduit seul<br><span class="petit">erreur moyenne : 1,80° sur le volant</span></div>
+      </div>
       <div class="conduire-layout">
         <div class="jauge">
           <div class="grand-chiffre"><span id="compteur-circuits">0</span><span class="sur">/30</span></div>
           <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
         </div>
         <ul>
-          <li>Apprentissage par imitation (behavioral cloning) d'un pilote automatique qui fait des tours propres</li>
-          <li>Entrée : le masque de route + le lidar — <strong>jamais l'image brute</strong> → le réseau ne voit que la forme de la route</li>
-          <li>Sortie : volant et gaz — erreur moyenne de 1,80° sur le volant</li>
+          <li>Il apprend sur <strong>le masque de route + le lidar — jamais l'image brute</strong> → il ne voit que la forme de la route, pas le décor</li>
           <li>Filet de sécurité : retour au pilote automatique (PID) à tout moment</li>
         </ul>
       </div>
@@ -207,10 +220,11 @@
         <img src="assets/circuits/gen_021.png" alt="circuit gen_021">
         <img src="assets/circuits/gen_026.png" alt="circuit gen_026">
       </div>
-      <div class="circuits-stats" aria-hidden="true">
-        <span class="stat-pin"><b>30</b> générés</span>
-        <span class="stat-pin"><b>5</b> gardés pour l'évaluation</span>
+      <div class="split-barre" aria-hidden="true">
+        <div class="split-seg split-train" style="flex: 25"><b>25 circuits</b> pour apprendre</div>
+        <div class="split-seg split-eval" style="flex: 5"><b>5 jamais vus</b></div>
       </div>
+      <p class="split-legende">Tous les chiffres de cette présentation sont mesurés sur les 5 circuits jamais vus</p>
       <ul class="compact">
         <li><strong>30 circuits générés</strong> automatiquement — épingles, chicanes, lignes droites, reproductibles à l'identique</li>
         <li>Circuits d'entraînement et d'évaluation <strong>strictement séparés</strong> : aucune mesure sur du déjà-vu</li>
@@ -290,10 +304,10 @@
     <section data-anim="mesurer" data-sector="10" data-phase="Mesure &amp; oracle">
       <h2>On ne règle pas ce qu'on ne mesure pas</h2>
       <ul class="compact">
-        <li><strong>Banc de mesure</strong> : de vrais tours détectés au passage de la ligne,
+        <li><span class="num-badge">1</span><strong>Mesurer</strong> : de vrais tours détectés au passage de la ligne,
           un pas de temps fixe → des résultats reproductibles, tous archivés</li>
-        <li><strong>Oracle</strong> : le temps du tour parfait théorique, calculé pour chaque
-          circuit — la borne de ce qui est physiquement possible</li>
+        <li><span class="num-badge">2</span><strong>Comparer à l'oracle</strong> : le temps du tour parfait théorique,
+          calculé pour chaque circuit — la borne de ce qui est physiquement possible</li>
       </ul>
       <div class="mesurer-grid">
         <div class="mesurer-graph">
@@ -304,7 +318,7 @@
           <p class="cap">PID libre à 1-4 % du tour parfait théorique</p>
         </div>
       </div>
-      <p class="diag-titre">Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
+      <p class="diag-titre"><span class="num-badge">3</span>Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
       <div class="barres-urgence">
         <div class="groupe-barre"><div class="barre b-urg" data-h="41"></div><span class="val">6,1&nbsp;%</span><span class="nom">gen_000</span></div>
         <div class="groupe-barre"><div class="barre b-urg" data-h="55"></div><span class="val">8,2&nbsp;%</span><span class="nom">gen_003</span></div>
@@ -334,8 +348,13 @@
           <img src="assets/graphs/urgence-avant-apres.png" alt="Pourcentage de frames en freinage d'urgence parasite, avant vers après : 15 % à 0,8 %">
         </div>
       </div>
-      <p class="legende-barres">Temps 3 tours en conditions réglementaires · urgence parasite 15&nbsp;% → 0,8&nbsp;% ·
-      en configuration libre, le PID roule à 1-4&nbsp;% de l'oracle</p>
+      <div class="opt-cartes">
+        <div class="opt-carte"><span class="num-badge">1</span><b>Freinage fantôme corrigé</b><br>ne freine que si un impact est réellement possible</div>
+        <div class="opt-carte"><span class="num-badge">2</span><b>Pilote débridé</b><br>plein gaz autorisé, distance de sécurité ajustée</div>
+        <div class="opt-carte"><span class="num-badge">3</span><b>Perception accélérée</b><br>classification des panneaux optimisée</div>
+        <div class="opt-carte"><span class="num-badge">4</span><b>Règles précisées</b><br>STOP 0,8&nbsp;s · limite bornée à sa zone</div>
+      </div>
+      <p class="legende-barres">Quatre corrections mesurées une à une · en configuration libre, le pilote roule à 1-4&nbsp;% de l'oracle</p>
       <aside class="notes">
         Lorenzo : 4 optimisations mesurées (urgence, 2 paramètres PID, perception,
         règles STOP/zone de limite) — aucune ne désactive une règle, tout est
@@ -388,12 +407,19 @@
           <p class="cap">Best lap libre · mur déplacé, plafond porté à 100&nbsp;km/h</p>
         </div>
       </div>
+      <div class="pipeline pipeline-compact">
+        <div class="etape">Freins logiciels retirés<br><span class="petit">temps divisés par deux</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">Mur physique atteint<br><span class="petit">70,6 km/h, prouvé par l'oracle</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">Mur déplacé, par choix<br><span class="petit">100 km/h, en connaissance de cause</span></div>
+      </div>
       <p class="merci">Merci — place aux questions.</p>
       <aside class="notes">
-        Lorenzo : conclusion en 45 s. L'écart restant en conditions réglementaires
-        est le coût LÉGITIME des règles — s'arrêter à un STOP coûte de l'énergie
-        cinétique. Chaque pourcent résiduel est identifié et chiffré. Enchaîner
-        sur les questions — les annexes sont prêtes (flèche bas).
+        Lorenzo : conclusion en 45 s, en suivant la frise : d'abord les freins
+        LOGICIELS (le fantôme, les brides), ensuite le mur PHYSIQUE (70,6, oracle),
+        enfin le mur DÉPLACÉ (choix produit). L'écart restant en réglementaire est
+        le coût LÉGITIME des règles. Enchaîner sur les questions (annexes : flèche bas).
       </aside>
     </section>
 
