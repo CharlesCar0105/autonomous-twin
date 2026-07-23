@@ -157,9 +157,10 @@
         </div>
       </div>
       <p class="iou-line">U-Net entraîné from scratch (&lt; 1 M params) — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
-      <p class="honnete">Score parfait = signal d'alarme : il avait appris… un seuillage de luminance
-      (0 pixel d'écart). On l'a donc remplacé par le seuillage — équivalent strict, coût ~10 µs.
-      Le modèle reste prêt si le visuel se complexifie.</p>
+      <p class="honnete">Un score parfait, c'est d'abord un signal d'alarme. En vérifiant, on a vu
+      qu'il avait appris un seuillage de luminance (0 pixel d'écart). On l'a donc remplacé
+      par ce seuillage : résultat identique, coût d'environ 10 µs. Le modèle entraîné reste
+      disponible si le visuel se complexifie.</p>
       <aside class="notes">
         Nohlan : assumer pleinement — maturité, pas aveu de faiblesse. Marque la PAUSE
         après « une IoU de 1,0 ». Le domaine (piste blanche sur fond sombre) est
@@ -201,8 +202,9 @@
           </div>
         </div>
 
-        <p class="honnete">Les convolutions extraient la forme, les couches denses décident. Les sorties sont
-        <strong>bornées par construction</strong> (tanh, sigmoid) : aucune commande aberrante possible.</p>
+        <p class="honnete">Les convolutions extraient la forme, puis les couches denses décident. Les
+        fonctions de sortie (tanh, sigmoid) <strong>bornent les commandes</strong> : le volant ne
+        peut pas dépasser ±45°, le gaz reste entre 0 et 1.</p>
         <aside class="notes">
           Nohlan : « le CNN traite le masque, un petit réseau traite le lidar, on concatène,
           une tête dense sort les commandes bornées par tanh et sigmoid. » Flèche BAS pour
@@ -225,8 +227,9 @@
             <li>Filet de sécurité : retour PID à tout moment</li>
           </ul>
         </div>
-        <p class="honnete">Limite assumée : l'imitation ne dépasse pas l'expert et fige son comportement dans
-        les poids — l'élève est un instantané de son professeur. La suite : du renforcement.</p>
+        <p class="honnete">Limite connue de l'imitation : le réseau ne dépasse pas son professeur, il
+        reproduit sa conduite telle qu'elle était au moment de l'enregistrement. Pour aller
+        au-delà, il faudrait passer au renforcement.</p>
         <aside class="notes">
           Nohlan : le choix « masque, pas image » est LA décision qui paie la généralisation :
           changez le style visuel, le CNN s'en moque. Alternative écartée : RL end-to-end —
@@ -255,7 +258,7 @@
       </div>
       <ul class="compact">
         <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible (25 train, 5 validation)</li>
-        <li>Split train/validation <strong>par circuit</strong> : aucune évaluation sur du déjà-vu. Le CNN ne voit que du local → ce qui compte, ce sont des géométries locales variées</li>
+        <li>Split train/validation <strong>par circuit</strong> : aucune évaluation sur du déjà-vu. Le CNN ne voyant que son environnement proche, l'important est de varier les géométries locales</li>
       </ul>
       <aside class="notes">
         Nohlan : générateur v2 = vraies features (pas des patates rondes). Les 5 circuits de
