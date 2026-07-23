@@ -6,12 +6,11 @@ Document de travail pour Charles, Nohlan et Lorenzo. Compagnon oral du deck
 ## En-tête de cadrage
 
 - **Format** : 15:00 d'oral + 15:00 de questions, 3 orateurs, démo live incluse.
-- **Durée totale cible : 14:00** (marge 1:00 sur les 15:00 accordées).
-- **Répartition** : Charles S1 à S4 (~4:00), Nohlan S5 à S7 (~3:30), Lorenzo S8 à S11 (~4:00),
-  démo S12 (~2:00, équipe), conclusion S13 (~0:45, Lorenzo).
-- Ces blocs somment à 14:15 : les cibles par slide ci-dessous reprennent 10 secondes sur la
-  démo et 5 sur la conclusion pour retomber à 14:00 pile. La démo peut reprendre jusqu'à
-  2:00 en mangeant la marge, jamais au delà de 2:30.
+- **Durée totale cible : 13:20** (marge 1:40 sur les 15:00 accordées — fusion des
+  anciennes S10 et S11 le 23/07, le passage de Lorenzo gagne 40 secondes).
+- **Répartition** : Charles S1 à S4 (~4:00), Nohlan S5 à S7 (~3:30), Lorenzo S8 à S10 (~3:20),
+  démo S11 (~1:50, équipe), conclusion S12 (~0:40, Lorenzo).
+- La démo peut reprendre jusqu'à 2:30 en mangeant la marge, jamais au delà.
 
 | Slide | Titre | Orateur | Durée | Cumul |
 |---|---|---|---|---|
@@ -24,10 +23,9 @@ Document de travail pour Charles, Nohlan et Lorenzo. Compagnon oral du deck
 | S7 | Généraliser | Nohlan | 1:15 | **7:30** |
 | S8 | Lire les panneaux | Lorenzo | 1:00 | 8:30 |
 | S9 | Le bug qui n'en était pas un | Lorenzo | 1:10 | 9:40 |
-| S10 | Mesurer | Lorenzo | 0:50 | 10:30 |
-| S11 | Résultats | Lorenzo | 1:00 | **11:30** |
-| S12 | Démo live | Équipe | 1:50 | 13:20 |
-| S13 | Conclusion | Lorenzo | 0:40 | **14:00** |
+| S10 | Résultats (fusion) | Lorenzo | 1:10 | **10:50** |
+| S11 | Démo live | Équipe | 1:50 | 12:40 |
+| S12 | Conclusion | Lorenzo | 0:40 | **13:20** |
 
 **Conventions de lecture de ce document**
 
@@ -35,7 +33,7 @@ Document de travail pour Charles, Nohlan et Lorenzo. Compagnon oral du deck
 - Les passages en **gras entre guillemets** sont des verbatims : à dire exactement tels quels.
 - Les [crochets] sont des indications scéniques : elles ne se prononcent pas.
 - On ne lit pas les slides. Deux exceptions volontaires, parce que ce sont des citations :
-  la phrase du sujet (S7) et la phrase finale (S13).
+  la phrase du sujet (S7) et la phrase finale (S12).
 - L'orateur qui vient de finir tient le chrono du suivant. Points de contrôle en fin de document.
 
 ---
@@ -258,47 +256,28 @@ peut mesurer.
 
 ---
 
-## S10. Mesurer (Lorenzo, 0:50, cumul 10:30)
+## S10. Résultats (Lorenzo, 1:10, cumul 10:50) — fusion des anciennes S10 et S11 (23/07)
 
-Parce qu'au moment de préparer la démo, le constat suivant, c'était : **« la voiture est
-hyper lente »**. Suspect évident : la classification des panneaux, qui tourne à chaque
-image.
+Au moment de préparer la démo, le constat, c'était : **« la voiture est hyper
+lente »**. Avant de bricoler, on a construit de quoi mesurer : un banc. De vrais tours
+comptés au franchissement de ligne, déterministe, tout archivé. Et le banc a parlé :
+le vrai coupable, c'était le freinage d'urgence, déclenché sans aucun mur dans les
+virages serrés. Au point que ce circuit-là ne finissait jamais ses trois tours.
+**« C'est le banc qui a tranché »**, pas l'intuition.
 
-Cette fois, on a d'abord construit de quoi mesurer. Un banc : de vrais tours comptés au
-franchissement de ligne, déterministe, résultats archivés en JSON dans le repo. Il
-corrige au passage un trou relevé par l'audit du 9 : notre ancienne évaluation, dite
-trois tours, ne mesurait en réalité que 10 à 17 pour cent d'un tour.
+[pointer les quatre cartes, une par une]
 
-[pointer les barres]
+Le traitement tient en quatre corrections, mesurées une à une. Le freinage fantôme
+corrigé : la voiture ne freine plus que si un impact est réellement possible. Le
+pilote débridé. La perception accélérée. Et les règles précisées, avec l'arrêt au
+stop à 0,8 seconde.
 
-Et le banc a parlé. Le vrai coupable, c'était le freinage d'urgence, déclenché sans aucun
-mur, jusqu'à 21 pour cent des images dans les virages serrés. Au point que ce circuit-là
-ne finissait jamais ses trois tours. Là encore, **« c'est le banc qui a tranché »**, pas
-l'intuition.
+[pointer les graphes]
 
-**Transition** : Restait à transformer ce diagnostic en résultats.
-
----
-
-## S11. Résultats (Lorenzo, 1:00, cumul 11:30)
-
-La nuit même, on est passés au traitement. Méthode : cinq diagnostics spécialisés, menés
-en parallèle, un par angle. Physique, contrôle, urgence, règlement, perception. Avec une
-consigne écrite : mesurer, pas théoriser.
-
-Le git log raconte l'intensité : le point de référence est chronométré à une heure du
-matin, et à deux heures vingt-huit, quatre commits tombent à la même minute, les
-optimisations et leur re-mesure. Du diagnostic à l'après chiffré : environ 90 minutes.
-
-[pointer les barres]
-
-Résultat, à règles constantes, sur les mêmes circuits : moins 54 à moins 60 pour cent sur
-les temps, et le circuit qui ne finissait jamais boucle ses trois tours. Le freinage
-parasite passe de 15 pour cent du temps à 0,8. La voiture ne freine plus par réflexe :
-elle pratique le **« freinage par le risque »**.
-
-Et pour situer la performance dans l'absolu, on a calculé un oracle, le tour parfait
-théorique, circuit par circuit. En configuration libre, notre pilote roule à 1 à 4 pour
+Résultat, à règles constantes, sur les mêmes circuits : moins 54 à moins 60 pour cent,
+et le circuit qui ne finissait jamais boucle ses trois tours. Le freinage parasite
+passe de 15 pour cent du temps à 0,8. Et pour situer tout ça, on a calculé un oracle,
+le tour parfait théorique : en configuration libre, notre pilote roule à 1 à 4 pour
 cent de ce temps parfait.
 
 **Transition, relais nommé** : Assez de chiffres. On vous montre. Charles, Nohlan, la
@@ -306,7 +285,7 @@ démo.
 
 ---
 
-## S12. Démo live (Équipe, 1:50, cumul 13:20 ; plafond absolu 2:30)
+## S11. Démo live (Équipe, 1:50, cumul 12:40 ; plafond absolu 2:30)
 
 [bascule vers le simulateur, lancé avant la soutenance et laissé en pause]
 [rôles : Charles au clavier, pose le mur avec Espace ; Lorenzo commente le dashboard ;
@@ -333,7 +312,7 @@ freinage fantôme. Lorenzo : 70 kilomètres heure, braquage complet, aucun décl
 lidar, courbe de vitesse. C'est tout ce que le pilote sait du monde.
 
 **Nohlan, clôture et relais nommé (5 s)** : Fin de la démo. Lorenzo, pour conclure.
-[revenir au deck, slide 13]
+[revenir au deck, slide 12]
 
 **Si un process tombe** : Charles relance les deux, une dizaine de secondes, procédure
 éprouvée. Pendant ce temps, Nohlan meuble avec le circuit : gen_014, son histoire de DNF,
@@ -341,7 +320,7 @@ sa correction. On ne s'excuse pas, on ne commente pas la panne.
 
 ---
 
-## S13. Conclusion (Lorenzo, 0:40, cumul 14:00)
+## S12. Conclusion (Lorenzo, 0:40, cumul 13:20)
 
 [pause] [regarder le jury]
 
@@ -396,7 +375,7 @@ Lorenzo.**
 Précision importante : le temps passé à l'arrêt aux stops est identique avant et après.
 Tout le gain vient du gaspillage éliminé, pas des règles contournées.
 
-**R6. La vitesse à plafond 100 (10 s). Où : S13, après « en connaissance de cause », par
+**R6. La vitesse à plafond 100 (10 s). Où : S12, après « en connaissance de cause », par
 Lorenzo.**
 Depuis, en configuration libre, la voiture croise à 97,6 kilomètres heure de moyenne, et
 le meilleur tour est passé de 16 secondes et demie à 11 secondes 57.
@@ -467,12 +446,12 @@ perd.
    10 à 17 pour cent, gain 10 s) et coupe C3 dans S11 (supprimer la phrase « environ
    90 minutes », gain 8 s).
    Si 7:15 ou moins : réserves R4 et R5 autorisées.
-3. **Fin S11 : cible 11:30.** Nohlan annonce discrètement le temps au moment de la
+3. **Fin S10 : cible 10:50.** Nohlan annonce discrètement le temps au moment de la
    bascule.
    Si 12:00 ou plus : démo en version courte, étapes 1, 3 et 5 uniquement (limite, mur,
    dashboard), environ 1:15.
    Si 11:15 ou moins : démo complète tranquille, réserve R6 autorisée en conclusion.
 
 **Règle générale de coupe** : on coupe des phrases de contexte, jamais les verbatims,
-jamais les chiffres du barème, jamais les transitions de relais. La conclusion (S13)
+jamais les chiffres du barème, jamais les transitions de relais. La conclusion (S12)
 n'est jamais coupée : les 40 secondes finales sont sanctuarisées.

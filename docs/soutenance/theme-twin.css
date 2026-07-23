@@ -688,3 +688,8 @@ section[data-anim="mesurer"] .mesurer-grid { gap: 0.6em; }
 .eq-op { font-size: 1em; font-weight: 700; color: var(--accent-deep); }
 .pipeline-compact .etape { font-size: 0.5em; padding: 0.4em 0.5em; }
 .pipeline-compact { margin: 0.5em 0 0.3em; }
+
+/* Fusion S10+S11 (23/07) : trois graphes en rangée sur la slide Résultats */
+.resultats-trio { grid-template-columns: repeat(3, 1fr); }
+.resultats-trio .result-graph img { max-height: 205px; width: auto; max-width: 100%; margin: 0 auto; display: block; }
+.resultats-trio .cap { font-size: 0.46em; }

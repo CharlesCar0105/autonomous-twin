@@ -136,14 +136,7 @@ const ANIMS = {
       .call(() => setPred('30 · confiance 0,98', true), '-=50');
   },
 
-  mesurer(slide) {
-    // Barres diagnostic « urgence » horizontales : on anime la LARGEUR (% de
-    // la cellule), pas la hauteur — le layout est passé en histogramme couché.
-    return animate(slide.querySelectorAll('.barres-urgence .barre'), {
-      width: (el) => ['0%', el.dataset.h + '%'],
-      delay: stagger(200), duration: 900, ease: 'outCubic',
-    });
-  },
+  /* 'mesurer' retiré le 23/07 : la slide 10 a fusionné dans 'resultats'. */
 
   resultats(slide) {
     // Les barres CSS ont été remplacées par les deux graphes matplotlib réels ;
@@ -186,11 +179,8 @@ function jouer(slide) {
    à leur valeur finale, pour un export PDF complet. */
 function finaliserStatique() {
   document.documentElement.classList.add('statique');
-  // Barres « urgence » horizontales : largeur = % (pas de hauteur). Les graphes
-  // .result-graph sont révélés par le CSS .statique (opacity:1).
-  document.querySelectorAll('.barres-urgence .barre[data-h]').forEach((b) => {
-    b.style.width = b.dataset.h + '%';
-  });
+  // Les graphes .result-graph et les chaînes .etape sont révélés par le CSS
+  // .statique (opacity:1) ; on pose ici les compteurs à leur valeur finale.
   const poser = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   poser('compteur-circuits', '30');
   poser('compteur-acc', '0,9513');
@@ -205,7 +195,8 @@ Reveal.initialize({
   hash: true,
   transition: 'fade',
   // 14 colonnes : 13 slides + la pile d'annexes (les verticales ne comptent pas).
-  slideNumber: () => [Reveal.getIndices().h + 1, '/', 14],
+  // 13 colonnes : 12 slides + la pile d'annexes (fusion S10+S11 le 23/07).
+  slideNumber: () => [Reveal.getIndices().h + 1, '/', 13],
   controls: true,
   progress: true,
   plugins: [RevealNotes],

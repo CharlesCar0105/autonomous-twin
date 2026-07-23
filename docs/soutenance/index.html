@@ -73,7 +73,6 @@
 
     <!-- 3. Architecture -->
     <section data-anim="zmq" data-sector="03" data-phase="Architecture">
-      <div class="bareme">Barème · Architecture client/serveur — 3 pts</div>
       <h2>Architecture client-serveur (ZeroMQ)</h2>
       <div class="schema-zmq">
         <div class="boite boite-simu">SIMULATEUR<br><span class="petit">serveur</span></div>
@@ -103,7 +102,6 @@
 
     <!-- 4. Le monde -->
     <section data-anim="monde" data-sector="04" data-phase="Simulateur">
-      <div class="bareme">Barème · Simulateur — 3 pts + Esthétique — 1 pt</div>
       <h2>Un monde qui vit</h2>
       <div class="monde-grid">
         <div class="monde-visuel">
@@ -165,8 +163,8 @@
         <span class="eq-op" aria-hidden="true">→</span>
         <span class="eq-pill eq-verdict">on garde<br><b>le seuil</b></span>
       </div>
-      <p class="honnete">Résultat strictement identique, zéro coût de calcul — et le modèle reste prêt
-      si le visuel se complexifie. Assumer la simplicité quand elle est prouvée, c'est de l'ingénierie.</p>
+      <p class="honnete">Résultat identique, zéro coût de calcul. Le modèle entraîné reste dans le
+      dépôt, prêt à servir si le visuel du circuit se complexifie un jour.</p>
       <aside class="notes">
         Nohlan : assumer pleinement — c'est un point de maturité, pas un aveu de
         faiblesse. Le domaine (piste blanche sur fond sombre) est objectivement
@@ -177,7 +175,6 @@
 
     <!-- 6. Conduire -->
     <section data-anim="conduire" data-sector="06" data-phase="Conduite">
-      <div class="bareme">Barème · Conduite autonome — 3 pts + IA avancée — 2 pts</div>
       <h2>Conduire par imitation</h2>
       <div class="pipeline">
         <div class="etape">Le professeur conduit<br><span class="petit">le pilote automatique (PID) fait des tours propres</span></div>
@@ -208,7 +205,6 @@
 
     <!-- 7. Généraliser -->
     <section data-anim="circuits" data-sector="07" data-phase="Généralisation">
-      <div class="bareme">Barème · Multi-circuits — 1,5 pt</div>
       <h2>Généraliser — la consigne n°1</h2>
       <blockquote>« Souvent la solution ne généralise pas et ne permet pas d'exécuter
       la conduite sur différents circuits. » — l'avertissement du sujet</blockquote>
@@ -238,7 +234,6 @@
 
     <!-- 8. Panneaux -->
     <section data-anim="panneaux" data-sector="08" data-phase="Panneaux">
-      <div class="bareme">Barème · Lecture de panneaux — 3 pts</div>
       <h2>Lire les panneaux — et obéir</h2>
       <div class="pipeline">
         <div class="etape">Détection<br><span class="petit">repérage du rouge dans l'image</span></div>
@@ -300,45 +295,12 @@
       </aside>
     </section>
 
-    <!-- 10. Mesurer -->
-    <section data-anim="mesurer" data-sector="10" data-phase="Mesure &amp; oracle">
-      <h2>On ne règle pas ce qu'on ne mesure pas</h2>
-      <ul class="compact">
-        <li><span class="num-badge">1</span><strong>Mesurer</strong> : de vrais tours détectés au passage de la ligne,
-          un pas de temps fixe → des résultats reproductibles, tous archivés</li>
-        <li><span class="num-badge">2</span><strong>Comparer à l'oracle</strong> : le temps du tour parfait théorique,
-          calculé pour chaque circuit — la borne de ce qui est physiquement possible</li>
-      </ul>
-      <div class="mesurer-grid">
-        <div class="mesurer-graph">
-          <div class="hud-screen">
-            <span class="tag tag-amber">Oracle · tour parfait</span>
-            <img src="assets/graphs/oracle.png" alt="Comparaison oracle, PID libre et PID règles : le PID libre à 1-4 % de l'oracle">
-          </div>
-          <p class="cap">PID libre à 1-4 % du tour parfait théorique</p>
-        </div>
-      </div>
-      <p class="diag-titre"><span class="num-badge">3</span>Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
-      <div class="barres-urgence">
-        <div class="groupe-barre"><div class="barre b-urg" data-h="41"></div><span class="val">6,1&nbsp;%</span><span class="nom">gen_000</span></div>
-        <div class="groupe-barre"><div class="barre b-urg" data-h="55"></div><span class="val">8,2&nbsp;%</span><span class="nom">gen_003</span></div>
-        <div class="groupe-barre"><div class="barre b-urg" data-h="100"></div><span class="val">15,0&nbsp;%</span><span class="nom">gen_014</span></div>
-      </div>
-      <p class="legende-barres">% du temps passé en freinage d'urgence parasite — gen_014 n'arrivait même pas à finir 3 tours</p>
-      <aside class="notes">
-        Lorenzo : le banc a été LA condition de la phase d'optimisation — chaque
-        modification a son avant/après committé. Le correctif urgence : seuil
-        dynamique en v²/2B + filtre de planéité (un mur est plat, une bordure de
-        virage est asymétrique) → zéro faux positif sur 40 000 frames, et l'arrêt
-        au mur reste garanti sur toute la plage de vitesse.
-      </aside>
-    </section>
-
-    <!-- 11. Résultats -->
-    <section data-anim="resultats" data-sector="11" data-phase="Résultats">
-      <div class="bareme">Barème · Freinage d'urgence — 2 pts + Dashboard — 1,5 pt</div>
-      <h2>Avant / après — mêmes règles, mêmes circuits</h2>
-      <div class="resultats-grid">
+    <!-- 10. Résultats (fusion des anciennes slides Mesurer + Résultats, 23/07 :
+         le graphe oracle rejoint les avant/après ; le passage de Lorenzo
+         gagne ~50 s) -->
+    <section data-anim="resultats" data-sector="10" data-phase="Résultats">
+      <h2>Des temps divisés par deux, à règles constantes</h2>
+      <div class="resultats-grid resultats-trio">
         <div class="result-graph">
           <p class="cap">Temps 3 tours · gain <b>-54 à -60 %</b> · gen_014 <b>d'abandon à 3/3</b></p>
           <img src="assets/graphs/temps-avant-apres.png" alt="Temps sur 3 tours avant et après optimisation : -60 %, -54 %, et gen_014 d'abandon à 3 tours sur 3">
@@ -347,6 +309,10 @@
           <p class="cap">Urgence parasite · <b>15 % → 0,8 %</b></p>
           <img src="assets/graphs/urgence-avant-apres.png" alt="Pourcentage de frames en freinage d'urgence parasite, avant vers après : 15 % à 0,8 %">
         </div>
+        <div class="result-graph">
+          <p class="cap">Oracle · le pilote à <b>1-4 %</b> du tour parfait</p>
+          <img src="assets/graphs/oracle.png" alt="Comparaison oracle, PID libre et PID règles : le PID libre à 1-4 % de l'oracle">
+        </div>
       </div>
       <div class="opt-cartes">
         <div class="opt-carte"><span class="num-badge">1</span><b>Freinage fantôme corrigé</b><br>ne freine que si un impact est réellement possible</div>
@@ -354,18 +320,21 @@
         <div class="opt-carte"><span class="num-badge">3</span><b>Perception accélérée</b><br>classification des panneaux optimisée</div>
         <div class="opt-carte"><span class="num-badge">4</span><b>Règles précisées</b><br>STOP 0,8&nbsp;s · limite bornée à sa zone</div>
       </div>
-      <p class="legende-barres">Quatre corrections mesurées une à une · en configuration libre, le pilote roule à 1-4&nbsp;% de l'oracle</p>
+      <p class="legende-barres">Mesuré au banc (vrais tours, pas de temps fixe, tout archivé) · l'oracle = le tour parfait théorique, la borne physique</p>
       <aside class="notes">
-        Lorenzo : 4 optimisations mesurées (urgence, 2 paramètres PID, perception,
-        règles STOP/zone de limite) — aucune ne désactive une règle, tout est
-        revalidé par les tests panneaux et la non-régression conduite. Le dashboard
-        temps réel (caméra, masque, lidar, courbe de vitesse) sera visible en démo.
+        Lorenzo : une phrase sur la méthode d'abord (banc : vrais tours, pas de
+        temps fixe, tout archivé — l'oracle : le tour parfait théorique). Puis le
+        diagnostic : le freinage d'urgence se déclenchait SANS mur, jusqu'à 15 %
+        du temps. Puis les 4 corrections en pointant les cartes. Chute : le pilote
+        libre roule à 1-4 % de l'oracle — le plafond restant est PHYSIQUE, ce qui
+        amène la conclusion. Aucune correction ne désactive une règle, tout est
+        revalidé (panneaux + non-régression conduite).
       </aside>
     </section>
 
     <!-- 12. Démo (sur le simulateur — le module live-drive.js reste dans le
          repo, débranché du deck sur décision du 22/07) -->
-    <section data-sector="12" data-phase="Démo">
+    <section data-sector="11" data-phase="Démo">
       <h2>Démonstration en direct</h2>
       <ol class="checklist-demo">
         <li>Un tour réglementaire — <strong>50,0&nbsp;km/h</strong> pile sous la limite 50</li>
@@ -385,19 +354,19 @@
     </section>
 
     <!-- 13. Conclusion -->
-    <section data-anim="conclusion" data-sector="13" data-phase="Conclusion">
+    <section data-anim="conclusion" data-sector="12" data-phase="Conclusion">
       <h2 class="phrase-finale">«&nbsp;Nous savons pourquoi nous ne pouvons pas aller plus vite.&nbsp;»</h2>
       <div class="conclusion-grid">
         <div class="conclusion-txt">
           <div class="vitesse-finale">
             <span id="compteur-vitesse">70,6</span><span class="unite">km/h</span>
           </div>
-          <p>Le plafond était <strong>physique</strong>, pas logiciel — démontré par l'oracle,
-          puis déplacé sciemment de 70,6 à 100&nbsp;km/h. Quand le mur gênait le produit,
-          c'est le mur qu'on a déplacé.</p>
-          <p class="ouverture">Et après ? Trajectoire de corde (6-9&nbsp;% identifiés), physique
-          indépendante du framerate, ré-entraînement du CNN sur le PID optimisé — le
-          chantier M2 est déjà chiffré.</p>
+          <p>Le plafond restant était <strong>physique</strong>, pas logiciel : l'oracle l'a
+          démontré. On l'a alors relevé de 70,6 à 100&nbsp;km/h, par décision d'équipe.
+          Quand le mur gênait le produit, c'est le mur qu'on a déplacé.</p>
+          <p class="ouverture">La suite est déjà chiffrée : trajectoire de corde (6 à 9&nbsp;%
+          de gain identifiés), physique indépendante du framerate, ré-entraînement du
+          réseau de conduite sur le pilote optimisé.</p>
         </div>
         <div class="conclusion-visuel">
           <div class="hud-screen">
@@ -412,7 +381,7 @@
         <div class="pipe-fleche" aria-hidden="true">→</div>
         <div class="etape">Mur physique atteint<br><span class="petit">70,6 km/h, prouvé par l'oracle</span></div>
         <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">Mur déplacé, par choix<br><span class="petit">100 km/h, en connaissance de cause</span></div>
+        <div class="etape">Mur déplacé, par choix<br><span class="petit">plafond porté à 100 km/h</span></div>
       </div>
       <p class="merci">Merci — place aux questions.</p>
       <aside class="notes">
@@ -432,9 +401,8 @@
           <li>A1 · Pourquoi pas du RL end-to-end</li>
           <li>A2 · La classe « aucun » et les murs</li>
           <li>A3 · Variance d'entraînement &amp; reproductibilité</li>
-          <li>A4 · Barème ↔ preuves</li>
-          <li>A5 · Protocole de mesure détaillé</li>
-          <li>A6 · Méthode : décisions tracées</li>
+          <li>A4 · Protocole de mesure détaillé</li>
+          <li>A5 · Méthode : décisions tracées</li>
         </ul>
       </section>
       <section>
@@ -472,24 +440,7 @@
         </div>
       </section>
       <section>
-        <h3>A4 · Barème ↔ preuves</h3>
-        <table class="tableau-bareme">
-          <thead><tr><th>Critère</th><th>Pts</th><th>Preuve</th></tr></thead>
-          <tbody>
-          <tr><td>Architecture client/serveur</td><td>3</td><td>2 process ZMQ, démo</td></tr>
-          <tr><td>Simulateur</td><td>3</td><td>Démo live</td></tr>
-          <tr><td>Conduite 1 tour</td><td>3</td><td>Démo + 30/30 en éval</td></tr>
-          <tr><td>Freinage d'urgence</td><td>2</td><td>Démo mur + 0 faux positif/40k frames</td></tr>
-          <tr><td>Lecture panneaux</td><td>+3</td><td>Démo + 95,13&nbsp;% val</td></tr>
-          <tr><td>IA avancée</td><td>+2</td><td>U-Net + CNN vs PID baseline</td></tr>
-          <tr><td>Multi-circuits</td><td>+1,5</td><td>30 générés, éval sur jamais-vus</td></tr>
-          <tr><td>Dashboard</td><td>+1,5</td><td>Démo --dashboard</td></tr>
-          <tr><td>Esthétique / fun</td><td>+1</td><td>Sprites, sons, traces</td></tr>
-          </tbody>
-        </table>
-      </section>
-      <section>
-        <h3>A5 · Protocole de mesure</h3>
+        <h3>A4 · Protocole de mesure</h3>
         <div class="a5-grid">
           <ul>
             <li>Headless, dt fixe 1/60 — temps simulés déterministes, indépendants du CPU</li>
@@ -506,7 +457,7 @@
         </div>
       </section>
       <section>
-        <h3>A6 · Méthode : décisions tracées</h3>
+        <h3>A5 · Méthode : décisions tracées</h3>
         <ul>
           <li>12 décisions structurantes loggées : date, justification, <strong>alternatives écartées</strong>, risques</li>
           <li>Audits par revue systématique avant chaque reprise (5 angles : physique, contrôle, urgence, règles, perception)</li>
