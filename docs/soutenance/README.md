@@ -38,6 +38,12 @@ Lancer AVANT la soutenance, laisser en pause en arrière-plan :
 Pas de backup enregistré (décision 21/07) : en cas de plantage, relancer
 les deux process (~10 s).
 
+Panneaux de la démo : le sidecar `assets/tracks/gen_014.signs.json` est
+**versionné** (tirage seed 7, les 4 types : 30, 50, 90, STOP) pour que toute
+l'équipe ait le même circuit. Ne pas relancer `place_signs.py` sur gen_014 ;
+pour le regénérer à l'identique :
+`python scripts/place_signs.py --tracks gen_014 --per-track 4 --seed 7`
+
 ## Export PDF
 
 Ouvrir `index.html?print-pdf` dans Chrome → Imprimer → « Enregistrer en PDF »
