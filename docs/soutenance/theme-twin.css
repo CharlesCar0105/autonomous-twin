@@ -693,3 +693,10 @@ section[data-anim="mesurer"] .mesurer-grid { gap: 0.6em; }
 .resultats-trio { grid-template-columns: repeat(3, 1fr); }
 .resultats-trio .result-graph img { max-height: 205px; width: auto; max-width: 100%; margin: 0 auto; display: block; }
 .resultats-trio .cap { font-size: 0.46em; }
+
+/* Slides de Nohlan (23/07) : dans les piles verticales, les encarts .honnete
+   sont statiques (pas d'animation qui les révèle) — on neutralise l'état
+   anti-flash hérité. */
+.reveal .slides > section > section .honnete { opacity: 1; }
+/* S7 version Nohlan : 724 px mesurés, on regagne 8 px sur la galerie. */
+section[data-anim="circuits"] .galerie-circuits img { width: 142px; height: 142px; }

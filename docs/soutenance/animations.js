@@ -75,23 +75,8 @@ const ANIMS = {
       .add(slide.querySelector('.honnete'), { opacity: [0, 1], translateY: ['15px', 0], duration: 600 }, '+=300');
   },
 
-  conduire(slide) {
-    const el = slide.querySelector('#compteur-circuits');
-    const obj = { n: 0 };
-    return createTimeline()
-      .add(slide.querySelectorAll('.etape'), {
-        opacity: [0, 1], translateY: ['16px', 0],
-        delay: stagger(200), duration: 420, ease: 'outCubic',
-      })
-      .add(slide.querySelectorAll('.pipe-fleche'), {
-        opacity: [0, 1], delay: stagger(200), duration: 300,
-      }, '-=900')
-      .add(obj, {
-        n: 30, duration: 1400, ease: 'outExpo',
-        modifier: utils.round(0),
-        onUpdate: () => { el.textContent = obj.n; },
-      }, '-=400');
-  },
+  /* 'conduire' retiré le 23/07 : les slides de Nohlan (pile verticale 6a/6b)
+     sont statiques, sans compteur ni chaîne animée. */
 
   circuits(slide) {
     return animate(slide.querySelectorAll('.galerie-circuits img'), {
@@ -182,7 +167,6 @@ function finaliserStatique() {
   // Les graphes .result-graph et les chaînes .etape sont révélés par le CSS
   // .statique (opacity:1) ; on pose ici les compteurs à leur valeur finale.
   const poser = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  poser('compteur-circuits', '30');
   poser('compteur-acc', '0,9513');
   poser('compteur-vitesse', '100,0');
   const pred = document.getElementById('pred-occlusion');
