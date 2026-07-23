@@ -78,11 +78,19 @@ const ANIMS = {
   conduire(slide) {
     const el = slide.querySelector('#compteur-circuits');
     const obj = { n: 0 };
-    return animate(obj, {
-      n: 30, duration: 1600, ease: 'outExpo',
-      modifier: utils.round(0),
-      onUpdate: () => { el.textContent = obj.n; },
-    });
+    return createTimeline()
+      .add(slide.querySelectorAll('.etape'), {
+        opacity: [0, 1], translateY: ['16px', 0],
+        delay: stagger(200), duration: 420, ease: 'outCubic',
+      })
+      .add(slide.querySelectorAll('.pipe-fleche'), {
+        opacity: [0, 1], delay: stagger(200), duration: 300,
+      }, '-=900')
+      .add(obj, {
+        n: 30, duration: 1400, ease: 'outExpo',
+        modifier: utils.round(0),
+        onUpdate: () => { el.textContent = obj.n; },
+      }, '-=400');
   },
 
   circuits(slide) {
@@ -122,10 +130,10 @@ const ANIMS = {
       // Le panneau glisse vers le bord gauche du champ : le « 3 » sort,
       // il ne reste qu'un « 0 » visible — d'où la lecture « 90 » à conf 1.00.
       .add(sign, { left: ['110px', '-58px'], duration: 1500, ease: 'inOutQuad' })
-      .call(() => setPred('90 · conf 1.00', false), '-=100')
+      .call(() => setPred('90 · confiance 1,00', false), '-=100')
       // Le fix : placement replafonné à 46 px, panneau entièrement visible.
       .add(sign, { left: '115px', duration: 900, ease: 'outCubic' }, '+=1700')
-      .call(() => setPred('30 · conf 0.98', true), '-=50');
+      .call(() => setPred('30 · confiance 0,98', true), '-=50');
   },
 
   mesurer(slide) {
@@ -149,10 +157,18 @@ const ANIMS = {
   conclusion(slide) {
     const el = slide.querySelector('#compteur-vitesse');
     const obj = { v: 70.6 };
-    return animate(obj, {
-      v: 100.0, duration: 2200, ease: 'inOutQuad', delay: 600,
-      onUpdate: () => { el.textContent = obj.v.toFixed(1).replace('.', ','); },
-    });
+    return createTimeline()
+      .add(slide.querySelectorAll('.etape'), {
+        opacity: [0, 1], translateY: ['14px', 0],
+        delay: stagger(260), duration: 420, ease: 'outCubic',
+      })
+      .add(slide.querySelectorAll('.pipe-fleche'), {
+        opacity: [0, 1], delay: stagger(260), duration: 300,
+      }, '-=800')
+      .add(obj, {
+        v: 100.0, duration: 2000, ease: 'inOutQuad',
+        onUpdate: () => { el.textContent = obj.v.toFixed(1).replace('.', ','); },
+      }, '-=300');
   },
 };
 
@@ -180,7 +196,7 @@ function finaliserStatique() {
   poser('compteur-acc', '0,9513');
   poser('compteur-vitesse', '100,0');
   const pred = document.getElementById('pred-occlusion');
-  if (pred) pred.innerHTML = 'panneau lu : <strong>30 · conf 0.98</strong>';
+  if (pred) pred.innerHTML = 'panneau lu : <strong>30 · confiance 0,98</strong>';
 }
 
 Reveal.initialize({

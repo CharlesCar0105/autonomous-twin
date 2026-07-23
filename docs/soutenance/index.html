@@ -49,8 +49,8 @@
             <h3>PILOTE&nbsp;IA</h3>
             <p class="sous">aveugle, sauf ses capteurs</p>
             <ul>
-              <li>Caméra 128&nbsp;px alignée monde</li>
-              <li>Lidar 5 rayons, vitesse</li>
+              <li>Une caméra de 128&nbsp;pixels</li>
+              <li>Un lidar à 5 rayons, sa vitesse</li>
               <li>Décide : volant, gaz, frein</li>
             </ul>
           </div>
@@ -74,24 +74,24 @@
     <!-- 3. Architecture -->
     <section data-anim="zmq" data-sector="03" data-phase="Architecture">
       <div class="bareme">Barème · Architecture client/serveur — 3 pts</div>
-      <h2>Architecture — ZeroMQ REQ/REP</h2>
+      <h2>Architecture client-serveur (ZeroMQ)</h2>
       <div class="schema-zmq">
-        <div class="boite boite-simu">SIMULATEUR<br><span class="petit">serveur :5555</span></div>
+        <div class="boite boite-simu">SIMULATEUR<br><span class="petit">serveur</span></div>
         <div class="canal">
           <div class="flux flux-capteurs">
             <span class="msg m1"></span><span class="msg m2"></span><span class="msg m3"></span>
-            <span class="flux-label">caméra JPEG · lidar · vitesse</span>
+            <span class="flux-label">image caméra · lidar · vitesse</span>
           </div>
           <div class="flux flux-commandes">
             <span class="msg c1"></span><span class="msg c2"></span><span class="msg c3"></span>
-            <span class="flux-label">steering · throttle · brake</span>
+            <span class="flux-label">volant · gaz · frein</span>
           </div>
         </div>
-        <div class="boite boite-pilote">PILOTE<br><span class="petit">client ZMQ</span></div>
+        <div class="boite boite-pilote">PILOTE<br><span class="petit">client</span></div>
       </div>
       <ul class="compact">
-        <li>Deux processus indépendants — le simulateur reste jouable au clavier sans pilote</li>
-        <li>Boucle à 60&nbsp;Hz, messages JSON, caméra encodée JPEG base64</li>
+        <li>Deux programmes indépendants — le simulateur reste jouable au clavier sans pilote</li>
+        <li>60 échanges par seconde : les capteurs dans un sens, les commandes dans l'autre</li>
       </ul>
       <aside class="notes">
         Charles : REQ/REP synchrone = une requête capteurs, une réponse commandes,
@@ -114,10 +114,10 @@
           <p class="cap">Le mur apparaît devant la voiture · durée de vie 6 s</p>
         </div>
         <div class="grille-monde">
-          <div class="tuile"><strong>Physique bicycle</strong><br>4 équations du sujet, plafond calibré 100&nbsp;km/h</div>
+          <div class="tuile"><strong>Physique « bicycle »</strong><br>le modèle du sujet (4 équations), plafond calibré à 100&nbsp;km/h</div>
           <div class="tuile"><strong>Mur dynamique</strong><br>apparaît devant la voiture, visible du lidar et de la caméra</div>
-          <div class="tuile"><strong>LapTimer</strong><br>3 tours détectés par franchissement de ligne</div>
-          <div class="tuile"><strong>Panneaux</strong><br>placés par fichier sidecar, composés dans la caméra</div>
+          <div class="tuile"><strong>Chronomètre</strong><br>3 tours détectés au passage de la ligne d'arrivée</div>
+          <div class="tuile"><strong>Panneaux</strong><br>positionnés automatiquement le long de la piste, visibles par la caméra</div>
           <p class="ligne-bonus">+ sprite voiture, sons moteur, traces de pneus qui s'estompent, compteur à cadran</p>
         </div>
       </div>
@@ -158,9 +158,15 @@
           <p class="cap">Le vrai couple caméra / masque du dashboard pilote</p>
         </div>
       </div>
-      <p class="iou-line">U-Net entraîné from scratch — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
-      <p class="honnete">Verdict : il avait appris… un seuillage de luminance. On l'a donc remplacé
-      par le seuillage — équivalent strict, zéro coût. Le modèle reste prêt si le visuel se complexifie.</p>
+      <div class="equation-pills">
+        <span class="eq-pill">U-Net entraîné de zéro<br><b>score parfait : 1,0000</b></span>
+        <span class="eq-op" aria-hidden="true">=</span>
+        <span class="eq-pill">un simple<br><b>seuil de luminosité</b></span>
+        <span class="eq-op" aria-hidden="true">→</span>
+        <span class="eq-pill eq-verdict">on garde<br><b>le seuil</b></span>
+      </div>
+      <p class="honnete">Résultat strictement identique, zéro coût de calcul — et le modèle reste prêt
+      si le visuel se complexifie. Assumer la simplicité quand elle est prouvée, c'est de l'ingénierie.</p>
       <aside class="notes">
         Nohlan : assumer pleinement — c'est un point de maturité, pas un aveu de
         faiblesse. Le domaine (piste blanche sur fond sombre) est objectivement
@@ -173,16 +179,23 @@
     <section data-anim="conduire" data-sector="06" data-phase="Conduite">
       <div class="bareme">Barème · Conduite autonome — 3 pts + IA avancée — 2 pts</div>
       <h2>Conduire par imitation</h2>
+      <div class="pipeline">
+        <div class="etape">Le professeur conduit<br><span class="petit">le pilote automatique (PID) fait des tours propres</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">On enregistre<br><span class="petit">18 000 exemples : masque + lidar → volant, gaz</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">Le réseau s'entraîne<br><span class="petit">deviner · mesurer l'erreur · ajuster</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">L'élève conduit seul<br><span class="petit">erreur moyenne : 1,80° sur le volant</span></div>
+      </div>
       <div class="conduire-layout">
         <div class="jauge">
           <div class="grand-chiffre"><span id="compteur-circuits">0</span><span class="sur">/30</span></div>
           <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
         </div>
         <ul>
-          <li>Behavioral cloning d'un PID qui fait des tours propres</li>
-          <li>Entrée : masque 64×64 + lidar — <strong>jamais l'image brute</strong> → le CNN ne voit que la forme de la route</li>
-          <li>Sortie : volant (MAE 1,80°) et gaz — régression</li>
-          <li>Filet de sécurité : retour PID à tout moment</li>
+          <li>Il apprend sur <strong>le masque de route + le lidar — jamais l'image brute</strong> → il ne voit que la forme de la route, pas le décor</li>
+          <li>Filet de sécurité : retour au pilote automatique (PID) à tout moment</li>
         </ul>
       </div>
       <aside class="notes">
@@ -207,13 +220,14 @@
         <img src="assets/circuits/gen_021.png" alt="circuit gen_021">
         <img src="assets/circuits/gen_026.png" alt="circuit gen_026">
       </div>
-      <div class="circuits-stats" aria-hidden="true">
-        <span class="stat-pin"><b>30</b> générés</span>
-        <span class="stat-pin"><b>5</b> jamais-vus en éval</span>
+      <div class="split-barre" aria-hidden="true">
+        <div class="split-seg split-train" style="flex: 25"><b>25 circuits</b> pour apprendre</div>
+        <div class="split-seg split-eval" style="flex: 5"><b>5 jamais vus</b></div>
       </div>
+      <p class="split-legende">Tous les chiffres de cette présentation sont mesurés sur les 5 circuits jamais vus</p>
       <ul class="compact">
-        <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible</li>
-        <li>Split train/validation <strong>par circuit</strong> : aucune évaluation sur du déjà-vu</li>
+        <li><strong>30 circuits générés</strong> automatiquement — épingles, chicanes, lignes droites, reproductibles à l'identique</li>
+        <li>Circuits d'entraînement et d'évaluation <strong>strictement séparés</strong> : aucune mesure sur du déjà-vu</li>
       </ul>
       <aside class="notes">
         Nohlan : le générateur v2 produit des vraies features de circuit (pas des
@@ -227,13 +241,13 @@
       <div class="bareme">Barème · Lecture de panneaux — 3 pts</div>
       <h2>Lire les panneaux — et obéir</h2>
       <div class="pipeline">
-        <div class="etape">Détection<br><span class="petit">pixels rouges + filtre de blob</span></div>
+        <div class="etape">Détection<br><span class="petit">repérage du rouge dans l'image</span></div>
         <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">Classification<br><span class="petit">MobileNetV2 gelé + tête MLP</span></div>
+        <div class="etape">Classification<br><span class="petit">réseau pré-entraîné (MobileNetV2)</span></div>
         <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">Hystérésis<br><span class="petit">3 frames confirmées</span></div>
+        <div class="etape">Confirmation<br><span class="petit">3 images d'affilée (hystérésis)</span></div>
         <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">Governor<br><span class="petit">30 · 50 · 90 · STOP 0,8&nbsp;s</span></div>
+        <div class="etape">Régulateur<br><span class="petit">30 · 50 · 90 · STOP 0,8&nbsp;s</span></div>
       </div>
       <div class="panneaux-grid">
         <div class="panneaux-dash">
@@ -247,11 +261,11 @@
             <img src="assets/graphs/accuracy-panneaux.png" alt="Courbe d'accuracy train et validation sur circuits jamais vus, best 0,9513">
           </div>
           <div class="accuracy-ligne">
-            <span class="acc-etape">96&nbsp;px linéaire : 0,83</span>
+            <span class="acc-etape">1<sup>er</sup> essai : 0,83</span>
             <span class="acc-sep" aria-hidden="true">→</span>
-            <span class="acc-etape">224&nbsp;px : 0,90</span>
+            <span class="acc-etape">image agrandie : 0,90</span>
             <span class="acc-sep" aria-hidden="true">→</span>
-            <span class="acc-final"><span id="compteur-acc">0,00</span> en validation</span>
+            <span class="acc-final"><span id="compteur-acc">0,00</span> sur circuits jamais vus</span>
           </div>
         </div>
       </div>
@@ -266,7 +280,7 @@
     <!-- 9. Le bug -->
     <section data-anim="occlusion" data-sector="09" data-phase="Diagnostic ML">
       <h2>« Le bug ML n'était pas dans le ML »</h2>
-      <p class="symptome">Symptôme en démo : un panneau <strong>30</strong> lu <strong>90</strong>, confiance 1.00</p>
+      <p class="symptome">Symptôme en démo : un panneau <strong>30</strong> lu <strong>90</strong>, confiance 1,00</p>
       <div class="scene-occlusion">
         <div class="cam-frame">
           <span class="cam-label">champ caméra 128&nbsp;px</span>
@@ -274,10 +288,10 @@
         </div>
         <div class="pred" id="pred-occlusion">panneau lu : <strong>—</strong></div>
       </div>
-      <p class="lecon">La caméra est un crop aligné monde : à 55&nbsp;px d'offset, le « 3 » sortait
-      du champ. Un «&nbsp;<s>3</s>0&nbsp;» est réellement ambigu — le modèle répondait juste.</p>
-      <p class="fix">Fix mesuré : placement 46&nbsp;px max + filtre de troncature + padding symétrique
-      → confiance 0,94+. <em>Leçon : instrumenter avant d'accuser le modèle.</em></p>
+      <p class="lecon">La caméra cadre un carré fixe autour de la voiture : un panneau trop décalé
+      sur le côté sortait du champ. Un «&nbsp;<s>3</s>0&nbsp;» est réellement ambigu — le modèle répondait juste.</p>
+      <p class="fix">Correctif mesuré : panneaux replacés dans le champ + rejet des images tronquées
+      → confiance 0,94 et plus. <em>Leçon : instrumenter avant d'accuser le modèle.</em></p>
       <aside class="notes">
         Lorenzo : LA slide signature. Raconter la chronologie : on a d'abord soupçonné
         le classifieur, on a instrumenté frame par frame, et la sonde a montré que le
@@ -290,10 +304,10 @@
     <section data-anim="mesurer" data-sector="10" data-phase="Mesure &amp; oracle">
       <h2>On ne règle pas ce qu'on ne mesure pas</h2>
       <ul class="compact">
-        <li><strong>Banc de mesure</strong> : vrais tours (franchissement de ligne), headless,
-          dt fixe → déterministe, résultats JSON committés</li>
-        <li><strong>Oracle</strong> : temps du tour parfait théorique calculé par circuit —
-          la borne de ce qui est physiquement possible</li>
+        <li><span class="num-badge">1</span><strong>Mesurer</strong> : de vrais tours détectés au passage de la ligne,
+          un pas de temps fixe → des résultats reproductibles, tous archivés</li>
+        <li><span class="num-badge">2</span><strong>Comparer à l'oracle</strong> : le temps du tour parfait théorique,
+          calculé pour chaque circuit — la borne de ce qui est physiquement possible</li>
       </ul>
       <div class="mesurer-grid">
         <div class="mesurer-graph">
@@ -304,7 +318,7 @@
           <p class="cap">PID libre à 1-4 % du tour parfait théorique</p>
         </div>
       </div>
-      <p class="diag-titre">Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
+      <p class="diag-titre"><span class="num-badge">3</span>Diagnostic : le freinage d'urgence se déclenchait <strong>sans mur</strong>, dans les virages serrés</p>
       <div class="barres-urgence">
         <div class="groupe-barre"><div class="barre b-urg" data-h="41"></div><span class="val">6,1&nbsp;%</span><span class="nom">gen_000</span></div>
         <div class="groupe-barre"><div class="barre b-urg" data-h="55"></div><span class="val">8,2&nbsp;%</span><span class="nom">gen_003</span></div>
@@ -326,16 +340,21 @@
       <h2>Avant / après — mêmes règles, mêmes circuits</h2>
       <div class="resultats-grid">
         <div class="result-graph">
-          <p class="cap">Temps 3 tours · gain <b>-54 à -60 %</b> · gen_014 <b>DNF → 3/3</b></p>
-          <img src="assets/graphs/temps-avant-apres.png" alt="Temps sur 3 tours avant et après optimisation : -60 %, -54 %, et gen_014 DNF vers 3/3">
+          <p class="cap">Temps 3 tours · gain <b>-54 à -60 %</b> · gen_014 <b>d'abandon à 3/3</b></p>
+          <img src="assets/graphs/temps-avant-apres.png" alt="Temps sur 3 tours avant et après optimisation : -60 %, -54 %, et gen_014 d'abandon à 3 tours sur 3">
         </div>
         <div class="result-graph">
           <p class="cap">Urgence parasite · <b>15 % → 0,8 %</b></p>
           <img src="assets/graphs/urgence-avant-apres.png" alt="Pourcentage de frames en freinage d'urgence parasite, avant vers après : 15 % à 0,8 %">
         </div>
       </div>
-      <p class="legende-barres">Temps 3 tours en conditions réglementaires · urgence parasite 15&nbsp;% → 0,8&nbsp;% ·
-      en configuration libre, le PID roule à 1-4&nbsp;% de l'oracle</p>
+      <div class="opt-cartes">
+        <div class="opt-carte"><span class="num-badge">1</span><b>Freinage fantôme corrigé</b><br>ne freine que si un impact est réellement possible</div>
+        <div class="opt-carte"><span class="num-badge">2</span><b>Pilote débridé</b><br>plein gaz autorisé, distance de sécurité ajustée</div>
+        <div class="opt-carte"><span class="num-badge">3</span><b>Perception accélérée</b><br>classification des panneaux optimisée</div>
+        <div class="opt-carte"><span class="num-badge">4</span><b>Règles précisées</b><br>STOP 0,8&nbsp;s · limite bornée à sa zone</div>
+      </div>
+      <p class="legende-barres">Quatre corrections mesurées une à une · en configuration libre, le pilote roule à 1-4&nbsp;% de l'oracle</p>
       <aside class="notes">
         Lorenzo : 4 optimisations mesurées (urgence, 2 paramètres PID, perception,
         règles STOP/zone de limite) — aucune ne désactive une règle, tout est
@@ -388,12 +407,19 @@
           <p class="cap">Best lap libre · mur déplacé, plafond porté à 100&nbsp;km/h</p>
         </div>
       </div>
+      <div class="pipeline pipeline-compact">
+        <div class="etape">Freins logiciels retirés<br><span class="petit">temps divisés par deux</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">Mur physique atteint<br><span class="petit">70,6 km/h, prouvé par l'oracle</span></div>
+        <div class="pipe-fleche" aria-hidden="true">→</div>
+        <div class="etape">Mur déplacé, par choix<br><span class="petit">100 km/h, en connaissance de cause</span></div>
+      </div>
       <p class="merci">Merci — place aux questions.</p>
       <aside class="notes">
-        Lorenzo : conclusion en 45 s. L'écart restant en conditions réglementaires
-        est le coût LÉGITIME des règles — s'arrêter à un STOP coûte de l'énergie
-        cinétique. Chaque pourcent résiduel est identifié et chiffré. Enchaîner
-        sur les questions — les annexes sont prêtes (flèche bas).
+        Lorenzo : conclusion en 45 s, en suivant la frise : d'abord les freins
+        LOGICIELS (le fantôme, les brides), ensuite le mur PHYSIQUE (70,6, oracle),
+        enfin le mur DÉPLACÉ (choix produit). L'écart restant en réglementaire est
+        le coût LÉGITIME des règles. Enchaîner sur les questions (annexes : flèche bas).
       </aside>
     </section>
 

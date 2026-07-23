@@ -61,9 +61,9 @@ def g1_temps(base, post):
     apres = [post[c]["total_time_s"] for c in CIRCUITS]
     b1 = ax.bar(x - 0.21, avant, 0.4, color=GRIS, label="Avant optimisation",
                 hatch=["" if base[c]["finished"] else "//" for c in CIRCUITS], edgecolor="#0b1220")
-    b2 = ax.bar(x + 0.21, apres, 0.4, color=BLEU, label="Après (OPT-1..4)", edgecolor="#0b1220")
+    b2 = ax.bar(x + 0.21, apres, 0.4, color=BLEU, label="Après optimisation", edgecolor="#0b1220")
     for i, c in enumerate(CIRCUITS):
-        lab = f"-{100 * (1 - apres[i] / avant[i]):.0f} %" if base[c]["finished"] else "DNF → 3/3"
+        lab = f"-{100 * (1 - apres[i] / avant[i]):.0f} %" if base[c]["finished"] else "abandon → 3/3 tours"
         # +28 : au-dessus du bar_label « NNN s » pour éviter la collision
         ax.text(i, max(avant[i], apres[i]) + 28, lab, ha="center", fontweight="bold", color=VERT, fontsize=13)
     ax.bar_label(b1, fmt="%.0f s", padding=2, fontsize=10)
@@ -81,7 +81,7 @@ def g2_urgence(base, post):
     avant = [base[c]["pct_emergency"] for c in CIRCUITS]
     apres = [post[c]["pct_emergency"] for c in CIRCUITS]
     b1 = ax.bar(x - 0.21, avant, 0.4, color=ROUGE, label="Avant", edgecolor="#0b1220")
-    b2 = ax.bar(x + 0.21, apres, 0.4, color=VERT, label="Après (seuil dynamique + planéité)", edgecolor="#0b1220")
+    b2 = ax.bar(x + 0.21, apres, 0.4, color=VERT, label="Après correction", edgecolor="#0b1220")
     ax.bar_label(b1, fmt="%.1f %%", padding=2, fontsize=10)
     ax.bar_label(b2, fmt="%.1f %%", padding=2, fontsize=10)
     ax.set_xticks(x, CIRCUITS)
