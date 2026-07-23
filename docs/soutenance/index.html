@@ -156,51 +156,84 @@
           <p class="cap">Le vrai couple caméra / masque du dashboard pilote</p>
         </div>
       </div>
-      <div class="equation-pills">
-        <span class="eq-pill">U-Net entraîné de zéro<br><b>score parfait : 1,0000</b></span>
-        <span class="eq-op" aria-hidden="true">=</span>
-        <span class="eq-pill">un simple<br><b>seuil de luminosité</b></span>
-        <span class="eq-op" aria-hidden="true">→</span>
-        <span class="eq-pill eq-verdict">on garde<br><b>le seuil</b></span>
-      </div>
-      <p class="honnete">Résultat identique, zéro coût de calcul. Le modèle entraîné reste dans le
-      dépôt, prêt à servir si le visuel du circuit se complexifie un jour.</p>
+      <p class="iou-line">U-Net entraîné from scratch (&lt; 1 M params) — <strong>IoU 1,0000</strong> sur 5 circuits jamais vus.</p>
+      <p class="honnete">Score parfait = signal d'alarme : il avait appris… un seuillage de luminance
+      (0 pixel d'écart). On l'a donc remplacé par le seuillage — équivalent strict, coût ~10 µs.
+      Le modèle reste prêt si le visuel se complexifie.</p>
       <aside class="notes">
-        Nohlan : assumer pleinement — c'est un point de maturité, pas un aveu de
-        faiblesse. Le domaine (piste blanche sur fond sombre) est objectivement
-        soluble par seuillage ; l'important est de l'avoir PROUVÉ par la métrique
-        avant de simplifier.
+        Nohlan : assumer pleinement — maturité, pas aveu de faiblesse. Marque la PAUSE
+        après « une IoU de 1,0 ». Le domaine (piste blanche sur fond sombre) est
+        objectivement soluble par seuillage ; l'important est de l'avoir PROUVÉ par la
+        métrique avant de simplifier.
       </aside>
     </section>
 
-    <!-- 6. Conduire -->
-    <section data-anim="conduire" data-sector="06" data-phase="Conduite">
-      <h2>Conduire par imitation</h2>
-      <div class="pipeline">
-        <div class="etape">Le professeur conduit<br><span class="petit">le pilote automatique (PID) fait des tours propres</span></div>
-        <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">On enregistre<br><span class="petit">18 000 exemples : masque + lidar → volant, gaz</span></div>
-        <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">Le réseau s'entraîne<br><span class="petit">deviner · mesurer l'erreur · ajuster</span></div>
-        <div class="pipe-fleche" aria-hidden="true">→</div>
-        <div class="etape">L'élève conduit seul<br><span class="petit">erreur moyenne : 1,80° sur le volant</span></div>
-      </div>
-      <div class="conduire-layout">
-        <div class="jauge">
-          <div class="grand-chiffre"><span id="compteur-circuits">0</span><span class="sur">/30</span></div>
-          <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
+    <!-- 6. Conduire — empilement vertical de 2 sous-slides (le CNN + l'imitation) -->
+    <section data-sector="06" data-phase="Conduite">
+
+      <!-- 6a. Le modèle : architecture -->
+      <section>
+        <h2>Conduire — le CNN <span style="font-family:var(--f-mono);font-size:.5em;color:var(--green-deep)">~300k paramètres</span></h2>
+
+        <div style="display:flex;flex-direction:column;gap:.6em;font-family:var(--f-mono);font-size:.62em;margin:.6em 0 .8em;text-align:left">
+          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Branche image — extraire la forme</div>
+          <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
+            <span style="border:1px solid var(--accent);color:var(--accent-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">masque 64×64</span>
+            <span style="color:var(--faint)">→</span>
+            <span style="border:1px solid var(--green);color:var(--green-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">3× (Conv + pool)</span>
+            <span style="color:var(--faint)">→</span>
+            <span style="border:1px solid var(--green);color:var(--green-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">Linear → 128</span>
+          </div>
+          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Branche lidar — 5 rayons [0,300]px → [0,1]</div>
+          <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
+            <span style="border:1px solid var(--accent);color:var(--accent-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">lidar (5)</span>
+            <span style="color:var(--faint)">→</span>
+            <span style="border:1px solid var(--green);color:var(--green-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">MLP → 16</span>
+          </div>
+          <div style="font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">Fusion & décision — « le régresseur »</div>
+          <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
+            <span style="border:1px solid #b9791c;color:#b9791c;border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">concat 144</span>
+            <span style="color:var(--faint)">→</span>
+            <span style="border:1px solid #b9791c;color:#b9791c;border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">Linear 64</span>
+            <span style="color:var(--faint)">→</span>
+            <span style="border:1px solid var(--red);color:var(--red-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">volant = tanh → [−45°,+45°]</span>
+            <span style="border:1px solid var(--red);color:var(--red-deep);border-radius:7px;padding:.35em .7em;background:var(--surface);font-weight:600">gaz = sigmoid → [0,1]</span>
+          </div>
         </div>
-        <ul>
-          <li>Il apprend sur <strong>le masque de route + le lidar — jamais l'image brute</strong> → il ne voit que la forme de la route, pas le décor</li>
-          <li>Filet de sécurité : retour au pilote automatique (PID) à tout moment</li>
-        </ul>
-      </div>
-      <aside class="notes">
-        Nohlan : le choix « masque en entrée, pas l'image » est LE choix qui paie la
-        généralisation : changez le style visuel du circuit, le CNN s'en moque.
-        Alternative écartée : RL end-to-end — trop long à entraîner, surapprend le
-        circuit d'entraînement, boîte noire en soutenance (détail en annexe si question).
-      </aside>
+
+        <p class="honnete">Les convolutions extraient la forme, les couches denses décident. Les sorties sont
+        <strong>bornées par construction</strong> (tanh, sigmoid) : aucune commande aberrante possible.</p>
+        <aside class="notes">
+          Nohlan : « le CNN traite le masque, un petit réseau traite le lidar, on concatène,
+          une tête dense sort les commandes bornées par tanh et sigmoid. » Flèche BAS pour
+          la slide suivante (l'entraînement).
+        </aside>
+      </section>
+
+      <!-- 6b. L'imitation -->
+      <section>
+        <h2>Conduire — apprendre par imitation</h2>
+        <div class="conduire-layout">
+          <div class="jauge">
+            <div class="grand-chiffre"><span>30</span><span class="sur">/30</span></div>
+            <p class="legende-chiffre">circuits validés, 0&nbsp;% hors-piste</p>
+          </div>
+          <ul>
+            <li>Behavioral cloning d'un PID qui fait des tours propres — loss MSE</li>
+            <li>Entrée : masque 64×64 + lidar — <strong>jamais l'image brute</strong> → le CNN ne voit que la forme</li>
+            <li>Sortie : volant (<strong>MAE 1,80°</strong>) et gaz (<strong>MAE 0,056</strong>) — régression</li>
+            <li>Filet de sécurité : retour PID à tout moment</li>
+          </ul>
+        </div>
+        <p class="honnete">Limite assumée : l'imitation ne dépasse pas l'expert et fige son comportement dans
+        les poids — l'élève est un instantané de son professeur. La suite : du renforcement.</p>
+        <aside class="notes">
+          Nohlan : le choix « masque, pas image » est LA décision qui paie la généralisation :
+          changez le style visuel, le CNN s'en moque. Alternative écartée : RL end-to-end —
+          trop long, surapprend, boîte noire (annexe si question).
+        </aside>
+      </section>
+
     </section>
 
     <!-- 7. Généraliser -->
@@ -216,19 +249,18 @@
         <img src="assets/circuits/gen_021.png" alt="circuit gen_021">
         <img src="assets/circuits/gen_026.png" alt="circuit gen_026">
       </div>
-      <div class="split-barre" aria-hidden="true">
-        <div class="split-seg split-train" style="flex: 25"><b>25 circuits</b> pour apprendre</div>
-        <div class="split-seg split-eval" style="flex: 5"><b>5 jamais vus</b></div>
+      <div class="circuits-stats" aria-hidden="true">
+        <span class="stat-pin"><b>30</b> générés</span>
+        <span class="stat-pin"><b>5</b> jamais-vus en éval</span>
       </div>
-      <p class="split-legende">Tous les chiffres de cette présentation sont mesurés sur les 5 circuits jamais vus</p>
       <ul class="compact">
-        <li><strong>30 circuits générés</strong> automatiquement — épingles, chicanes, lignes droites, reproductibles à l'identique</li>
-        <li>Circuits d'entraînement et d'évaluation <strong>strictement séparés</strong> : aucune mesure sur du déjà-vu</li>
+        <li><strong>30 circuits générés</strong> procéduralement — épingles, chicanes, lignes droites, seed reproductible (25 train, 5 validation)</li>
+        <li>Split train/validation <strong>par circuit</strong> : aucune évaluation sur du déjà-vu. Le CNN ne voit que du local → ce qui compte, ce sont des géométries locales variées</li>
       </ul>
       <aside class="notes">
-        Nohlan : le générateur v2 produit des vraies features de circuit (pas des
-        patates rondes). Les 5 circuits de validation ne sont JAMAIS vus à
-        l'entraînement — tous les chiffres de la présentation sont mesurés dessus.
+        Nohlan : générateur v2 = vraies features (pas des patates rondes). Les 5 circuits de
+        validation ne sont JAMAIS vus à l'entraînement. Relais : « il n'y a pas que de la
+        route, il y a des règles. Lorenzo, à toi. »
       </aside>
     </section>
 
