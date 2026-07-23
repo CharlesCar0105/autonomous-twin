@@ -110,8 +110,8 @@ const ANIMS = {
       pred.classList.toggle('pred-ko', ok === false);
       pred.classList.toggle('pred-ok', ok === true);
     };
-    setPred('—', null);
-    return createTimeline({ loop: true, loopDelay: 2200, onLoop: () => setPred('—', null) })
+    setPred('…', null);
+    return createTimeline({ loop: true, loopDelay: 2200, onLoop: () => setPred('…', null) })
       // Le panneau glisse vers le bord gauche du champ : le « 3 » sort,
       // il ne reste qu'un « 0 » visible — d'où la lecture « 90 » à conf 1.00.
       .add(sign, { left: ['110px', '-58px'], duration: 1500, ease: 'inOutQuad' })
